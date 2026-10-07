@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>ソエギ デモ</title>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/">ソ<span>エ</span>ギ</a><span class="sub">デモ</span>
+</div></header>
+<main class="wrap">
+  <h1>ソエギ デモ</h1>
+  <p class="lead">事務の「手入力」と「月末の手計算」を、AIとプログラムで置き換える実演です。</p>
+  <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
+
+  <section class="card" id="gate">
+    <h2>合言葉を入力してください</h2>
+    <form id="gate-form" class="row" autocomplete="off">
+      <label>合言葉<input type="password" id="pass" required autocomplete="off"></label>
+      <button class="primary" type="submit">入る</button>
+    </form>
+    <p class="err" id="gate-err" role="alert"></p>
+  </section>
+
+  <section id="menu" hidden>
+    <h2>体験するデモを選んでください</h2>
+    <div class="menu">
+      <a href="/receipt.html"><span class="tag">経理</span><strong>レシート → Excel</strong>撮ったレシートを読み取り、いまお使いの形のExcelにします。</a>
+      <a href="/attendance.html"><span class="tag">労務</span><strong>打刻データ → 残業の集計</strong>打刻のCSVから、残業の多い人と上限に近い人が月の途中で分かります。</a>
+      <div class="soon"><span class="tag">社内検索</span><strong>社内資料の検索AI</strong>準備中です。</div>
+    </div>
+    <button class="link" id="logout" type="button">合言葉を入れ直す</button>
+  </section>
+</main>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 実在する会社のデータは使っていません</div></footer>
+<script type="module" src="/js/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>レシート → Excel｜ソエギ デモ</title>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/">ソ<span>エ</span>ギ</a><span class="sub">デモ ／ 経理：レシート → Excel</span>
+  <nav><a href="/">デモの選択へ</a></nav>
+</div></header>
+<main class="wrap">
+  <h1>レシート → Excel</h1>
+  <p class="lead">月末月初の手入力と入力ミスを減らします。AIは「読むだけ」、チェックは仕組み、最後は人が確認します。</p>
+  <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
+
+  <section class="card" id="step1">
+    <h2><span class="step">1</span>撮る・選ぶ（1〜20枚、手書き可）</h2>
+    <div class="row">
+      <label class="btn primary" for="cam">📷 撮る</label>
+      <input type="file" id="cam" accept="image/*" capture="environment" hidden>
+      <label class="btn" for="pick">🖼 選ぶ（複数可）</label>
+      <input type="file" id="pick" accept="image/*" multiple hidden>
+      <button type="button" id="clear" class="link">全部消す</button>
+    </div>
+    <p class="small-note">架空のレシート、または本人の私物のレシートだけをお使いください。画像は長辺2000pxに縮小して読み取りに使い、保存しません。</p>
+    <div class="thumbs" id="thumbs"></div>
+    <div class="row mt12">
+      <button type="button" class="primary" id="go" disabled>読み取る</button>
+      <span id="count" class="small-note"></span>
+    </div>
+  </section>
+
+  <section class="card" id="step2" hidden>
+    <h2><span class="step">2</span>読み取り中</h2>
+    <div class="progress"><div id="bar"></div></div>
+    <p id="progress-text" class="small-note"></p>
+  </section>
+
+  <section class="card" id="step3" hidden>
+    <h2><span class="step">3</span>確認・修正（その場で直せます）</h2>
+    <div class="legend" aria-label="色の意味">
+      <span><i class="r"></i>赤：数字や番号が合わない・空</span>
+      <span><i class="y"></i>黄：自信がない・日付が不自然・重複の疑い</span>
+    </div>
+    <div class="tablewrap">
+      <table class="stack" id="tbl">
+        <thead><tr>
+          <th>#</th><th>画像</th><th>日付</th><th>支払先</th><th class="num">合計</th><th class="num">10%対象</th><th class="num">8%対象</th>
+          <th class="num">消費税額</th><th>登録番号</th><th>支払方法</th><th>品目</th><th>勘定科目（候補）</th><th>要確認</th><th></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="row mt10">
+      <button type="button" id="add">＋ 手入力の行を追加</button>
+      <button type="button" id="retry" hidden>失敗した分をもう一度読み取る</button>
+      <span id="summary" class="small-note"></span>
+    </div>
+    <p class="small-note">勘定科目はAIの「候補」です。決めるのは人です。</p>
+  </section>
+
+  <section class="card" id="step4" hidden>
+    <h2><span class="step">4</span>Excelを出す</h2>
+    <div class="row gap-lg">
+      <label class="inline"><input type="radio" name="style" value="standard" checked>標準（明細／科目別の集計／要確認）</label>
+      <label class="inline"><input type="radio" name="style" value="journal">仕訳の形（日付・借方・貸方・金額・摘要）</label>
+    </div>
+    <div class="row mt10">
+      <label id="credit-label" hidden>貸方科目の既定
+        <select id="credit"><option>現金</option><option>普通預金</option><option>未払金</option><option>事業主借</option></select>
+      </label>
+      <button type="button" class="primary" id="export">Excelをダウンロード</button>
+    </div>
+    <p class="notice plain mt12">電子帳簿保存法のスキャナ保存の要件を満たす仕組みではありません。原本の保存は今までどおりお願いします。</p>
+    <p class="pricing" id="pricing"></p>
+  </section>
+
+  <dialog id="zoom"><img alt="レシートの拡大"></dialog>
+</main>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 実在する会社のデータは使っていません</div></footer>
+<script src="/vendor/exceljs.min.js"></script>
+<script type="module" src="/js/receipt.js"></script>
+</body>
+</html>

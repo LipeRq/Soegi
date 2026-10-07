@@ -1,0 +1,34 @@
+name = "soegi-demo"
+main = "src/worker.js"
+compatibility_date = "2026-10-01"
+
+# 静的ファイル（public/）＋ API（/api/*）
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[vars]
+# deepseek（デモ）／ claude（本番：お客さんのデータを扱う導入では必ず claude）
+AI_PROVIDER = "deepseek"
+DEEPSEEK_TEXT_MODEL = "deepseek-v4-flash"
+DEEPSEEK_VISION_MODEL = "deepseek-v4-flash-vision-exp"
+CLAUDE_MODEL = "claude-sonnet-5-5"
+
+# 同じIPから1分に30リクエストまで
+[[ratelimits]]
+name = "LIMITER"
+namespace_id = "1001"
+  [ratelimits.simple]
+  limit = 30
+  period = 60
+
+[[routes]]
+pattern = "demo.withsoegi.jp"
+custom_domain = true
+
+# 画像・入力・結果は保存しない。ログにも本文を出さないため、observability は有効にしない。
+# secret は次のコマンドで設定する：
+#   wrangler secret put DEMO_PASSCODE
+#   wrangler secret put DEEPSEEK_API_KEY
+#   wrangler secret put ANTHROPIC_API_KEY   （claude に切り替えるときだけ）

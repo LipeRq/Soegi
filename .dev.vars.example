@@ -1,0 +1,6 @@
+# ローカル確認用。コピーして .dev.vars にする（.dev.vars は git に入れない）
+DEMO_PASSCODE=ためし
+# deepseek | claude | mock（mock はAIを呼ばず固定の架空データを返す。画面の確認用）
+AI_PROVIDER=mock
+DEEPSEEK_API_KEY=
+ANTHROPIC_API_KEY=
