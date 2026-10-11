@@ -1,0 +1,5 @@
+[
+  { "id": "zh-family", "lang": "繁体字中国語（台湾）", "label": "家族4人・卵アレルギー・夜の樹氷", "text": "您好，我們一家四口（兩個大人、兩個小孩）想在2月入住。小孩對雞蛋過敏，晚餐可以處理嗎？另外，晚上也能看到樹冰嗎？謝謝！" },
+  { "id": "en-access", "lang": "英語", "label": "山形駅からの行き方・送迎", "text": "Hello, we will arrive at Yamagata Station around 3 pm. How can we get to your inn? Do you have a pick-up service?" },
+  { "id": "ko-bath", "lang": "韓国語", "label": "貸切風呂の予約と時間", "text": "안녕하세요. 전세 온천(가족탕)은 예약이 필요한가요? 몇 시까지 이용할 수 있나요?" }
+]

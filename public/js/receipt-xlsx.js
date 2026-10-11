@@ -1,4 +1,4 @@
-// レシート → Excel。様式は2つ：標準（明細／科目別の集計／要確認）、仕訳の形。
+// レシート → Excel。様式は3つ：標準（明細／科目別の集計／要確認）、仕訳の形、〇〇会計事務所様式（例）。
 import { worstLevel, levelOf, isValidDate } from './receipt-check.js';
 import { COLORS, fill, styleHeader, toExcelDate, DISCLAIMER } from './xlsx-common.js';
 
@@ -22,12 +22,13 @@ function setDate(cell, iso) {
  * @param ExcelJS ExcelJS本体
  * @param rows 確認済みの行（receipt.js の行モデル）
  * @param checks checkReceipts の結果（rows と同じ並び）
- * @param opts {style:'standard'|'journal', creditAccount:string}
+ * @param opts {style:'standard'|'journal'|'office', creditAccount:string}
  */
 export function buildReceiptWorkbook(ExcelJS, rows, checks, opts = {}) {
   const wb = new ExcelJS.Workbook();
   wb.creator = 'ソエギ デモ';
   if (opts.style === 'journal') addJournal(wb, rows, checks, opts.creditAccount || '現金');
+  else if (opts.style === 'office') addOffice(wb, rows, checks, opts.creditAccount || '現金');
   else addStandard(wb, rows, checks);
   addReview(wb, rows, checks);
   return wb;
@@ -110,6 +111,51 @@ function addJournal(wb, rows, checks, credit) {
   ws.autoFilter = { from: 'A1', to: `E${Math.max(rows.length + 1, 2)}` };
   ws.addRow([]);
   ws.addRow(['※ 色付きのセルは要確認です（詳細は「要確認」シート）。借方科目はAIの候補を人が確認したものです。']);
+  ws.addRow([DISCLAIMER]);
+}
+
+/**
+ * 税区分ごとの行に分ける（10%と8%が混ざったレシートは2行）。内訳が無ければ合計を10%として1行。
+ * 内訳が合計と合わないレシートは、分けずに合計で1行（要確認の色が付く）。
+ */
+export function splitByTax(r) {
+  const has10 = Number.isFinite(r.amount10); const has8 = Number.isFinite(r.amount8);
+  const total = Number.isFinite(r.total) ? r.total : null;
+  const sumOk = total != null && (r.amount10 || 0) + (r.amount8 || 0) === total;
+  if ((has10 || has8) && sumOk) {
+    const out = [];
+    if (r.amount10) out.push({ tax: '課税仕入 10%', amount: r.amount10 });
+    if (r.amount8) out.push({ tax: '課税仕入 8%（軽減）', amount: r.amount8 });
+    if (out.length) return out;
+  }
+  return [{ tax: has8 && !has10 ? '課税仕入 8%（軽減）' : '課税仕入 10%', amount: total ?? '' }];
+}
+
+// 架空の会計事務所の取り込み様式（例）。実際の導入では、事務所の様式に列を合わせる
+function addOffice(wb, rows, checks, credit) {
+  const ws = wb.addWorksheet('取込用', { views: [{ state: 'frozen', ySplit: 1 }] });
+  ws.columns = [
+    { header: '伝票日付', width: 12 }, { header: '借方勘定科目', width: 16 }, { header: '借方税区分', width: 18 },
+    { header: '借方金額', width: 12 }, { header: '貸方勘定科目', width: 14 }, { header: '貸方金額', width: 12 },
+    { header: '摘要', width: 36 }, { header: '登録番号', width: 18 }, { header: '証憑No.', width: 10 },
+  ];
+  styleHeader(ws.getRow(1));
+  rows.forEach((r, i) => {
+    const c = checks[i];
+    for (const part of splitByTax(r)) {
+      const row = ws.addRow([null, accountOf(r), part.tax, part.amount, credit, part.amount, memoOf(r), r.invoiceNo || '', `R-${String(i + 1).padStart(3, '0')}`]);
+      setDate(row.getCell(1), r.date);
+      row.getCell(4).numFmt = '#,##0'; row.getCell(6).numFmt = '#,##0';
+      paint(row.getCell(1), c.flags, 'date');
+      paint(row.getCell(2), c.flags, 'account');
+      paint(row.getCell(4), c.flags, 'total');
+      paint(row.getCell(8), c.flags, 'invoiceNo');
+    }
+  });
+  ws.autoFilter = { from: 'A1', to: `I${Math.max(ws.rowCount, 2)}` };
+  ws.addRow([]);
+  ws.addRow(['※ 〇〇会計事務所様式は架空の例です。お試し導入では、御社・事務所でお使いの様式の列に合わせます。']);
+  ws.addRow(['※ 10%と8%が混ざったレシートは、税区分ごとに行を分けています。証憑No.はレシートの通し番号です。']);
   ws.addRow([DISCLAIMER]);
 }
 

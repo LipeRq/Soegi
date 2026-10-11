@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Shippori+Mincho+B1:wght@700&display=swap">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>社内ナレッジ検索｜ソエギ デモ</title>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">社内ナレッジ検索 ＋ 外国人スタッフ向け</span>
+  <nav><a href="/">デモの選択へ</a></nav>
+</div></header>
+<main class="wrap">
+  <h1>社内ナレッジ検索 ＋ 外国人スタッフ向け</h1>
+  <p class="lead">今ある日本語の手順書・規則・見積書を、そのまま「聞けば答える」形にします。答えには必ず根拠の箇所を付け、質問した言語で答えます。</p>
+  <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
+  <p class="small-note" id="company"></p>
+
+  <div class="tabs" role="tablist" aria-label="画面の切り替え">
+    <button type="button" role="tab" id="tab-ask" aria-selected="true">質問する</button>
+    <button type="button" role="tab" id="tab-admin" aria-selected="false">管理画面（よく聞かれた質問）</button>
+  </div>
+
+  <div id="pane-ask">
+    <div class="kb-tabs" role="tablist" aria-label="表示の切り替え">
+      <button type="button" data-show="docs" aria-selected="false">資料</button>
+      <button type="button" data-show="chat" aria-selected="true">質問</button>
+      <button type="button" data-show="evidence" aria-selected="false">根拠</button>
+    </div>
+    <div class="kb">
+      <section class="card docs" data-pane="docs">
+        <h2>読み込ませた資料（日本語のみ）</h2>
+        <ul class="doclist" id="doclist"></ul>
+      </section>
+
+      <section class="card show" data-pane="chat" id="foreign">
+        <h2>質問する</h2>
+        <div class="roles" id="roles"></div>
+        <div class="chatlog" id="chatlog" aria-live="polite"></div>
+        <form class="chatform" id="ask-form" autocomplete="off">
+          <input type="text" id="q" maxlength="500" placeholder="何語でも質問できます（例：Bagaimana cara mengambil cuti?）" aria-label="質問">
+          <button type="submit" class="primary" id="ask-btn">聞く</button>
+        </form>
+        <p class="small-note">安全・衛生・体調に関わる質問には、答えと一緒に「必ずリーダーに確認」を出します。資料に無いことは「見当たりません」と答えます。労務・在留資格の判断はしません。</p>
+      </section>
+
+      <section class="card evidence" data-pane="evidence">
+        <h2>根拠の箇所</h2>
+        <div id="evidence"><p class="small-note">答えの「根拠」を押すと、資料のその箇所がここに出ます。</p></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="pane-admin" hidden>
+    <section class="card">
+      <h2>よく聞かれた質問（月次レポートの見本）</h2>
+      <p class="small-note">下の「先月」は架空の例です。実際の導入では、質問の内容ではなく種類と件数を集計し、毎月のレポートにします（何を残すかは最初に一緒に決めます）。</p>
+      <div class="tablewrap"><table class="report" id="report"></table></div>
+      <h3>手順書の改善の候補</h3>
+      <ul id="suggest"></ul>
+    </section>
+    <section class="card">
+      <h2>このデモで聞かれた質問</h2>
+      <p class="small-note">この画面の中だけで数えています（サーバーには残しません。画面を閉じると消えます）。</p>
+      <div class="tablewrap"><table class="report" id="session-report"></table></div>
+    </section>
+  </div>
+
+  <p class="pricing" id="pricing"></p>
+</main>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<script type="module" src="/js/knowledge.js"></script>
+</body>
+</html>

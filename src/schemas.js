@@ -1,6 +1,8 @@
 // AIに返させるJSONの形（ツール呼び出しのJSON Schema）と、Worker側の検証。
 // 検証に通らなければ呼び出し側（worker.js）が1回だけ再試行する。
 
+import { CATEGORIES } from './core/knowledge.js';
+
 export const ACCOUNTS = [
   '消耗品費', '事務用品費', '旅費交通費', '車両費（燃料）', '通信費',
   '会議費', '接待交際費', '福利厚生費', '新聞図書費', '雑費',
@@ -152,4 +154,171 @@ export function validateTimecard(raw) {
     };
   });
   return { employee_name: toStr(raw.employee_name).slice(0, 40), entries };
+}
+
+// ---- デモA：社内ナレッジ検索 --------------------------------------------------------
+
+
+export const KNOWLEDGE_TOOL = {
+  name: 'submit_answer',
+  description: '社内資料にもとづく答えを提出する',
+  schema: {
+    type: 'object',
+    properties: {
+      language: { type: 'string', description: '質問の言語（ISO 639-1。例：ja, vi, id, en）' },
+      question_ja: { type: 'string', description: '質問の日本語訳（日本語の質問ならそのまま）' },
+      found: { type: 'boolean', description: '資料の中に答えがあれば true' },
+      answer: { type: 'string', description: '質問と同じ言語の答え。資料に書いてあることだけ。手順は番号付き' },
+      answer_ja: { type: 'string', description: '答えの日本語（ふつうの日本語）' },
+      easy_japanese: { type: 'string', description: 'やさしい日本語の答え（短い文、むずかしい言葉は言いかえる。日本語の質問なら空文字）' },
+      citations: {
+        type: 'array',
+        description: '根拠にした箇所。quote は資料の文をそのまま写す',
+        items: {
+          type: 'object',
+          properties: {
+            doc_id: { type: 'string' }, section_id: { type: 'string' },
+            quote: { type: 'string', description: '資料からそのまま写した1〜2文' },
+          },
+          required: ['doc_id', 'section_id', 'quote'],
+        },
+      },
+      safety_related: { type: 'boolean', description: '安全・衛生・けが・体調に関わる質問なら true' },
+      category: { type: 'string', enum: CATEGORIES },
+    },
+    required: ['language', 'question_ja', 'found', 'answer', 'answer_ja', 'easy_japanese', 'citations', 'safety_related', 'category'],
+  },
+};
+
+const str = (v, max = 4000) => (typeof v === 'string' ? v.trim().slice(0, max) : v == null ? '' : fail('string'));
+const bool = (v, key) => (typeof v === 'boolean' ? v : v === 'true' ? true : v === 'false' ? false : fail(key));
+const arr = (v, key, max = 20) => (Array.isArray(v) ? v.slice(0, max) : v == null ? [] : fail(key));
+
+export function validateKnowledge(raw) {
+  if (!isObj(raw)) fail('object');
+  return {
+    language: str(raw.language, 20) || 'ja',
+    question_ja: str(raw.question_ja, 600),
+    found: bool(raw.found, 'found'),
+    answer: str(raw.answer),
+    answer_ja: str(raw.answer_ja),
+    easy_japanese: str(raw.easy_japanese),
+    citations: arr(raw.citations, 'citations', 6).map((c) => {
+      if (!isObj(c)) fail('citation');
+      return { doc_id: str(c.doc_id, 60), section_id: str(c.section_id, 60), quote: str(c.quote, 400) };
+    }),
+    safety_related: bool(raw.safety_related ?? false, 'safety_related'),
+    category: str(raw.category, 20),
+  };
+}
+
+// ---- デモB：宿の多言語対応 ----------------------------------------------------------
+
+export const INN_REPLY_TOOL = {
+  name: 'submit_inn_reply',
+  description: '宿への問い合わせに対する、返信の下書きを提出する',
+  schema: {
+    type: 'object',
+    properties: {
+      language: { type: 'string', description: '問い合わせの言語（例：zh-TW, en, ko, ja）' },
+      inquiry_ja: { type: 'string', description: '問い合わせの日本語訳（スタッフ用）' },
+      reply: { type: 'string', description: '問い合わせと同じ言語の、丁寧な返信の下書き' },
+      reply_ja: { type: 'string', description: '返信の下書きの日本語訳（スタッフが中身を確かめるため）' },
+      needs_check: {
+        type: 'array',
+        description: '送る前にスタッフが確かめる点（宿の情報に無いこと、決められないこと）',
+        items: { type: 'object', properties: { point: { type: 'string' }, reason: { type: 'string' } }, required: ['point', 'reason'] },
+      },
+      used_info_ids: { type: 'array', items: { type: 'string' }, description: '返信に使った宿の情報の id' },
+    },
+    required: ['language', 'inquiry_ja', 'reply', 'reply_ja', 'needs_check', 'used_info_ids'],
+  },
+};
+
+export function validateInnReply(raw) {
+  if (!isObj(raw)) fail('object');
+  const reply = str(raw.reply); const replyJa = str(raw.reply_ja);
+  if (!reply || !replyJa) fail('reply');
+  return {
+    language: str(raw.language, 20),
+    inquiry_ja: str(raw.inquiry_ja, 1500),
+    reply, reply_ja: replyJa,
+    needs_check: arr(raw.needs_check, 'needs_check', 10).map((n) => {
+      if (!isObj(n)) fail('needs_check');
+      return { point: str(n.point, 120), reason: str(n.reason, 200) };
+    }).filter((n) => n.point),
+    used_info_ids: arr(raw.used_info_ids, 'used_info_ids', 30).map((x) => str(x, 40)),
+  };
+}
+
+const FAQ_LANGS = ['ja', 'zh', 'en', 'ko'];
+
+export const INN_FAQ_TOOL = {
+  name: 'submit_inn_faq',
+  description: '宿のサイトに載せる、よくある質問を提出する',
+  schema: {
+    type: 'object',
+    properties: {
+      items: {
+        type: 'array',
+        description: 'よくある質問（8問前後）',
+        items: {
+          type: 'object',
+          properties: {
+            info_ids: { type: 'array', items: { type: 'string' }, description: '答えに使った宿の情報の id' },
+            ...Object.fromEntries(FAQ_LANGS.flatMap((l) => [[`q_${l}`, { type: 'string' }], [`a_${l}`, { type: 'string' }]])),
+          },
+          required: ['info_ids', ...FAQ_LANGS.flatMap((l) => [`q_${l}`, `a_${l}`])],
+        },
+      },
+    },
+    required: ['items'],
+  },
+};
+
+export function validateInnFaq(raw) {
+  if (!isObj(raw)) fail('object');
+  const items = arr(raw.items, 'items', 12).map((it) => {
+    if (!isObj(it)) fail('item');
+    const out = { info_ids: arr(it.info_ids, 'info_ids', 10).map((x) => str(x, 40)) };
+    for (const l of FAQ_LANGS) {
+      out[`q_${l}`] = str(it[`q_${l}`], 300);
+      out[`a_${l}`] = str(it[`a_${l}`], 1200);
+      if (!out[`q_${l}`] || !out[`a_${l}`]) fail(`faq ${l}`);
+    }
+    return out;
+  });
+  if (!items.length) fail('items');
+  return { items };
+}
+
+// ---- デモC：サイトのチャットボット ---------------------------------------------------
+
+export const SITE_TOOL = {
+  name: 'submit_site_answer',
+  description: 'サイトの訪問者への答えを提出する',
+  schema: {
+    type: 'object',
+    properties: {
+      language: { type: 'string', description: '質問の言語（ISO 639-1）' },
+      found: { type: 'boolean', description: 'サイトの内容で答えられれば true' },
+      answer: { type: 'string', description: '質問と同じ言語の答え。3〜5文。サイトに書いてあることだけ' },
+      link_ids: { type: 'array', items: { type: 'string' }, description: '答えに関係するページの id（一覧にあるものだけ）' },
+      suggest_consult: { type: 'boolean', description: '相談・問い合わせへの案内が役立つなら true' },
+      category: { type: 'string', description: '質問の種類（料金／進め方／対応範囲／会社のこと／その他 など、短く日本語で）' },
+    },
+    required: ['language', 'found', 'answer', 'link_ids', 'suggest_consult', 'category'],
+  },
+};
+
+export function validateSiteAnswer(raw) {
+  if (!isObj(raw)) fail('object');
+  return {
+    language: str(raw.language, 20),
+    found: bool(raw.found, 'found'),
+    answer: str(raw.answer, 1500),
+    link_ids: arr(raw.link_ids, 'link_ids', 5).map((x) => str(x, 40)),
+    suggest_consult: bool(raw.suggest_consult ?? false, 'suggest_consult'),
+    category: str(raw.category, 30),
+  };
 }

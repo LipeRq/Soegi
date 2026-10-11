@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import ExcelJS from 'exceljs';
-import { buildReceiptWorkbook } from '../public/js/receipt-xlsx.js';
+import { buildReceiptWorkbook, splitByTax } from '../public/js/receipt-xlsx.js';
 import { buildAttendanceWorkbook } from '../public/js/attendance-xlsx.js';
 import { checkReceipts } from '../public/js/receipt-check.js';
 import { calculate, DEFAULT_SETTINGS } from '../public/js/overtime.js';
@@ -63,4 +63,18 @@ test('残業の集計：一覧・人ごとの日別・設定', async () => {
   const day = wb.getWorksheet('青木 一郎');
   assert.ok(Math.abs(days(day.getCell('G2').value) - 120 / 1440) < 1e-9);
   assert.ok(Math.abs(days(day.getCell('G3').value.result) - 120 / 1440) < 1e-9);
+});
+
+test('レシート事務所様式（例）：10%と8%が混ざったレシートは2行に分ける', async () => {
+  const mixed = [{ ...rows[0], total: 1100, amount10: 400, amount8: 700 }, rows[1]];
+  assert.deepEqual(splitByTax(mixed[0]).map((p) => p.amount), [400, 700]);
+  assert.deepEqual(splitByTax(rows[1]).map((p) => p.amount), [1760]); // 内訳が合わない→分けない
+  const wb = await roundTrip(buildReceiptWorkbook(ExcelJS, mixed, checkReceipts(mixed, today), { style: 'office' }));
+  const ws = wb.getWorksheet('取込用');
+  assert.equal(ws.getCell('C2').value, '課税仕入 10%');
+  assert.equal(ws.getCell('C3').value, '課税仕入 8%（軽減）');
+  assert.equal(ws.getCell('D3').value, 700);
+  assert.equal(ws.getCell('I3').value, 'R-001');
+  assert.equal(ws.getCell('I4').value, 'R-002');
+  assert.ok(wb.getWorksheet('要確認'));
 });

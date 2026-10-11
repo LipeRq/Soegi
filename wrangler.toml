@@ -14,6 +14,10 @@ AI_PROVIDER = "deepseek"
 DEEPSEEK_TEXT_MODEL = "deepseek-v4-flash"
 DEEPSEEK_VISION_MODEL = "deepseek-v4-flash-vision-exp"
 CLAUDE_MODEL = "claude-sonnet-5-5"
+# サイトのチャットボットを呼んでよいサイト（カンマ区切り）
+CHAT_ALLOWED_ORIGINS = "https://withsoegi.jp,https://www.withsoegi.jp"
+# Turnstile のサイトキー（公開してよい値）。空のあいだ、宿のデモの自由入力は使えない（例文は使える）
+TURNSTILE_SITEKEY = ""
 
 # 同じIPから1分に30リクエストまで
 [[ratelimits]]
@@ -22,6 +26,13 @@ namespace_id = "1001"
   [ratelimits.simple]
   limit = 30
   period = 60
+
+# 宿の自由入力（1日5回）とチャットボット（1日30回）の回数を数える KV。
+# 作り方：npx wrangler kv namespace create DEMO_KV → 表示された id を下に入れて、コメントを外す。
+# 無くても動くが、そのときは回数を Worker のメモリで数えるだけになる（目安）。
+# [[kv_namespaces]]
+# binding = "DEMO_KV"
+# id = "ここに id"
 
 [[routes]]
 pattern = "demo.withsoegi.jp"
@@ -32,3 +43,5 @@ custom_domain = true
 #   wrangler secret put DEMO_PASSCODE
 #   wrangler secret put DEEPSEEK_API_KEY
 #   wrangler secret put ANTHROPIC_API_KEY   （claude に切り替えるときだけ）
+#   wrangler secret put TURNSTILE_SECRET    （宿のデモの自由入力を使うときだけ）
+#   wrangler secret put HASH_SALT           （任意。回数を数えるときのIPのハッシュに混ぜる値）

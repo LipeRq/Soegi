@@ -6,18 +6,19 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Shippori+Mincho+B1:wght@700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>ソエギ デモ</title>
 </head>
 <body>
 <header class="site"><div class="wrap">
-  <a class="brand" href="/">ソ<span>エ</span>ギ</a><span class="sub">デモ</span>
+  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">AIで「探す・答える・訳す」を体験する</span>
+  <nav><a href="https://withsoegi.jp/">ソエギのサイトへ</a></nav>
 </div></header>
 <main class="wrap">
-  <h1>ソエギ デモ</h1>
-  <p class="lead">事務の「手入力」と「月末の手計算」を、AIとプログラムで置き換える実演です。</p>
+  <h1>山形の会社には、3つの壁があります</h1>
+  <p class="lead">いまある書類とルールを整えて、AIが「探す・答える・訳す」をできるようにします。最後は手順書を残して、ソエギがいなくても回る状態にします。</p>
   <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
 
   <section class="card" id="gate">
@@ -27,19 +28,37 @@
       <button class="primary" type="submit">入る</button>
     </form>
     <p class="err" id="gate-err" role="alert"></p>
+    <p class="small-note">宿の多言語対応とサイトのチャットボットは、合言葉なしで見られます：<a href="/inn.html">宿の多言語対応</a>／<a href="/chatbot.html">サイトのチャットボット</a></p>
   </section>
 
   <section id="menu" hidden>
-    <h2>体験するデモを選んでください</h2>
-    <div class="menu">
-      <a href="/receipt.html"><span class="tag">経理</span><strong>レシート → Excel</strong>撮ったレシートを読み取り、いまお使いの形のExcelにします。</a>
-      <a href="/attendance.html"><span class="tag">労務</span><strong>打刻データ → 残業の集計</strong>打刻のCSVから、残業の多い人と上限に近い人が月の途中で分かります。</a>
-      <div class="soon"><span class="tag">社内検索</span><strong>社内資料の検索AI</strong>準備中です。</div>
+    <div class="walls">
+      <div class="wall">
+        <span class="tag">① 手入力の壁</span>
+        <h2>月末月初の入力と集計</h2>
+        <p>小さく始めて、数字で確かめる。まずはここから信用していただきます。</p>
+        <a class="demo" href="/receipt.html"><b>経理：レシート → Excel</b><small>撮ったレシートを読み取り、いまお使いの様式のExcelに</small></a>
+        <a class="demo" href="/attendance.html"><b>労務：打刻データ → 残業の集計</b><small>上限に近い人が、月の途中で分かる</small></a>
+      </div>
+      <div class="wall">
+        <span class="tag">② 知識の壁</span>
+        <h2>「あれどこ？」が社長に集中する</h2>
+        <p>手順・単価・判断が、ベテランや社長の頭の中にしかない。人が辞めると消えます。</p>
+        <a class="demo" href="/knowledge.html"><b>社内ナレッジ検索</b><small>架空の食品加工会社の手順書・見積書から、根拠付きで答える</small></a>
+      </div>
+      <div class="wall">
+        <span class="tag">③ 言葉の壁</span>
+        <h2>外国人のお客さんとスタッフ</h2>
+        <p>山形は、外国人旅行者も外国人労働者も過去最多。対応できる人も仕組みも足りていません。</p>
+        <a class="demo" href="/knowledge.html#foreign"><b>外国人スタッフ向け（社内ナレッジ検索）</b><small>母国語の答え＋やさしい日本語＋手順書の箇所</small></a>
+        <a class="demo" href="/inn.html"><b>宿の多言語対応</b><small>台湾・英語・韓国語の問い合わせに、返信の下書き</small></a>
+        <a class="demo" href="/chatbot.html"><b>サイトのチャットボット</b><small>サイトの内容どおりに、何語でも答える</small></a>
+      </div>
     </div>
     <button class="link" id="logout" type="button">合言葉を入れ直す</button>
   </section>
 </main>
-<footer class="site"><div class="wrap">ソエギ デモ ／ 実在する会社のデータは使っていません</div></footer>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
 <script type="module" src="/js/index.js"></script>
 </body>
 </html>

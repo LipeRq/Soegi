@@ -6,23 +6,29 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Shippori+Mincho+B1:wght@700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>打刻データ → 残業の集計｜ソエギ デモ</title>
 </head>
 <body>
 <header class="site"><div class="wrap">
-  <a class="brand" href="/">ソ<span>エ</span>ギ</a><span class="sub">デモ ／ 労務：打刻データ → 残業の集計</span>
+  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">労務：打刻データ → 残業の集計</span>
   <nav><a href="/">デモの選択へ</a></nav>
 </div></header>
 <main class="wrap">
   <h1>打刻データ → 残業の集計</h1>
-  <p class="lead">複雑な残業の集計が一瞬で終わり、上限に近い人が月の途中で分かります。計算はすべてプログラムで行い、AIは使いません（写真の読み取りを除く）。</p>
+  <p class="lead">複雑な残業の集計がすぐに終わり、上限に近い人が月の途中で分かります。計算はすべてプログラムで行い、AIは使いません（写真の読み取りだけ使います）。</p>
   <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
 
+  <nav class="steps" aria-label="進み具合"><ol>
+    <li aria-current="step"><span class="n">1</span>撮る・読み込む</li>
+    <li><span class="n">2</span>確かめる</li>
+    <li><span class="n">3</span>Excelにする</li>
+  </ol></nav>
+
   <section class="card">
-    <h2><span class="step">1</span>打刻データを入れる</h2>
+    <h2>1　打刻データを読み込む</h2>
     <div class="tabs" role="tablist">
       <button type="button" role="tab" id="tab-csv" aria-selected="true">打刻データのCSV</button>
       <button type="button" role="tab" id="tab-photo" aria-selected="false">タイムカード・出勤簿の写真</button>
@@ -46,7 +52,7 @@
     <div id="pane-photo" hidden>
       <div class="row">
         <label>対象の年月<input type="month" id="period"></label>
-        <label class="btn primary" for="photofile">📷 写真を選ぶ（複数可）</label>
+        <label class="btn primary" for="photofile">写真を選ぶ（10枚まで）</label>
         <input type="file" id="photofile" accept="image/*" multiple hidden>
         <button type="button" id="readphotos" disabled>読み取る</button>
       </div>
@@ -64,7 +70,7 @@
   </section>
 
   <section class="card">
-    <h2><span class="step">2</span>設定（そのまま進めてもOK）</h2>
+    <h2>設定（そのままでも進めます）</h2>
     <details>
       <summary>所定労働時間・休憩・法定休日・締め日（既定値のまま使えます）</summary>
       <div class="settings">
@@ -86,14 +92,14 @@
   </section>
 
   <section class="card" id="result" hidden>
-    <h2><span class="step">3</span>結果</h2>
+    <h2>2　確かめる</h2>
+    <div class="stats" id="stats"></div>
     <div class="row">
       <label id="period-label" hidden>集計期間<select id="period-select"></select></label>
-      <button type="button" class="primary" id="export">Excelをダウンロード</button>
     </div>
     <p class="notice">目安の表示です。法的な判断は社会保険労務士にご相談ください。</p>
     <div id="errors"></div>
-    <h3>時間外＋休日労働の多い順（人を押すと日別表）</h3>
+    <h3>時間外＋休日労働の多い順（名前を押すと日別表）</h3>
     <div class="legend">
       <span><span class="badge yellow">黄</span> 時間外が月45時間超</span>
       <span><span class="badge orange">橙</span> 時間外＋休日労働が月80時間以上</span>
@@ -106,10 +112,18 @@
     <p class="small-note">週40時間超は参考表示です（判定には使っていません）。連続勤務は6日以上で表示します。</p>
     <h3 id="detail-title"></h3>
     <div class="tablewrap"><table id="detail" class="stack"></table></div>
+  </section>
+
+  <section class="card" id="step3" hidden>
+    <h2>3　Excelにする</h2>
+    <p class="small-note">一覧／1人1シートの日別表／使った設定、の3つが入ります。判定の色もそのまま付きます。</p>
+    <button type="button" class="primary" id="export">Excelをダウンロード</button>
+    <h3>御社の場合</h3>
+    <div id="roi"></div>
     <p class="pricing" id="pricing"></p>
   </section>
 </main>
-<footer class="site"><div class="wrap">ソエギ デモ ／ 実在する会社のデータは使っていません</div></footer>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
 <script src="/vendor/exceljs.min.js"></script>
 <script type="module" src="/js/attendance.js"></script>
 </body>

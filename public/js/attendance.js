@@ -1,8 +1,9 @@
 // 労務デモ：打刻データ → 残業の集計。CSVはブラウザの中だけで計算する（AIも通信も使わない）。
 // 写真（副）だけ、AIで読み取って表にし、確認・修正してから同じ計算に渡す。
 import {
-  requireAuth, api, h, clear, downloadBlob, XLSX_MIME, stamp, pool, PRICING_TEXT,
+  requireAuth, api, h, clear, downloadBlob, XLSX_MIME, stamp, pool, setStep, mountRoi,
 } from './common.js';
+import { pricingText, MENUS } from './pricing.js';
 import { toJpeg } from './image.js';
 import { decodeCsvBytes, parseCsv, guessColumns, toRecords } from './csv.js';
 import {
@@ -12,7 +13,14 @@ import { buildAttendanceWorkbook } from './attendance-xlsx.js';
 
 requireAuth();
 const $ = (id) => document.getElementById(id);
-$('pricing').textContent = PRICING_TEXT;
+$('pricing').textContent = pricingText('manual');
+
+let minutesPerPerson = 15; // 手計算なら1人あたり何分か（仮置き・画面で変えられる）
+let elapsedMs = null;
+const roi = mountRoi($('roi'), {
+  unit: '人', countLabel: '毎月、何人分の勤怠を集計していますか？', count: 20,
+  minutesLabel: '1人分の手計算にかかる時間（仮置き）', minutes: minutesPerPerson, monthlyFee: MENUS.manual.monthly,
+});
 
 const FIELDS = [['name', '氏名'], ['date', '日付'], ['start', '出勤'], ['end', '退勤'], ['breakMin', '休憩（分）']];
 const STATUS_BADGE = { yellow: '黄', orange: '橙', red: '赤' };
@@ -165,13 +173,18 @@ function readSettings() {
 }
 
 $('calc').addEventListener('click', () => {
+  const t0 = performance.now();
   result = calculate(currentRecords(), readSettings());
+  elapsedMs = performance.now() - t0;
   $('result').hidden = false;
+  $('step3').hidden = false;
+  setStep(2);
   if (!result.periods.length) {
     periodKey = null;
     renderErrors();
-    clear($('bars')); clear($('summary-table')); clear($('detail')); $('detail-title').textContent = '';
+    clear($('bars')); clear($('summary-table')); clear($('detail')); clear($('stats')); $('detail-title').textContent = '';
     $('export').disabled = true;
+    $('step3').hidden = true;
     return;
   }
   $('export').disabled = false;
@@ -199,9 +212,27 @@ function renderErrors() {
     result.errors.length > 20 ? `ほか${result.errors.length - 20}件` : null));
 }
 
+function renderStats(p) {
+  const box = clear($('stats'));
+  const stat = (label, value, unit, cls = '', extra = null) => h('div', { class: `stat ${cls}` }, h('span', {}, label), h('b', {}, value, h('small', {}, unit)), extra);
+  const near = p.people.filter((x) => x.status !== 'none').length;
+  const mins = h('input', {
+    type: 'number', min: '0', max: '120', step: '1', value: String(minutesPerPerson), inputMode: 'numeric', 'aria-label': '1人分の手計算の分',
+    onchange: (e) => { minutesPerPerson = Math.max(0, Number(e.target.value) || 0); roi.setMinutes(minutesPerPerson); renderStats(p); },
+  });
+  box.append(
+    stat('集計した人数', String(p.people.length), '人'),
+    stat('打刻の行数', String(p.people.reduce((t, x) => t + x.days.length, 0)), '行'),
+    stat('計算にかかった時間', elapsedMs < 1000 ? '1秒未満' : (elapsedMs / 1000).toFixed(1), elapsedMs < 1000 ? '' : '秒', 'good'),
+    stat('手計算なら約', String(p.people.length * minutesPerPerson), '分', '', h('em', {}, '1人 ', mins, ' 分（仮置き）')),
+    stat('上限に近い人（黄・橙・赤）', String(near), '人', near ? 'warn' : ''),
+  );
+}
+
 function render() {
   renderErrors();
   const p = period();
+  renderStats(p);
   renderBars(p);
   renderSummary(p);
   selectedName = selectedName ?? p.people[0]?.name;
@@ -277,6 +308,8 @@ $('export').addEventListener('click', async () => {
   const wb = buildAttendanceWorkbook(window.ExcelJS, period(), result.settings);
   const buf = await wb.xlsx.writeBuffer();
   downloadBlob(new Blob([buf], { type: XLSX_MIME }), `残業の集計_${period().key.replace('-', '')}_${stamp()}.xlsx`);
+  setStep(4);
 });
 
 updateCalcState();
+setStep(1);

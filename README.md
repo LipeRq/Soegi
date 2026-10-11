@@ -1,46 +1,72 @@
 # ソエギ デモ（demo.withsoegi.jp）
 
-設計書 v0.2 のうち、**デモ1（経理：レシート → Excel）とデモ2（労務：打刻データ → 残業の集計）** と共通の土台を実装したものです。
-デモ3（宿の多言語対応）は `withsoegi.jp` 側のコードが別にあるため今回は含めていません。デモ4（社内検索）は「準備中」の表示のみです。
+山形の会社の「3つの壁」（手入力・知識・言葉）を、AIで「探す・答える・訳す」を見せるデモです。登場する会社・宿・人物はすべて架空です。
 
-- Cloudflare Worker `soegi-demo`（静的ファイル `public/`＋API `src/`）。ビルド不要
-- 画面は素のHTML/JS（ES modules）。ExcelJS は `public/vendor/` に同梱
-- 何も保存しません。ログに本文を出しません（`observability` は無効のまま）
+| デモ | 画面 | 合言葉 |
+|---|---|---|
+| ① 経理：レシート → Excel | `/receipt.html` | 要 |
+| ① 労務：打刻データ → 残業の集計 | `/attendance.html` | 要 |
+| A 社内ナレッジ検索＋外国人スタッフ向け | `/knowledge.html` | 要 |
+| B 宿の多言語対応 | `/inn.html` | 不要（サイトからリンク） |
+| C サイトのチャットボット | `/chatbot.html`、`/widget/chat.js`（サイトに1行貼る） | 不要 |
+
+- 台本：`docs/demo-scenario.md`
+- 設計（v0.2からの改良点・決めてほしいこと）：`docs/design-v0.3.md`
+- サイト（withsoegi.jp）に足すもの：`docs/site-embed.md`
 
 ## 構成
+
+Cloudflare Worker `soegi-demo`（静的ファイル `public/`＋API `src/`）。ビルド不要。画面は素のHTML/JS（ES modules）、ExcelJS は `public/vendor/` に同梱。
+
 | パス | 役割 |
 |---|---|
-| `src/worker.js` | `/api/verify` `/api/receipt` `/api/timecard`。回数制限→合言葉→検証→AI→形の検証（崩れたら1回だけ再試行） |
+| `src/worker.js` | 入口。回数制限 → 合言葉（demo側のデモだけ）→ 各デモの処理 |
 | `src/ai.js` | AI呼び出しの**1か所**。`AI_PROVIDER` = `deepseek`／`claude`／`mock` |
-| `src/schemas.js` | ツール呼び出しのJSON Schemaと、Worker側の検証 |
-| `public/js/overtime.js` | 残業の計算（純粋関数。AI不使用） |
-| `public/js/receipt-check.js` | レシートのチェック（赤・黄・重複） |
-| `public/js/*-xlsx.js` | Excel出力（ブラウザ内） |
-| `public/sample/` | 架空の打刻データ（5人×2026年9月）。`npm run sample` で再生成 |
-| `docs/demo-scenario.md` | 実演の台本 |
+| `src/schemas.js` | AIに返させるJSONの形と検証（崩れたら1回だけ再試行） |
+| `src/core/` | AIの答えを**プログラムで確かめる**部分（根拠の照合、要確認の追加、リンクの制限、言語ごとの決まった文） |
+| `src/demos/` | 各デモのプロンプトと処理 |
+| `src/guard.js` | 1分・1日の回数制限、合言葉、Turnstile、CORS |
+| `src/cache.js` | 宿の例文・よくある質問の結果の使い回し |
+| `src/mock.js` | `AI_PROVIDER=mock` の固定の架空データ（台本の質問に合わせてある） |
+| `public/data/` | 架空の資料（さくらんぼ食品（仮））、宿の情報、チャットボットの知識 |
+| `public/js/pricing.js` | 料金（画面の案内とチャットボットの知識の両方がここを使う） |
+| `public/js/overtime.js` ほか | 残業の計算・レシートのチェック・Excel・「御社の場合」の計算（すべてプログラム） |
 
-## ローカルで動かす
+## ローカルで動かす（AIキー不要）
+
 ```
 npm install
-cp .dev.vars.example .dev.vars   # 合言葉は「ためし」、AI_PROVIDER=mock（固定の架空データを返す）
+cp .dev.vars.example .dev.vars   # 合言葉「ためし」、AI_PROVIDER=mock
 npm run dev                      # http://127.0.0.1:8787
 npm test                         # 単体テスト
 ```
 
-## デプロイ
-```
-wrangler secret put DEMO_PASSCODE      # 合言葉（日本語可）
-wrangler secret put DEEPSEEK_API_KEY
-wrangler secret put ANTHROPIC_API_KEY  # claude に切り替えるときだけ
-npm run deploy                         # demo.withsoegi.jp をカスタムドメインに（wrangler.toml の routes）
-```
-- 回数制限（同じIPから1分に30）は Rate Limiting バインディング `LIMITER`。合言葉の総当たりも同じ枠で止まります
-- **本番（お客さんのデータを扱う導入）は `AI_PROVIDER=claude`**。`mock` は本番に設定しないこと
-- DeepSeek の画像モデル名（`deepseek-v4-flash-vision-exp`）は実験的なため `DEEPSEEK_VISION_MODEL` で差し替え可。**手書きのレシート・タイムカードが読めるか、最初に実際に試してください**（読めなければ写真のデモだけ claude に）
+`mock` では、どのデモも固定の架空データで最後まで動きます（社内検索・宿・チャットボットは台本の質問に合わせた答えを返します）。
 
-## 実装メモ（設計書との対応・判断したところ）
-- 残業の計算は分単位の整数。単体テストに、手計算した値（時間外・深夜・休日・日またぎ・休憩なし・連続勤務・判定の境界）と、サンプルを1分ずつ数える別実装との突き合わせを入れています
-- 深夜は「休憩を昼間にとったもの」として引きません。日またぎは出勤した日で法定休日を判定します（Excelの「使った設定」シートにも明記）
-- 週40時間超は参考表示のみ（月〜日、法定休日を除き、1日の所定分まで）
-- 合言葉はヘッダーに日本語を載せられないため、画面側でURLエンコードして送っています
-- CSPのため画面側のインライン style は使っていません（`h()` が CSSOM で設定）
+## 公開する
+
+```
+npx wrangler login
+npx wrangler secret put DEMO_PASSCODE      # 合言葉（日本語可）
+npx wrangler secret put DEEPSEEK_API_KEY
+npm run deploy
+```
+
+必要に応じて：
+
+| 使うもの | 設定 | 無いとき |
+|---|---|---|
+| 宿の自由入力のロボット対策 | Cloudflare で Turnstile のウィジェットを作り、`wrangler.toml` の `TURNSTILE_SITEKEY` にサイトキー、`npx wrangler secret put TURNSTILE_SECRET` にシークレット。ホスト名は `demo.withsoegi.jp` | 自由入力が「準備中」になる（例文は使える） |
+| 1日の回数を数える KV | `npx wrangler kv namespace create DEMO_KV` → 出た id を `wrangler.toml` の `[[kv_namespaces]]` に入れてコメントを外す | Worker のメモリで数える（目安） |
+| 本番（お客さんのデータ） | `AI_PROVIDER = "claude"`、`npx wrangler secret put ANTHROPIC_API_KEY` | — |
+
+- **本番（お客さんのデータを扱う導入）は必ず `claude`**。`mock` は公開環境に設定しない
+- DeepSeek のモデル名は変わりやすいので、公開前に公式ドキュメントで確認し、`DEEPSEEK_TEXT_MODEL`／`DEEPSEEK_VISION_MODEL` を直す
+- 公開したら、台本の質問を一度ずつ実際に試す（宿の例文は1回目の結果が30日キャッシュされる）
+
+## 守っていること
+
+- AIは「読み取り・下書き・検索」だけ。残業の計算、レシートのチェック、根拠の照合、要確認の追加は**プログラム**
+- 何も保存しない。ログに本文を出さない（宿の自由入力とチャットボットは、1日の回数だけをIPのハッシュで翌々日まで数える）
+- 画面の文字は `textContent` だけで組み立てる（AIの出力をHTMLとして扱わない）。CSPで外部のスクリプトは Turnstile だけを許可
+- 効果を約束しない。「御社の場合」の計算には必ず「目安。実際の数字はお試しで測ります」
