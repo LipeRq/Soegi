@@ -37,7 +37,7 @@ document.getElementById('gate-form').addEventListener('submit', async (e) => {
   } finally { if (btn) btn.disabled = false; }
 });
 
-document.querySelectorAll('a.tile[data-lock]').forEach((a) => a.addEventListener('click', (e) => {
+document.querySelectorAll('a[data-lock]').forEach((a) => a.addEventListener('click', (e) => {
   if (authed) return;
   e.preventDefault();
   pending = a.getAttribute('href');
