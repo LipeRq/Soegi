@@ -1,4 +1,4 @@
-// 画面の共通部品：合言葉、API呼び出し、DOM作成、ダウンロード。
+// 画面の共通部品：パスワード、API呼び出し、DOM作成、ダウンロード。
 // 入力は画面内で処理し、サーバーには保存しない。画面のテキストは textContent で入れる（AIの出力は信用しない）。
 
 import { WHO, calcRoi, verdictText } from './roi.js';
@@ -12,7 +12,7 @@ export function setPass(v) {
   try { v ? sessionStorage.setItem(KEY, v) : sessionStorage.removeItem(KEY); } catch { /* 保存できなくても動く */ }
 }
 
-/** 合言葉が無ければ入口へ戻す */
+/** パスワードが無ければ入口へ戻す */
 export function requireAuth() {
   if (!getPass()) location.replace('/');
 }
@@ -37,7 +37,7 @@ export async function api(path, body, pass = getPass()) {
   if (res.status === 401) {
     setPass('');
     if (location.pathname !== '/') location.replace('/');
-    throw new ApiError(data?.error || '合言葉が違います', 401);
+    throw new ApiError(data?.error || 'パスワードが違います', 401);
   }
   if (!res.ok || !data?.ok) throw new ApiError(data?.error || `エラーが発生しました（${res.status}）`, res.status);
   return data.data ?? data;

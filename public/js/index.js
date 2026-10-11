@@ -7,13 +7,13 @@ const err = document.getElementById('gate-err');
 const pass = document.getElementById('pass');
 const logout = document.getElementById('logout');
 
-// タイルは合言葉の前から見せる（動きの見本）。合言葉が要るデモは、入力するまで開かない
+// タイルはパスワードの前から見せる（動きの見本）。パスワードが要るデモを押したときだけ、入力欄を出す
 let authed = false;
-let pending = null; // 合言葉の前に押されたタイルの行き先
+let pending = null; // パスワードの前に押されたタイルの行き先
 
 function show(ok) {
   authed = ok;
-  gate.hidden = ok;
+  if (ok) gate.hidden = true;
   logout.hidden = !ok;
   document.body.classList.toggle('authed', ok);
 }
@@ -41,7 +41,8 @@ document.querySelectorAll('a[data-lock]').forEach((a) => a.addEventListener('cli
   if (authed) return;
   e.preventDefault();
   pending = a.getAttribute('href');
-  err.textContent = '合言葉を入れると、このデモを開けます';
+  gate.hidden = false;
+  err.textContent = 'パスワードを入れると、このデモを開けます';
   gate.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' });
   pass.focus({ preventScroll: true });
   shake(gate);

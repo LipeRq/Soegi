@@ -1,4 +1,4 @@
-// 使いすぎを防ぐしくみ：1分あたりの回数制限、1日あたりの回数制限、合言葉、Turnstile、CORS。
+// 使いすぎを防ぐしくみ：1分あたりの回数制限、1日あたりの回数制限、パスワード、Turnstile、CORS。
 // 1日の回数は IP をそのまま残さず、ハッシュにして KV に置く（翌日には消える）。
 
 const RATE_LIMIT = 30; // 同じIPから1分に
@@ -50,9 +50,9 @@ export async function allowPerDay(env, bucket, ip, limit) {
   return { ok: true, remaining: limit - n - 1 };
 }
 
-// ---- 合言葉 ---------------------------------------------------------------------------
+// ---- パスワード ---------------------------------------------------------------------------
 
-/** 合言葉はヘッダーに日本語を載せられないため、画面側でURLエンコードして送る */
+/** パスワードはヘッダーに日本語を載せられないため、画面側でURLエンコードして送る */
 function readPass(request) {
   const raw = request.headers.get('x-demo-pass') || '';
   try { return decodeURIComponent(raw); } catch { return raw; }

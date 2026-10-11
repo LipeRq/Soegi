@@ -1,7 +1,7 @@
 // soegi-demo Worker：静的ファイル（public/）は assets が配信し、ここは /api/* だけを受ける。
 // 何も保存しない（自由入力の1日の回数だけ、IPのハッシュで翌日まで数える）。ログにも本文を出さない。
 //
-//   合言葉が必要（demo.withsoegi.jp の中のデモ）：/api/verify /api/receipt /api/timecard /api/knowledge
+//   パスワードが必要（demo.withsoegi.jp の中のデモ）：/api/verify /api/receipt /api/timecard /api/knowledge
 //   公開（サイトから使うデモ）：/api/public-config /api/inn-reply /api/inn-faq /api/site-chat
 
 import { AIError } from './ai.js';
@@ -46,14 +46,14 @@ export default {
     if (!route) return err(404, 'not found');
     if (request.method !== 'POST') return err(405, 'POST のみ受け付けます', cors);
 
-    // 1) 回数制限（合言葉の総当たりも防ぐため、認証より先）
+    // 1) 回数制限（パスワードの総当たりも防ぐため、認証より先）
     const ip = clientIp(request);
     if (!(await allowPerMinute(env, ip))) return err(429, 'リクエストが多すぎます。1分ほど待ってからお試しください', cors);
 
-    // 2) 合言葉（demo側のデモだけ）
+    // 2) パスワード（demo側のデモだけ）
     if (route.private) {
       if (!env.DEMO_PASSCODE) return err(500, 'サーバーの設定が未完了です（DEMO_PASSCODE）');
-      if (!(await checkPass(request, env))) return err(401, '合言葉が違います');
+      if (!(await checkPass(request, env))) return err(401, 'パスワードが違います');
     }
 
     try {

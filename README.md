@@ -2,7 +2,7 @@
 
 山形の会社の「3つの壁」（手入力・知識・言葉）を、AIで「探す・答える・訳す」を見せるデモです。登場する会社・宿・人物はすべて架空です。
 
-| デモ | 画面 | 合言葉 |
+| デモ | 画面 | パスワード |
 |---|---|---|
 | ① 経理：レシート → Excel | `/receipt.html` | 要 |
 | ① 労務：打刻データ → 残業の集計 | `/attendance.html` | 要 |
@@ -21,12 +21,12 @@ Cloudflare Worker `soegi-demo`（静的ファイル `public/`＋API `src/`）。
 
 | パス | 役割 |
 |---|---|
-| `src/worker.js` | 入口。回数制限 → 合言葉（demo側のデモだけ）→ 各デモの処理 |
+| `src/worker.js` | 入口。回数制限 → パスワード（demo側のデモだけ）→ 各デモの処理 |
 | `src/ai.js` | AI呼び出しの**1か所**。`AI_PROVIDER` = `deepseek`／`claude`／`mock` |
 | `src/schemas.js` | AIに返させるJSONの形と検証（崩れたら1回だけ再試行） |
 | `src/core/` | AIの答えを**プログラムで確かめる**部分（根拠の照合、要確認の追加、リンクの制限、言語ごとの決まった文） |
 | `src/demos/` | 各デモのプロンプトと処理 |
-| `src/guard.js` | 1分・1日の回数制限、合言葉、Turnstile、CORS |
+| `src/guard.js` | 1分・1日の回数制限、パスワード、Turnstile、CORS |
 | `src/cache.js` | 宿の例文・よくある質問の結果の使い回し |
 | `src/mock.js` | `AI_PROVIDER=mock` の固定の架空データ（台本の質問に合わせてある） |
 | `public/data/` | 架空の資料（さくらんぼ食品（仮））、宿の情報、チャットボットの知識 |
@@ -39,7 +39,7 @@ Cloudflare Worker `soegi-demo`（静的ファイル `public/`＋API `src/`）。
 
 ```
 npm install
-cp .dev.vars.example .dev.vars   # 合言葉「ためし」、AI_PROVIDER=mock
+cp .dev.vars.example .dev.vars   # パスワード「ためし」、AI_PROVIDER=mock
 npm run dev                      # http://127.0.0.1:8787
 npm test                         # 単体テスト
 ```
@@ -50,7 +50,7 @@ npm test                         # 単体テスト
 
 ```
 npx wrangler login
-npx wrangler secret put DEMO_PASSCODE      # 合言葉（日本語可）
+npx wrangler secret put DEMO_PASSCODE      # パスワード（日本語可）
 npx wrangler secret put DEEPSEEK_API_KEY
 npm run deploy
 ```
