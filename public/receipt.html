@@ -6,8 +6,9 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Shippori+Mincho+B1:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/receipt.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>レシート → Excel｜ソエギ デモ</title>
 </head>
@@ -17,50 +18,63 @@
   <nav><a href="/">デモの選択へ</a></nav>
 </div></header>
 <main class="wrap">
-  <h1>レシート → Excel</h1>
+  <h1 class="vt-receipt">レシート → Excel</h1>
   <p class="lead">月末月初の手入力と入力ミスを減らします。AIは「読むだけ」、チェックは仕組み、最後は人が確かめます。いまお使いのExcelの様式に入ります。</p>
   <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
   <nav class="steps" aria-label="進み具合"><ol>
-    <li aria-current="step"><span class="n">1</span>撮る・読み込む</li>
+    <li aria-current="step"><span class="n">1</span>撮る・<wbr>読み込む</li>
     <li><span class="n">2</span>確かめる</li>
-    <li><span class="n">3</span>Excelにする</li>
+    <li><span class="n">3</span>Excelに<wbr>する</li>
   </ol></nav>
 
   <section class="card" id="step1">
-    <h2>1　レシートを撮る・選ぶ（1〜20枚、手書きも可）</h2>
-    <div class="row">
-      <label class="btn primary" for="cam">撮る</label>
-      <input type="file" id="cam" accept="image/*" capture="environment" hidden>
-      <label class="btn" for="pick">写真を選ぶ（何枚でも）</label>
-      <input type="file" id="pick" accept="image/*" multiple hidden>
-      <button type="button" id="clear" class="link">全部消す</button>
+    <h2><b class="no">1</b>　レシートを撮る・選ぶ<small>（1〜20枚、手書きも可）</small></h2>
+    <!-- 写真の入れ口。file の入力は hidden にせず見えなくするだけ（キーボードでも押せるように） -->
+    <div class="drop" id="drop">
+      <svg class="drop-art" viewBox="0 0 48 56" aria-hidden="true" focusable="false"><path d="M8 4h32v47l-4-3-4 3-4-3-4 3-4-3-4 3-4-3-4 3z"/><path d="M15 16h18M15 24h18M15 32h10"/></svg>
+      <div class="acts">
+        <label class="btn primary act" for="cam"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>撮る</label>
+        <input type="file" id="cam" class="vh" accept="image/*" capture="environment">
+        <label class="btn act" for="pick"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="7" width="15" height="13" rx="2"/><path d="M7 4h12a2 2 0 0 1 2 2v10"/><path d="m3 17 4-4 3.5 3.5L13 14l5 5"/></svg>写真を選ぶ（何枚でも）</label>
+        <input type="file" id="pick" class="vh" accept="image/*" multiple>
+      </div>
+      <p class="drop-hint">パソコンでは、写真をこの枠の中に置いても入ります</p>
     </div>
     <p class="small-note">架空のレシート、または本人の私物のレシートだけをお使いください。写真は長辺2000pxに縮めて読み取りに使い、保存しません。</p>
     <div class="thumbs" id="thumbs"></div>
-    <div class="row mt12">
-      <button type="button" class="primary" id="go" disabled>読み取る</button>
+    <div class="row mt12 gobar">
+      <button type="button" class="primary btn-xl" id="go" disabled>読み取る</button>
       <span id="count" class="small-note"></span>
+      <button type="button" id="clear" class="link">全部消す</button>
     </div>
     <div id="reading" hidden>
+      <div class="reading-head">
+        <span class="thinking" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="tick" aria-hidden="true"></span>
+        <p class="phase" id="phase" aria-live="polite"></p>
+        <span id="clock" aria-hidden="true"></span>
+      </div>
       <div class="progress"><div id="bar"></div></div>
-      <p class="phase" id="phase" aria-live="polite"></p>
       <p id="progress-text" class="small-note"></p>
     </div>
   </section>
 
   <section class="card" id="step2" hidden>
-    <h2>2　確かめる（その場で直せます）</h2>
+    <h2><b class="no">2</b>　確かめる<small>（その場で直せます）</small></h2>
     <div class="stats" id="stats"></div>
-    <div class="legend" aria-label="色の意味">
-      <span><i class="r"></i>要確認（赤）：数字や番号が合わない・空</span>
-      <span><i class="y"></i>注意（黄）：読み取りに自信がない・日付が不自然・重複の疑い</span>
+    <div class="key">
+      <div class="legend" aria-label="色の意味">
+        <span><i class="r"></i>要確認（赤）：数字や番号が合わない・空</span>
+        <span><i class="y"></i>注意（黄）：読み取りに自信がない・日付が不自然・重複の疑い</span>
+      </div>
+      <p class="small-note">黄色は「AIを鵜呑みにしない」ための目印です。AIが自信のない箇所を自分で申告し、プログラムが合計や登録番号の形を確かめています。</p>
     </div>
-    <p class="small-note">黄色は「AIを鵜呑みにしない」ための目印です。AIが自信のない箇所を自分で申告し、プログラムが合計や登録番号の形を確かめています。</p>
+    <p class="small-note scroll-hint">表は横に送れます。右に「品目」「勘定科目（候補）」があります。「確かめる点」は、いつも右端に出ています。</p>
     <div class="tablewrap">
       <table class="stack" id="tbl">
         <thead><tr>
           <th>#</th><th>写真</th><th>日付</th><th>支払先</th><th class="num">合計</th><th class="num">10%対象</th><th class="num">8%対象</th>
-          <th class="num">消費税額</th><th>登録番号</th><th>支払方法</th><th>品目</th><th>勘定科目（候補）</th><th>確かめる点</th><th></th>
+          <th class="num">消費税額</th><th>登録番号</th><th>支払方法</th><th>品目</th><th>勘定科目（候補）</th><th class="rowflag">確かめる点</th><th></th>
         </tr></thead>
         <tbody id="rows"></tbody>
       </table>
@@ -73,26 +87,59 @@
     <p class="small-note">勘定科目はAIの「候補」です。決めるのは人です。</p>
   </section>
 
-  <section class="card" id="step3" hidden>
-    <h2>3　Excelにする</h2>
-    <div class="row gap-lg">
-      <label class="inline"><input type="radio" name="style" value="standard" checked>標準（明細／科目別の集計／要確認）</label>
-      <label class="inline"><input type="radio" name="style" value="journal">仕訳の形（日付・借方・貸方・金額・摘要）</label>
-      <label class="inline"><input type="radio" name="style" value="office">〇〇会計事務所様式（例）</label>
-    </div>
-    <p class="small-note" id="style-note"></p>
-    <div class="row mt10">
-      <label id="credit-label" hidden>貸方科目の既定
-        <select id="credit"><option>現金</option><option>普通預金</option><option>未払金</option><option>事業主借</option></select>
-      </label>
-      <button type="button" class="primary" id="export">Excelをダウンロード</button>
-    </div>
-    <p class="notice plain mt12">電子帳簿保存法のスキャナ保存の要件を満たす仕組みではありません。原本の保存は今までどおりお願いします。</p>
+  <div id="step3" hidden>
+    <section class="card">
+      <h2><b class="no">3</b>　Excelにする</h2>
+      <!-- 様式の見本（小さな表）は飾り。列の名前とシートの名前は receipt-xlsx.js と同じにしてある -->
+      <div class="opts" role="radiogroup" aria-label="Excelの様式">
+        <label class="opt">
+          <input type="radio" name="style" value="standard" checked>
+          <span class="opt-name"><b>標準</b><small>（明細／科目別の集計／要確認）</small></span>
+          <span class="ms" aria-hidden="true">
+            <span class="ms-row ms-head c-std"><i>No</i><i>日付</i><i>支払先</i><i>合計（税込）</i><i>…</i></span>
+            <span class="ms-row c-std"><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="ms-row c-std"><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="ms-tabs"><i class="on">明細</i><i>科目別の集計</i><i>要確認</i></span>
+          </span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="style" value="journal">
+          <span class="opt-name"><b>仕訳の形</b><small>（日付・借方・貸方・金額・摘要）</small></span>
+          <span class="ms" aria-hidden="true">
+            <span class="ms-row ms-head c-jnl"><i>日付</i><i>借方科目</i><i>貸方科目</i><i>金額</i><i>摘要</i></span>
+            <span class="ms-row c-jnl"><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="ms-row c-jnl"><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="ms-tabs"><i class="on">仕訳</i><i>要確認</i></span>
+          </span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="style" value="office">
+          <span class="opt-name"><b>〇〇会計事務所様式</b><small>（例）</small></span>
+          <span class="ms" aria-hidden="true">
+            <span class="ms-row ms-head c-ofc"><i>伝票日付</i><i>借方勘定科目</i><i>借方税区分</i><i>借方金額</i><i>…</i></span>
+            <span class="ms-row c-ofc"><i></i><i></i><i class="t">課税仕入 10%</i><i></i><i></i></span>
+            <span class="ms-row c-ofc"><i></i><i></i><i class="t">課税仕入 8%（軽減）</i><i></i><i></i></span>
+            <span class="ms-tabs"><i class="on">取込用</i><i>要確認</i></span>
+          </span>
+        </label>
+      </div>
+      <p class="small-note" id="style-note"></p>
+      <div class="row mt10 exportbar">
+        <label id="credit-label" hidden>貸方科目の既定
+          <select id="credit"><option>現金</option><option>普通預金</option><option>未払金</option><option>事業主借</option></select>
+        </label>
+        <button type="button" class="primary btn-xl" id="export">Excelをダウンロード</button>
+        <p class="made" id="made" role="status" hidden></p>
+      </div>
+      <p class="notice plain mt12">電子帳簿保存法のスキャナ保存の要件を満たす仕組みではありません。原本の保存は今までどおりお願いします。</p>
+    </section>
 
-    <h3>御社の場合</h3>
-    <div id="roi"></div>
-    <p class="pricing" id="pricing"></p>
-  </section>
+    <section class="card yours">
+      <h3>御社の場合</h3>
+      <div id="roi"></div>
+      <p class="pricing" id="pricing"></p>
+    </section>
+  </div>
 
   <dialog id="zoom"><img alt="レシートの拡大"></dialog>
 </main>

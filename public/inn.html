@@ -6,74 +6,90 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Shippori+Mincho+B1:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/inn.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>宿泊施設の多言語対応｜ソエギ デモ</title>
 </head>
 <body>
 <header class="site"><div class="wrap">
   <a class="brand" href="https://withsoegi.jp/"><b>ソエギ</b><small>デモ</small></a><span class="sub">宿泊施設の多言語対応を体験する</span>
-  <nav><a href="https://withsoegi.jp/">ソエギのサイトへ</a></nav>
+  <nav><a href="/">デモの選択へ</a><a href="https://withsoegi.jp/">ソエギのサイトへ</a></nav>
 </div></header>
 <main class="wrap">
-  <h1>外国語の問い合わせに、宿のルールどおりの返信の下書き</h1>
+  <h1 class="vt-inn">外国語の問い合わせに、宿のルールどおりの返信の下書き</h1>
   <p class="lead">語学のできる人を新しく雇わなくても、台湾・欧米・韓国のお客さまに、丁寧な返信の下書きが数秒で出ます。宿の情報に無いことは書かず、送る前に確かめる点を一緒に出します。</p>
-  <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
-  <p class="notice warn"><b>下書きです。</b>送る前に必ずスタッフが確認します。</p>
+  <div class="heads">
+    <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
+    <p class="notice warn draft"><b>下書きです。</b>送る前に必ずスタッフが確認します。</p>
+  </div>
   <nav class="steps" aria-label="進み具合"><ol>
-    <li aria-current="step"><span class="n">1</span>問い合わせを選ぶ</li>
-    <li><span class="n">2</span>下書きを確かめる</li>
-    <li><span class="n">3</span>スタッフが送る</li>
+    <li aria-current="step"><span class="n">1</span>問い合わせを<wbr>選ぶ</li>
+    <li><span class="n">2</span>下書きを<wbr>確かめる</li>
+    <li><span class="n">3</span>スタッフが<wbr>送る</li>
   </ol></nav>
 
-  <section class="card">
-    <h2>1　問い合わせを選ぶ</h2>
+  <!-- 1：例文のタイルは、白い面で囲まずに地の上へ直に並べる（ここが最初に押す所） -->
+  <section class="pick" aria-labelledby="pick-h">
+    <h2 id="pick-h"><b class="no">1</b>　問い合わせを選ぶ</h2>
     <p class="small-note" id="inn-name"></p>
     <div class="examples" id="examples"></div>
-    <details class="mt12" id="free">
-      <summary>自分で問い合わせの文を入れてみる（1日<span id="free-per-day">5</span>回まで・<span id="free-max">500</span>文字まで）</summary>
-      <div id="free-body">
-        <textarea id="free-text" maxlength="500" placeholder="例：Do you have rooms for 3 people on Feb 10?"></textarea>
-        <div id="turnstile" class="mt8"></div>
-        <div class="row mt8">
-          <button type="button" class="primary" id="free-go">下書きを作る</button>
-          <span class="small-note" id="free-note"></span>
+    <details class="more" id="free">
+      <summary><span>自分で問い合わせの文を入れてみる（1日<span id="free-per-day">5</span>回まで・<span id="free-max">500</span>文字まで）</span></summary>
+      <div class="more-body">
+        <div id="free-body">
+          <textarea id="free-text" maxlength="500" placeholder="例：Do you have rooms for 3 people on Feb 10?" aria-label="問い合わせの文"></textarea>
+          <div id="turnstile" class="mt8"></div>
+          <div class="row mt8">
+            <button type="button" class="primary" id="free-go">下書きを作る</button>
+            <span class="small-note" id="free-note" role="status"></span>
+          </div>
         </div>
+        <p class="small-note" id="free-off" hidden>自由入力は準備中です。用意した例文でお試しください。</p>
       </div>
-      <p class="small-note" id="free-off" hidden>自由入力は準備中です。用意した例文でお試しください。</p>
     </details>
-    <details class="mt12">
+    <details class="more">
       <summary>AIに渡している宿の情報（架空）を見る</summary>
-      <dl class="faq" id="inn-info"></dl>
+      <div class="more-body"><dl class="inninfo" id="inn-info"></dl></div>
     </details>
   </section>
 
-  <section class="card" id="result" hidden>
-    <h2>2　下書きを確かめる</h2>
-    <p class="phase" id="phase" aria-live="polite"></p>
+  <section class="card result" id="result" hidden>
+    <h2><b class="no">2</b>　下書きを確かめる</h2>
+    <div class="phaseline"><p class="phase" id="phase" aria-live="polite"></p></div>
     <div class="stats" id="stats"></div>
-    <div class="quad">
-      <div class="box"><h3>① 問い合わせの日本語訳（スタッフ用）</h3><p id="r-inq"></p></div>
-      <div class="box"><h3 id="r-reply-h">② 返信の下書き</h3><p id="r-reply"></p><div class="copyrow"><button type="button" class="small" id="copy-reply">下書きをコピー</button></div></div>
-      <div class="box"><h3>③ 返信の日本語訳（中身を確かめるため）</h3><p id="r-replyja"></p></div>
-      <div class="box check"><h3>④ 要確認（送る前に確かめる点）</h3><ul id="r-check"></ul></div>
+    <p class="notice warn draft"><b>下書きです。</b>送る前に必ずスタッフが確認します。</p>
+    <div id="r-warn"></div>
+    <!-- 左＝お客さまの言葉、まん中＝スタッフ用の日本語、右＝送る前に確かめる点。番号の順（①→④）は変えない -->
+    <div class="quad" id="quad">
+      <div class="box origin"><h3>お客さまからの問い合わせ（原文）</h3><p id="r-origin"></p></div>
+      <div class="box ja1"><h3>① 問い合わせの日本語訳（スタッフ用）</h3><p id="r-inq"></p></div>
+      <div class="box reply"><h3 id="r-reply-h">② 返信の下書き</h3>
+        <div class="typebox" id="r-typebox"><p id="r-reply"></p></div>
+        <div class="copyrow"><button type="button" class="small" id="copy-reply">下書きをコピー</button></div>
+      </div>
+      <div class="box ja2"><h3>③ 返信の日本語訳（中身を確かめるため）</h3><p id="r-replyja"></p></div>
+      <div class="box check" id="r-checkbox"><h3>④ 要確認（送る前に確かめる点）</h3><ul id="r-check"></ul><p class="rule-note" id="r-rule-note" hidden>「決まりで必ず表示」の点は、AIが見落としても、プログラムが必ず出します。</p></div>
     </div>
     <p class="small-note" id="r-used"></p>
-    <div id="r-warn"></div>
   </section>
 
-  <section class="card">
+  <section class="card faqcard">
     <h2>問い合わせそのものを減らす：よくある質問ページ</h2>
     <p class="small-note">宿の情報から、サイトに貼れる「よくある質問」を4言語（日本語・繁体字・英語・韓国語）でまとめます。</p>
-    <button type="button" id="faq-go">よくある質問ページを作る</button>
-    <div id="faq" class="faq mt12" hidden>
-      <div class="faq-lang" id="faq-lang"></div>
-      <dl id="faq-list"></dl>
-      <div class="row mt10"><button type="button" class="small" id="faq-copy">サイトに貼るHTMLをコピー</button><span class="small-note" id="faq-note"></span></div>
+    <div class="row">
+      <button type="button" class="primary" id="faq-go">よくある質問ページを作る</button>
+      <span class="faq-wait" id="faq-wait" role="status"></span>
     </div>
-    <p class="pricing" id="pricing"></p>
+    <div id="faq" class="faq mt14" hidden>
+      <p class="notice warn" id="faq-note"></p>
+      <div class="faq-lang" id="faq-lang" role="group" aria-label="表示する言語"></div>
+      <dl id="faq-list"></dl>
+      <div class="row mt12"><button type="button" class="small" id="faq-copy">サイトに貼るHTMLをコピー</button></div>
+    </div>
   </section>
+  <p class="pricing" id="pricing"></p>
 </main>
 <footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
 <script type="module" src="/js/inn.js"></script>

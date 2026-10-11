@@ -1,0 +1,190 @@
+/* 経理：レシート → Excel。色・書体・角丸・動きの値は /css/style.css の変数だけを使う
+   - 1段に「いちばん見てほしい所」を1つ：1＝写真の入れ口と「読み取る」／2＝大きな数字と色の付いたマス／3＝様式の選択と「Excelをダウンロード」
+   - 動きは、プログラムがしていることを見せるためだけに使う（読み取り中の線、数え上げ、直した所が光る、など） */
+
+/* ---- 段の見出し：番号を丸に入れ、かっこ書きは静かに ------------------------------------ */
+h2 small { display: inline-block; font-family: var(--sans); font-size: 14px; font-weight: 400; color: var(--ink-3); }
+
+/* ---- 1. 写真の入れ口 ------------------------------------------------------------------- */
+.drop { display: grid; justify-items: center; gap: 12px; padding: 26px 16px 20px; text-align: center; background: var(--sunk); border: 2px dashed var(--field); border-radius: var(--r-tile);
+  transition: background var(--t), border-color var(--t), transform var(--t) var(--ease); }
+.drop.over { background: var(--beni-soft); border-color: var(--beni); border-style: solid; transform: scale(1.01); }
+.drop-art { width: 44px; height: 52px; fill: var(--tile); stroke: var(--ink-3); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.acts { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.act { flex-direction: row; min-height: 60px; padding: 12px 28px; font-size: 18px; border-radius: var(--r-md); gap: 10px; }
+.act svg { flex: none; width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.drop-hint { margin: 0; font-size: 13px; color: var(--ink-3); }
+@media (hover: none) { .drop-hint { display: none; } }
+/* 写真が入ったら、入れ口は小さくして、写真と「読み取る」に目が行くようにする */
+.has-files .drop { padding: 14px; gap: 8px; }
+.has-files .drop-art { display: none; }
+
+/* 選んだ写真：新しく足した分だけ、順に弾んで出る */
+#thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+#thumbs figure { width: auto; min-width: 0; animation-delay: calc(var(--i, 0) * 45ms); }
+#thumbs figure.seen { animation: none; }
+#thumbs .shot { display: block; position: relative; overflow: hidden; border-radius: var(--r); }
+#thumbs img { width: 100%; height: auto; aspect-ratio: 1; transition: opacity var(--t); }
+/* 読み取りの状態：写真の下の帯に、必ず言葉で出す（待ち／読み取り中／済／読めず） */
+#thumbs .st { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 12px; font-weight: 700; line-height: 22px; color: var(--tile); background: var(--ink); }
+#thumbs figure[data-state=""] .st { display: none; }
+#thumbs figure[data-state=pending] img { opacity: .5; }
+#thumbs figure[data-state=pending] .st { color: var(--ink-2); background: var(--sunk-2); }
+#thumbs figure[data-state=done] .st { background: var(--leaf); animation: pop var(--t) var(--ease) both; }
+#thumbs figure[data-state=done] .st::before { content: ""; width: 9px; height: 5px; margin-top: -3px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); }
+#thumbs figure[data-state=error] .st { background: var(--beni); }
+
+.gobar { margin-top: 14px; }
+#go.attn { animation: ring 1.1s ease-out 2; }
+#clear { min-height: 44px; padding: 4px 10px; margin-left: auto; }
+#step1:not(.has-files) #clear { display: none; }
+
+/* 読み取り中：していることの文をいちばん大きく、その下に進み具合 */
+#reading { margin-top: 14px; padding: 14px 16px; background: var(--sunk); border-radius: var(--r-md); animation: rise var(--t) var(--ease) both; }
+.reading-head { display: flex; align-items: center; gap: 10px; }
+#reading .phase { flex: 1; min-width: 0; margin: 0; font-size: 17px; line-height: 1.5; }
+#clock { flex: none; font-family: var(--mono); font-size: 20px; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+#reading .progress { height: 12px; border-radius: 6px; margin: 10px 0 6px; }
+#reading .progress > div { border-radius: 6px; }
+#progress-text { margin: 0; font-weight: 700; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.tick { display: none; flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--leaf); place-items: center; animation: pop var(--t) var(--ease) both; }
+.tick::before { content: ""; width: 11px; height: 6px; margin-top: -3px; border-left: 2.5px solid var(--tile); border-bottom: 2.5px solid var(--tile); transform: rotate(-45deg); }
+#reading:not([data-state=busy]) .thinking { display: none; }
+#reading[data-state=done] .tick { display: grid; }
+#reading[data-state=done] #bar { background: var(--leaf); animation: none; }
+#reading[data-state=ended] #bar { background: var(--gray-bar); animation: none; } /* 読めなかった写真があるとき：緑にしない */
+
+/* ---- 2. 大きな数字：かかった時間と「手入力なら」を主役にして、同じ目盛りの棒で並べる ------- */
+#stats { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+#stats .stat { grid-column: span 2; min-width: 0; display: flex; flex-direction: column; }
+#stats .s-time, #stats .s-manual { grid-column: span 3; }
+#stats .stat:nth-child(2) { animation-delay: .06s; } #stats .stat:nth-child(3) { animation-delay: .12s; }
+#stats .stat:nth-child(4) { animation-delay: .18s; } #stats .stat:nth-child(5) { animation-delay: .24s; }
+#stats .stat.flash { animation: flash 1.2s ease-out; }
+#stats b .v { display: inline; font-size: inherit; color: inherit; }
+#stats .s-time b, #stats .s-manual b { font-size: 44px; line-height: 1.15; }
+#stats .s-red:not(.danger) b, #stats .s-yellow:not(.warn) b { color: var(--ink-3); }
+#stats .stat em { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 6px; font-size: 13px; }
+#stats .stat input { min-height: 44px; width: 4.8em; font-size: 16px; }
+.cmp { display: block; height: 8px; margin-top: 6px; border-radius: 4px; background: var(--tile); overflow: hidden; }
+.s-manual .cmp { background: var(--sunk-2); }
+.cmp > i { display: block; height: 100%; width: var(--w, 0%); min-width: 4px; border-radius: 4px; background: var(--leaf); }
+.s-manual .cmp > i { background: var(--gray-bar); }
+
+/* 色の意味と、その理由 */
+.key { margin: 14px 0 10px; }
+.key .legend { margin: 0 0 2px; font-size: 14px; }
+.key .small-note { margin: 0; }
+.scroll-hint { display: none; margin: 0 0 6px; }
+
+/* 表：縦の線をやめ、入力欄は下線だけにして、色の付いたマスが先に目に入るようにする */
+#tbl th, #tbl td { border-width: 0 0 1px; padding: 6px 6px; }
+#tbl th { font-size: 12.5px; }
+#tbl td:first-child { font-family: var(--mono); color: var(--ink-3); }
+#tbl td input, #tbl td select { min-height: 44px; background: transparent; border-color: transparent; border-bottom-color: var(--field); border-radius: 6px 6px 0 0; }
+#tbl td input:hover, #tbl td select:hover { background: var(--sunk); }
+#tbl td input:focus-visible, #tbl td select:focus-visible { background: var(--tile); border-color: var(--ink); border-radius: 6px; }
+#tbl td.num input { text-align: right; font-family: var(--mono); }
+#tbl td.red input, #tbl td.red select { border-bottom-color: var(--beni); }
+#tbl td.yellow input, #tbl td.yellow select { border-bottom-color: var(--warn-ink); } /* 入力欄の境目は 3:1 以上の濃さにする */
+/* 色の付いたマスには、その場に言葉も出す（色だけで伝えない） */
+#tbl td.red::after, #tbl td.yellow::after { display: block; font-family: var(--sans); font-size: 13px; font-weight: 700; line-height: 1.4; text-align: left; }
+#tbl td.red::after { content: "要確認"; color: var(--beni); }
+#tbl td.yellow::after { content: "注意"; color: var(--warn-ink); }
+#tbl td { transition: background-color var(--t); }
+#tbl td.flash { animation: flash 1.2s ease-out; }
+#tbl .badge.ok.fresh { animation: pop var(--t) var(--ease) both; }
+#tbl button.small { min-height: 44px; min-width: 56px; white-space: nowrap; }
+#rows tr.in { animation: rise var(--t-slow) var(--ease) both; }
+.thumb-sm:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+@media (min-width: 761px) {
+  /* 「確かめる点」は右に貼り付けて、横に送っても指摘の文が見えるようにする */
+  #tbl .rowflag { position: sticky; right: 0; z-index: 1; background: var(--tile); border-left: 2px solid var(--line); }
+  #tbl th.rowflag { background: var(--sunk); }
+  #tbl tr.dupe td.rowflag { background: var(--warn-bg); }
+  .scroll-hint { display: block; }
+  #tbl td[data-f=date] input { min-width: 124px; }
+  #tbl td[data-f=payee] input { min-width: 140px; }
+  #tbl td[data-f=total] input, #tbl td[data-f=amount10] input, #tbl td[data-f=amount8] input { min-width: 76px; }
+  #tbl td[data-f=row] { min-width: 190px; }
+  #tbl td:nth-child(8) input { min-width: 70px; }   /* 消費税額 */
+  #tbl td:nth-child(10) input { min-width: 96px; }  /* 支払方法 */
+  #tbl td:nth-child(11) input { min-width: 180px; } /* 品目 */
+  #tbl td:nth-child(14) { min-width: 68px; }        /* 削除 */
+  /* 貼り付けた「確かめる点」の下に、キーボードで選んだ欄が隠れないようにする */
+  .tablewrap { scroll-padding-right: 200px; }
+}
+
+/* ---- 3. 様式を選ぶ：3枚の札。選んだ札が朱の枠になり、見本の行が出る ---------------------- */
+.opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.opt { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 10px 10px; padding: 14px; color: var(--ink); cursor: pointer; background: var(--tile); border: 2px solid var(--line); border-radius: var(--r-md);
+  transition: background var(--t), border-color var(--t), box-shadow var(--t), transform var(--t) var(--ease); }
+.opt:hover { border-color: var(--field); }
+.opt input { width: 22px; height: 22px; margin: 3px 0 0; }
+.opt-name { display: block; font-size: 15px; line-height: 1.5; }
+.opt-name b { display: block; font-family: var(--display); font-size: 17px; }
+.opt-name small { display: block; font-size: 13px; color: var(--ink-2); }
+.opt:has(input:checked) { background: var(--beni-soft); border-color: var(--beni); box-shadow: var(--shadow-up); transform: translateY(-2px); }
+.opt:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 2px; }
+.opt input:focus-visible { outline: 0; }
+/* 見本の小さな表（飾り） */
+.ms { grid-column: 1 / -1; display: grid; gap: 0; align-self: end; background: var(--tile); border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; font-size: 10.5px; line-height: 1.5; color: var(--ink-2); }
+.ms i { font-style: normal; }
+.ms-row { display: grid; border-bottom: 1px solid var(--line-2); }
+.ms-row.c-std { grid-template-columns: 30fr 50fr 80fr 80fr 30fr; }
+.ms-row.c-jnl { grid-template-columns: 44fr 60fr 60fr 44fr 70fr; }
+.ms-row.c-ofc { grid-template-columns: 54fr 76fr 120fr 54fr 22fr; }
+.ms-row > i { padding: 3px 4px; min-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-right: 1px solid var(--line-2); }
+.ms-row > i:last-child { border-right: 0; }
+.ms-head > i { background: var(--sunk); font-weight: 700; }
+.ms-row:not(.ms-head) > i:empty::before { content: ""; display: block; height: 6px; margin: 5px 0; width: 70%; border-radius: 3px; background: var(--sunk-2); }
+.ms-row .t { background: var(--warn-bg); color: var(--warn-ink); font-weight: 700; }
+.ms-tabs { display: flex; gap: 2px; padding: 4px 4px 0; background: var(--sunk); }
+.ms-tabs i { padding: 1px 8px; border-radius: 5px 5px 0 0; color: var(--ink-3); white-space: nowrap; }
+.ms-tabs i.on { background: var(--tile); color: var(--ink); font-weight: 700; }
+.opt:has(input:checked) .ms-row:not(.ms-head) { animation: rise var(--t) var(--ease) both; }
+.opt:has(input:checked) .ms-row:nth-child(3) { animation-delay: .08s; }
+
+#style-note { margin: 12px 0 0; font-size: 14px; color: var(--ink-2); }
+#style-note.swap { animation: rise var(--t) var(--ease) both; }
+.exportbar { align-items: flex-end; margin-top: 14px; }
+/* 作り終えた知らせ：緑の印と、できたファイルの名前 */
+.made { position: relative; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0 8px; align-self: center; margin: 0; padding: 6px 16px 6px 40px; background: var(--leaf-soft); border-radius: var(--r-pill); font-weight: 700; overflow-wrap: anywhere; }
+.made::before { content: ""; position: absolute; left: 8px; top: 50%; width: 24px; height: 24px; margin-top: -12px; border-radius: 50%; background: var(--leaf); }
+.made::after { content: ""; position: absolute; left: 15px; top: 50%; width: 10px; height: 5px; margin-top: -5px; border-left: 2.5px solid var(--tile); border-bottom: 2.5px solid var(--tile); transform: rotate(-45deg); }
+.made .fn { font-family: var(--mono); font-weight: 500; }
+.made.in { animation: pop var(--t) var(--ease) both; }
+
+/* 御社の場合：別の面にして、Excel の操作と混ざらないようにする */
+.yours h3 { margin: 0 0 12px; font-size: clamp(19px, 2.4vw, 22px); }
+
+/* ---- スマホ --------------------------------------------------------------------------- */
+@media (max-width: 760px) {
+  .drop { padding: 20px 12px 16px; }
+  .drop-hint { display: none; } /* 狭い画面はスマホとみなす（置いて入れる案内は出さない） */
+  #reading .phase { font-size: 15px; }
+  .acts { flex-direction: column; align-self: stretch; justify-self: stretch; }
+  .act { width: 100%; }
+  .gobar #go { flex: 1 1 100%; }
+  #stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #stats .stat, #stats .s-time { grid-column: span 1; }
+  #stats .s-manual { grid-column: 1 / -1; }
+  #stats .s-count { order: -2; } #stats .s-time { order: -1; }
+  #stats .s-time b, #stats .s-manual b { font-size: 38px; }
+  /* 1枚ずつの札：番号・写真・確かめる点を上に出してから、項目を並べる */
+  #tbl tr { display: flex; flex-direction: column; padding: 8px 10px; border-radius: var(--r-md); }
+  #tbl td:nth-child(1) { order: -3; font-weight: 700; }
+  #tbl td:nth-child(2) { order: -2; }
+  #tbl td.rowflag { order: -1; }
+  #tbl td { border-bottom: 1px dashed var(--line); }
+  #tbl td:last-child { border-bottom: 0; }
+  #tbl td.red, #tbl td.yellow { border-radius: var(--r-sm); }
+  #tbl td.red::after, #tbl td.yellow::after { grid-column: 2; }
+  #tbl td.num input { text-align: left; }
+  .opts { grid-template-columns: minmax(0, 1fr); }
+  .opt:not(:has(input:checked)) .ms { display: none; }
+  .opt:has(input:checked) { transform: none; }
+  .exportbar #export { flex: 1 1 100%; }
+  .made { border-radius: var(--r-md); }
+}

@@ -6,8 +6,9 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Shippori+Mincho+B1:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/attendance.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>打刻データ → 残業の集計｜ソエギ デモ</title>
 </head>
@@ -17,18 +18,18 @@
   <nav><a href="/">デモの選択へ</a></nav>
 </div></header>
 <main class="wrap">
-  <h1>打刻データ → 残業の集計</h1>
+  <h1 class="vt-attendance">打刻データ → 残業の集計</h1>
   <p class="lead">複雑な残業の集計がすぐに終わり、上限に近い人が月の途中で分かります。計算はすべてプログラムで行い、AIは使いません（写真の読み取りだけ使います）。</p>
   <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
 
   <nav class="steps" aria-label="進み具合"><ol>
-    <li aria-current="step"><span class="n">1</span>撮る・読み込む</li>
+    <li aria-current="step"><span class="n">1</span>撮る・<wbr>読み込む</li>
     <li><span class="n">2</span>確かめる</li>
-    <li><span class="n">3</span>Excelにする</li>
+    <li><span class="n">3</span>Excelに<wbr>する</li>
   </ol></nav>
 
-  <section class="card">
-    <h2>1　打刻データを読み込む</h2>
+  <section class="card load">
+    <h2><b class="no">1</b>　打刻データを読み込む</h2>
     <div class="tabs" role="tablist">
       <button type="button" role="tab" id="tab-csv" aria-selected="true">打刻データのCSV</button>
       <button type="button" role="tab" id="tab-photo" aria-selected="false">タイムカード・出勤簿の写真</button>
@@ -37,13 +38,13 @@
     <div id="pane-csv">
       <div class="row">
         <label class="btn primary" for="csvfile">CSVを選ぶ</label>
-        <input type="file" id="csvfile" accept=".csv,.txt,text/csv" hidden>
+        <input type="file" id="csvfile" class="vh" accept=".csv,.txt,text/csv">
         <button type="button" id="sample">サンプル（架空の5人×1ヶ月）を使う</button>
         <a href="/sample/attendance-sample-2026-09.csv" download>サンプルCSVをダウンロード</a>
       </div>
       <p class="small-note">列は「氏名,日付,出勤,退勤,休憩分」。文字コードはUTF-8でもShift_JISでも読めます。ファイルは画面の中だけで処理し、送信しません。</p>
       <div id="mapbox" hidden>
-        <p id="csvinfo" class="small-note"></p>
+        <p id="csvinfo" class="small-note" role="status"></p>
         <div class="mapgrid" id="mapgrid"></div>
         <div class="tablewrap"><table id="preview"></table></div>
       </div>
@@ -53,7 +54,7 @@
       <div class="row">
         <label>対象の年月<input type="month" id="period"></label>
         <label class="btn primary" for="photofile">写真を選ぶ（10枚まで）</label>
-        <input type="file" id="photofile" accept="image/*" multiple hidden>
+        <input type="file" id="photofile" class="vh" accept="image/*" multiple>
         <button type="button" id="readphotos" disabled>読み取る</button>
       </div>
       <p class="small-note">写真はAIが読み取って表にします。計算の前に、下の表で必ず確認・修正してください（最大10枚）。</p>
@@ -69,55 +70,66 @@
     </div>
   </section>
 
-  <section class="card">
+  <!-- 設定は「変えなくてよいもの」なので白い面にしない。目が行くのは「計算する」だけにする -->
+  <section class="setup">
     <h2>設定（そのままでも進めます）</h2>
     <details>
       <summary>所定労働時間・休憩・法定休日・締め日（既定値のまま使えます）</summary>
-      <div class="settings">
-        <label>所定労働時間（時間）<input type="number" id="s-sched" value="8" min="1" max="12" step="0.5"></label>
-        <label>休憩の既定（分）<input type="number" id="s-break" value="60" min="0" max="240" step="5"></label>
-        <label>法定休日
-          <select id="s-holiday"><option value="0" selected>日曜</option><option value="1">月曜</option><option value="2">火曜</option><option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option></select>
-        </label>
-        <label>締め日
-          <select id="s-close"></select>
-        </label>
+      <div class="panel">
+        <div class="settings">
+          <label>所定労働時間（時間）<input type="number" id="s-sched" value="8" min="1" max="12" step="0.5"></label>
+          <label>休憩の既定（分）<input type="number" id="s-break" value="60" min="0" max="240" step="5"></label>
+          <label>法定休日
+            <select id="s-holiday"><option value="0" selected>日曜</option><option value="1">月曜</option><option value="2">火曜</option><option value="3">水曜</option><option value="4">木曜</option><option value="5">金曜</option><option value="6">土曜</option></select>
+          </label>
+          <label>締め日
+            <select id="s-close"></select>
+          </label>
+        </div>
+        <p class="small-note">「休憩の既定」は、休憩の列が空の日に使います。</p>
       </div>
-      <p class="small-note">「休憩の既定」は、休憩の列が空の日に使います。</p>
     </details>
     <div class="row mt12">
-      <button type="button" class="primary" id="calc" disabled>計算する</button>
+      <button type="button" class="primary btn-xl" id="calc" disabled>計算する</button>
       <span id="calc-hint" class="small-note"></span>
     </div>
   </section>
 
-  <section class="card" id="result" hidden>
-    <h2>2　確かめる</h2>
+  <!-- 結果：大きな数字と注意書きは地の上、横棒（主役）と日別表はそれぞれ白い面 -->
+  <section class="result" id="result" hidden>
+    <h2><b class="no">2</b>　確かめる</h2>
     <div class="stats" id="stats"></div>
     <div class="row">
       <label id="period-label" hidden>集計期間<select id="period-select"></select></label>
     </div>
     <p class="notice">目安の表示です。法的な判断は社会保険労務士にご相談ください。</p>
     <div id="errors"></div>
-    <h3>時間外＋休日労働の多い順（名前を押すと日別表）</h3>
-    <div class="legend">
-      <span><span class="badge yellow">黄</span> 時間外が月45時間超</span>
-      <span><span class="badge orange">橙</span> 時間外＋休日労働が月80時間以上</span>
-      <span><span class="badge red">赤</span> 同100時間以上</span>
-      <span>しま模様＝休日労働</span>
-    </div>
-    <div class="axis"><span></span><div class="scale" id="axis"></div><span></span></div>
-    <div class="bars" id="bars"></div>
-    <div class="tablewrap mt14"><table id="summary-table" class="stack"></table></div>
-    <p class="small-note">週40時間超は参考表示です（判定には使っていません）。連続勤務は6日以上で表示します。</p>
-    <h3 id="detail-title"></h3>
-    <div class="tablewrap"><table id="detail" class="stack"></table></div>
+
+    <section class="card chart" id="chart">
+      <h3>時間外＋休日労働の多い順（名前を押すと日別表）</h3>
+      <div class="legend">
+        <span><span class="badge yellow">黄</span> 時間外が月45時間超</span>
+        <span><span class="badge orange">橙</span> 時間外＋休日労働が月80時間以上</span>
+        <span><span class="badge red">赤</span> 同100時間以上</span>
+        <span>しま模様＝休日労働</span>
+      </div>
+      <div class="axis"><span></span><div class="scale" id="axis"></div><span></span></div>
+      <div class="bars" id="bars"></div>
+      <div class="tablewrap mt14"><table id="summary-table" class="stack"></table></div>
+      <p class="small-note">週40時間超は参考表示です（判定には使っていません）。連続勤務は6日以上で表示します。</p>
+    </section>
+
+    <section class="card daily" id="daily">
+      <h3 id="detail-title"></h3>
+      <div class="who" id="who" role="group" aria-label="日別表を見る人"></div>
+      <div class="tablewrap"><table id="detail" class="stack"></table></div>
+    </section>
   </section>
 
   <section class="card" id="step3" hidden>
-    <h2>3　Excelにする</h2>
+    <h2><b class="no">3</b>　Excelにする</h2>
     <p class="small-note">一覧／1人1シートの日別表／使った設定、の3つが入ります。判定の色もそのまま付きます。</p>
-    <button type="button" class="primary" id="export">Excelをダウンロード</button>
+    <button type="button" class="primary btn-xl" id="export">Excelをダウンロード</button>
     <h3>御社の場合</h3>
     <div id="roi"></div>
     <p class="pricing" id="pricing"></p>

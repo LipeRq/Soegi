@@ -1,6 +1,8 @@
 // デモC：サイトのチャットボットの見本ページ。ウィジェット本体は /widget/chat.js（サイトに貼るものと同じ）。
+// 動きは、もう手元にある内容の「見せ方」だけ（見本の入れ替え・棒の伸び・件数の数え上げ）。待ち時間は足していない。
 import { h, clear } from './common.js';
 import { pricingText } from './pricing.js';
+import { reduced, countUp, stagger, replay, flash } from './motion.js';
 
 const $ = (id) => document.getElementById(id);
 $('pricing').textContent = pricingText('chatbot');
@@ -10,15 +12,73 @@ const MOCK = {
   koumuten: { url: 'yamanami-juken.example（架空）', title: 'やまなみ住建（架空）', lines: ['外壁・屋根の塗装、水まわりのリフォーム。山形市・上山市・天童市など。', '見積りは無料です。'] },
   yado: { url: 'yukiakari-so.example（架空）', title: '蔵王温泉 ゆきあかり荘（仮）', lines: ['客室12室の家族経営の宿。硫黄泉の大浴場と、貸切風呂が2つ。', 'ご宿泊・アクセス・よくあるご質問'] },
 };
+const ORDER = Object.keys(MOCK); // ボタンの並び順（右の見本へ移るときは右から、左へ移るときは左から出す）
 
-function showMock(p) {
-  const m = MOCK[p];
-  $('mock-url').textContent = m.url;
-  clear($('mock-body')).append(h('h2', {}, m.title), ...m.lines.map((l) => h('p', {}, l)));
+// ---- 見本のサイト（小さなブラウザの窓） ------------------------------------------------
+
+/** 文字の無い、形だけの部品（ロゴ・メニュー・写真の場所）。サイトについての新しい説明は足さない */
+const blocks = (n) => Array.from({ length: n }, () => h('i'));
+
+function mockPage(p, m) {
+  // 見出しと文は、上から順に出す（文字ははじめから全文。打ち込みの演出はしない＝「（架空）」が遅れて出ることがない）
+  const txt = stagger(h('div', { class: 'txt' },
+    h('h2', {}, m.title), ...m.lines.map((l) => h('p', {}, l)),
+    h('div', { class: 'acts', 'aria-hidden': 'true' }, blocks(2))));
+  return h('div', { class: 'page in', dataset: { profile: p } },
+    h('div', { class: 'site-hd', 'aria-hidden': 'true' }, h('span', { class: 'logo' }, blocks(2)), h('span', { class: 'nav' }, blocks(4))),
+    h('div', { class: 'hero' }, txt, h('div', { class: 'pic', 'aria-hidden': 'true' }, blocks(3))),
+    h('div', { class: 'cards', 'aria-hidden': 'true' }, [0, 1, 2].map(() => h('div', { class: 'sk' }, blocks(3)))));
 }
 
-document.querySelectorAll('#profiles button').forEach((b) => b.addEventListener('click', () => {
-  document.querySelectorAll('#profiles button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+/** 前の見本を、横へ送り出してから消す。動きを減らす設定では、すぐ消す */
+function leave(old, dx) {
+  if (reduced()) { old.remove(); return; }
+  old.setAttribute('aria-hidden', 'true');
+  old.style.setProperty('--dx', `${-dx}px`);
+  old.classList.replace('in', 'out');
+  old.addEventListener('animationend', (e) => { if (e.target === old) old.remove(); });
+  setTimeout(() => old.remove(), 400); // 動きが流れなかったときも、必ず消す
+}
+
+let shown = null; // いま出している見本
+
+function showMock(p) {
+  if (p === shown) return; // 同じ見本をもう一度押したときは、中身が同じなので入れ替えない
+  const m = MOCK[p];
+  const body = $('mock-body');
+  const dx = shown == null ? 0 : Math.sign(ORDER.indexOf(p) - ORDER.indexOf(shown)) * 32;
+  const first = shown == null;
+  shown = p;
+  $('mock-url').textContent = m.url;
+  if (!first) replay($('mock-url'), 'swap');
+  Array.from(body.children).forEach((old) => leave(old, dx));
+  const page = mockPage(p, m);
+  page.style.setProperty('--dx', `${dx}px`);
+  body.append(page);
+}
+
+// ---- 業種の切り替え：選んだ所へ、墨の面がすべって移る ------------------------------------
+
+const profiles = $('profiles');
+const profileButtons = Array.from(profiles.querySelectorAll('button'));
+
+/** 選んだボタンの位置と大きさを CSS へ渡す（CSP のため CSSOM で入れる） */
+function moveThumb() {
+  const b = profiles.querySelector('[aria-pressed=true]');
+  if (!b || !b.offsetWidth) return; // 「管理画面」を開いている間は大きさが 0 になるので、何もしない
+  profiles.style.setProperty('--tx', `${b.offsetLeft}px`);
+  profiles.style.setProperty('--ty', `${b.offsetTop}px`);
+  profiles.style.setProperty('--tw', `${b.offsetWidth}px`);
+  profiles.style.setProperty('--th', `${b.offsetHeight}px`);
+  profiles.classList.add('ready');
+}
+// 書体の読み込みや画面の幅でボタンの大きさが変わるので、そのたびに合わせ直す
+if (typeof ResizeObserver === 'function') new ResizeObserver(moveThumb).observe(profiles);
+else { moveThumb(); window.addEventListener('resize', moveThumb); }
+
+profileButtons.forEach((b) => b.addEventListener('click', () => {
+  profileButtons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  moveThumb();
   showMock(b.dataset.profile);
   window.SoegiChat?.setProfile(b.dataset.profile);
   window.SoegiChat?.open();
@@ -40,14 +100,28 @@ const SUGGEST = [
   '「土日に来てもらえるか」がサイトに無い内容でした。よくあるご質問に足すかを決めます。',
 ];
 const sessionRows = new Map();
+const seen = new Map(); // 前に管理画面を開いたときの件数（増えた行を光らせるために覚えておく）
 
-function table(el, rows) {
+/** 表を作る。棒は上の行から順に伸び、件数は 0 から数え上げる（終わりの数は、必ず元の件数と同じ） */
+function table(el, rows, floor = 1) {
   const max = Math.max(1, ...rows.map((r) => r.count));
+  const scale = Math.max(floor, max); // 棒の長さの基準（件数が少ない表で、1件が満タンの棒に見えないようにする。件数そのものは変えない）
+  const body = h('tbody', {}, rows.map((r, i) => {
+    const none = r.category === 'サイトに無い内容'; // 答えられなかった種類は、灰色の棒（ナレッジの画面と同じ見せ方）
+    const top = rows.length > 1 && !none && r.count === max; // いちばん多い行は、朱の棒と「最多」の文字で示す
+    const cnt = h('td', { class: 'cnt num' }, String(r.count));
+    const bar = h('div', { class: 'minibar', style: { width: `${(r.count / scale) * 100}%` } });
+    bar.style.setProperty('--i', String(i));
+    countUp(cnt, r.count, { duration: 450 + i * 90 });
+    return h('tr', { class: none ? 'none' : top ? 'top' : '' },
+      h('td', { class: 'cat' }, r.category, top && h('span', { class: 'most' }, '最多')), cnt,
+      h('td', { class: 'barcell' }, h('div', { class: 'bartrack', 'aria-hidden': 'true' }, bar)), h('td', { class: 'memo' }, r.note));
+  }));
   clear(el).append(
     h('thead', {}, h('tr', {}, h('th', {}, '質問の種類'), h('th', { class: 'num' }, '件数'), h('th', {}, ''), h('th', {}, 'メモ'))),
-    h('tbody', {}, rows.map((r) => h('tr', {}, h('td', {}, r.category), h('td', { class: 'cnt num' }, String(r.count)),
-      h('td', { class: 'barcell' }, h('div', { class: 'minibar', style: { width: `${(r.count / max) * 100}%` } })), h('td', {}, r.note)))),
+    body,
   );
+  return body;
 }
 
 window.addEventListener('soegi-chat:answer', (e) => {
@@ -55,14 +129,23 @@ window.addEventListener('soegi-chat:answer', (e) => {
   const r = sessionRows.get(cat) ?? { category: cat, count: 0, langs: new Set() };
   r.count++; r.langs.add(e.detail.language);
   sessionRows.set(cat, r);
+  // 数えたことが分かるよう、「管理画面」のタブに、このデモで聞かれた件数を出す（中身は管理画面の表と同じ数）
+  const badge = $('tab-count');
+  badge.textContent = String([...sessionRows.values()].reduce((n, x) => n + x.count, 0));
+  badge.hidden = false;
+  replay(badge, 'bump');
 });
 
 function renderAdmin() {
   table($('report'), LAST_MONTH);
   clear($('suggest')).append(...SUGGEST.map((s) => h('li', {}, s)));
+  stagger($('suggest')); // 棒が伸びたあとに、候補を1つずつ出す（遅れの長さは chatbot.css）
   const rows = [...sessionRows.values()].sort((a, b) => b.count - a.count).map((r) => ({ ...r, note: `言語：${[...r.langs].join('・')}` }));
-  if (rows.length) table($('session-report'), rows);
-  else clear($('session-report')).append(h('tbody', {}, h('tr', {}, h('td', {}, 'まだ質問がありません。「試す」で質問してください。'))));
+  if (rows.length) {
+    const body = table($('session-report'), rows, 5);
+    // 前に見たときから増えた行を、一瞬だけ光らせる
+    rows.forEach((r, i) => { if (seen.get(r.category) !== r.count) flash(body.rows[i]); seen.set(r.category, r.count); });
+  } else clear($('session-report')).append(h('tbody', {}, h('tr', {}, h('td', { class: 'empty' }, 'まだ質問がありません。「試す」で質問してください。'))));
 }
 
 function setTab(which) {

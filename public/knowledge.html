@@ -6,8 +6,9 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Shippori+Mincho+B1:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/knowledge.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>社内ナレッジ検索｜ソエギ デモ</title>
 </head>
@@ -17,7 +18,7 @@
   <nav><a href="/">デモの選択へ</a></nav>
 </div></header>
 <main class="wrap">
-  <h1>社内ナレッジ検索 ＋ 外国人スタッフ向け</h1>
+  <h1 class="vt-knowledge">社内ナレッジ検索 ＋ 外国人スタッフ向け</h1>
   <p class="lead">今ある日本語の手順書・規則・見積書を、そのまま「聞けば答える」形にします。答えには必ず根拠の箇所を付け、質問した言語で答えます。</p>
   <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
   <p class="small-note" id="company"></p>
@@ -34,12 +35,13 @@
       <button type="button" data-show="evidence" aria-selected="false">根拠</button>
     </div>
     <div class="kb">
-      <section class="card docs" data-pane="docs">
+      <!-- 資料の一覧は白いタイルにしない（主役は中央の「質問する」）。中の一覧だけが縦に動く -->
+      <section class="docs" data-pane="docs" id="docs-pane">
         <h2>読み込ませた資料（日本語のみ）</h2>
-        <ul class="doclist" id="doclist"></ul>
+        <div class="docscroll" id="docscroll"><ul class="doclist" id="doclist"></ul></div>
       </section>
 
-      <section class="card show" data-pane="chat" id="foreign">
+      <section class="card chat show" data-pane="chat" id="foreign">
         <h2>質問する</h2>
         <div class="roles" id="roles"></div>
         <div class="chatlog" id="chatlog" aria-live="polite"></div>
@@ -50,7 +52,8 @@
         <p class="small-note">安全・衛生・体調に関わる質問には、答えと一緒に「必ずリーダーに確認」を出します。資料に無いことは「見当たりません」と答えます。労務・在留資格の判断はしません。</p>
       </section>
 
-      <section class="card evidence" data-pane="evidence">
+      <!-- 根拠：資料を開くまでは点線の枠だけ。開くと白い紙になる（.open は knowledge.js が付ける） -->
+      <section class="evidence" data-pane="evidence" id="evidence-pane">
         <h2>根拠の箇所</h2>
         <div id="evidence"><p class="small-note">答えの「根拠」を押すと、資料のその箇所がここに出ます。</p></div>
       </section>
@@ -62,10 +65,12 @@
       <h2>よく聞かれた質問（月次レポートの見本）</h2>
       <p class="small-note">下の「先月」は架空の例です。実際の導入では、質問の内容ではなく種類と件数を集計し、毎月のレポートにします（何を残すかは最初に一緒に決めます）。</p>
       <div class="tablewrap"><table class="report" id="report"></table></div>
-      <h3>手順書の改善の候補</h3>
-      <ul id="suggest"></ul>
+      <div class="ideas">
+        <h3>手順書の改善の候補</h3>
+        <ul id="suggest"></ul>
+      </div>
     </section>
-    <section class="card">
+    <section class="card session">
       <h2>このデモで聞かれた質問</h2>
       <p class="small-note">この画面の中だけで数えています（サーバーには残しません。画面を閉じると消えます）。</p>
       <div class="tablewrap"><table class="report" id="session-report"></table></div>

@@ -10,6 +10,7 @@ import {
   calculate, DEFAULT_SETTINGS, LIMITS, STATUS_TEXT, WEEKDAY_LABELS, fmtHM, fmtClock,
 } from './overtime.js';
 import { buildAttendanceWorkbook } from './attendance-xlsx.js';
+import { reduced, countUp, stagger, replay, flash, onVisible } from './motion.js';
 
 requireAuth();
 const $ = (id) => document.getElementById(id);
@@ -24,6 +25,10 @@ const roi = mountRoi($('roi'), {
 
 const FIELDS = [['name', '氏名'], ['date', '日付'], ['start', '出勤'], ['end', '退勤'], ['breakMin', '休憩（分）']];
 const STATUS_BADGE = { yellow: '黄', orange: '橙', red: '赤' };
+// 横棒の印に添える短い言葉（色の名前だけでは伝わりにくいので、何時間の線を越えたかも書く。数字は判定と同じ LIMITS から作る）
+const STATUS_SHORT = { yellow: `${LIMITS.yellowOver / 60}時間超`, orange: `${LIMITS.orange / 60}時間以上`, red: `${LIMITS.red / 60}時間以上` };
+// 「動きを減らす」設定の人には、なめらかなスクロールもしない
+const scrollBehavior = () => (reduced() ? 'auto' : 'smooth');
 
 let csvRows = null; // 読み込んだCSV（見出しを含む）
 let mapping = null;
@@ -61,6 +66,8 @@ function loadCsvBuffer(buf, label) {
   mapping = guessColumns(rows[0]);
   $('csvinfo').textContent = `${label}：${rows.length - 1}行を読み込みました。列の対応を確認してください。`;
   renderMapping();
+  stagger($('preview').tBodies[0]); // 読み込んだ行が、上から順に入ってくる
+  if (!$('mapbox').hidden) flash($('csvinfo')); // 読み込み直したときは、変わった所を光らせる
   $('mapbox').hidden = false;
   updateCalcState();
 }
@@ -182,12 +189,14 @@ $('calc').addEventListener('click', () => {
   if (!result.periods.length) {
     periodKey = null;
     renderErrors();
-    clear($('bars')); clear($('summary-table')); clear($('detail')); clear($('stats')); $('detail-title').textContent = '';
+    clear($('bars')); clear($('summary-table')); clear($('detail')); clear($('stats')); clear($('who')); $('detail-title').textContent = '';
+    $('chart').hidden = true; $('daily').hidden = true;
     $('export').disabled = true;
     $('step3').hidden = true;
     return;
   }
   $('export').disabled = false;
+  $('chart').hidden = false; $('daily').hidden = false;
   const sel = clear($('period-select'));
   result.periods.forEach((p) => sel.append(h('option', { value: p.key }, p.label)));
   // 人数の多い期間を既定に
@@ -196,7 +205,7 @@ $('calc').addEventListener('click', () => {
   $('period-label').hidden = result.periods.length < 2;
   selectedName = null;
   render();
-  $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('result').scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
 });
 $('period-select').addEventListener('change', (e) => { periodKey = e.target.value; selectedName = null; render(); });
 
@@ -214,29 +223,58 @@ function renderErrors() {
 
 function renderStats(p) {
   const box = clear($('stats'));
+  // 数字は0から数え上げる。終わりの表示は、数え上げない場合とまったく同じ文字になる。
+  // Text ノードにも textContent があるので、単位の <small> を消さずに数字だけを動かせる
+  const exact = (to) => (n) => (n === to ? String(to) : String(Math.round(n)));
+  const num = (to) => { const t = document.createTextNode('0'); countUp(t, to, { format: exact(to) }); return t; };
   const stat = (label, value, unit, cls = '', extra = null) => h('div', { class: `stat ${cls}` }, h('span', {}, label), h('b', {}, value, h('small', {}, unit)), extra);
   const near = p.people.filter((x) => x.status !== 'none').length;
+  const manual = num(p.people.length * minutesPerPerson);
   const mins = h('input', {
     type: 'number', min: '0', max: '120', step: '1', value: String(minutesPerPerson), inputMode: 'numeric', 'aria-label': '1人分の手計算の分',
-    onchange: (e) => { minutesPerPerson = Math.max(0, Number(e.target.value) || 0); roi.setMinutes(minutesPerPerson); renderStats(p); },
+    onchange: (e) => {
+      // 表を作り直さず、変わった数字だけを前の値から動かす（ほかの数字まで数え直すと、何が変わったか分からなくなる）
+      const before = p.people.length * minutesPerPerson;
+      minutesPerPerson = Math.max(0, Number(e.target.value) || 0); roi.setMinutes(minutesPerPerson);
+      e.target.value = String(minutesPerPerson);
+      const to = p.people.length * minutesPerPerson;
+      countUp(manual, to, { from: before, format: exact(to) });
+      flash(manual.parentElement);
+    },
   });
   box.append(
-    stat('集計した人数', String(p.people.length), '人'),
-    stat('打刻の行数', String(p.people.reduce((t, x) => t + x.days.length, 0)), '行'),
-    stat('計算にかかった時間', elapsedMs < 1000 ? '1秒未満' : (elapsedMs / 1000).toFixed(1), elapsedMs < 1000 ? '' : '秒', 'good'),
-    stat('手計算なら約', String(p.people.length * minutesPerPerson), '分', '', h('em', {}, '1人 ', mins, ' 分（仮置き）')),
+    stat('集計した人数', num(p.people.length), '人', 'quiet'),
+    stat('打刻の行数', num(p.people.reduce((t, x) => t + x.days.length, 0)), '行', 'quiet'),
+    // 「プログラムなら／手計算なら」を1つの面に並べて、比べて読めるようにする。かかった時間は測ったままを出す（動かさない）
+    h('div', { class: 'vs' },
+      stat('計算にかかった時間', elapsedMs < 1000 ? '1秒未満' : (elapsedMs / 1000).toFixed(1), elapsedMs < 1000 ? '' : '秒', 'good'),
+      stat('手計算なら約', manual, '分', '', h('em', {}, h('span', { class: 'nw' }, '1人 ', mins, ' 分'), '（仮置き）'))),
+    // 上限に近い人の数は、安全の表示なので数え上げない（0 → 1 → 2 と増えると、横棒の印とずれる）。はじめから本当の数を出す
     stat('上限に近い人（黄・橙・赤）', String(near), '人', near ? 'warn' : ''),
   );
+  stagger(box);
 }
 
 function render() {
   renderErrors();
   const p = period();
   renderStats(p);
+  selectedName = selectedName ?? p.people[0]?.name;
   renderBars(p);
   renderSummary(p);
-  selectedName = selectedName ?? p.people[0]?.name;
+  renderWho(p);
   renderDetail(p);
+}
+
+// 横棒は、見える所に来てから伸ばす（スマホでは計算の直後は画面の外にあるため。見えない所で伸び終わると意味がない）
+let stopWaitingBars = () => {};
+function playBars(box, counts) {
+  stopWaitingBars();
+  const go = () => { box.classList.remove('wait'); replay(box); counts.forEach((f) => f()); };
+  const r = box.getBoundingClientRect();
+  if (reduced() || (r.top < window.innerHeight && r.bottom > 0)) { go(); return; }
+  box.classList.add('wait'); // 伸びる前の形で待つ（数字と判定の印は、待っている間も出ている）
+  stopWaitingBars = onVisible(box, go, { threshold: 0 });
 }
 
 function renderBars(p) {
@@ -247,23 +285,71 @@ function renderBars(p) {
     axis.append(h('span', { style: { left: pct(m) } }, label));
   }
   const box = clear($('bars'));
-  for (const x of p.people) {
+  // 棒の背景の色分け（style.css の .track）を、点線・目盛りと同じ位置に合わせる。目盛りの幅は人によって変わるので毎回入れる
+  box.style.setProperty('--z45', pct(LIMITS.yellowOver));
+  box.style.setProperty('--z80', pct(LIMITS.orange));
+  box.style.setProperty('--z100', pct(LIMITS.red));
+  const counts = [];
+  p.people.forEach((x, n) => {
+    const order = Math.min(n, 12); // 上から順に伸びる。人数が多いときは、13人目から先は待たせない
+    const seg = (cls, m, title) => {
+      const el = h('div', { class: `seg grow ${cls}`, style: { width: pct(m) }, title });
+      el.style.setProperty('--i', String(order));
+      return el;
+    };
+    // 棒が伸びるのに合わせて、時間の数字も数え上げる（終わりは fmtHM の表示と同じ）。
+    // 黄・橙・赤の人は、印が先に出ているので数え上げない（印より小さい数字が並ぶのを避ける）
+    const hm = (min) => {
+      const t = document.createTextNode(fmtHM(min));
+      if (x.status === 'none') counts.push(() => countUp(t, min, { duration: 900 + order * 70, format: (v) => fmtHM(Math.round(v)) }));
+      return t;
+    };
     const track = h('div', { class: 'track' },
-      h('div', { class: `seg hol ${x.status}`, style: { width: pct(x.overPlusHolidayMin) }, title: '休日労働を含む' }),
-      h('div', { class: `seg ${x.status}`, style: { width: pct(x.overMin) } }),
+      seg(`hol ${x.status}`, x.overPlusHolidayMin, '休日労働を含む'),
+      seg(x.status, x.overMin),
       h('span', { class: 'mark m45', style: { left: pct(LIMITS.yellowOver) } }),
       h('span', { class: 'mark m80', style: { left: pct(LIMITS.orange) } }),
       h('span', { class: 'mark m100', style: { left: pct(LIMITS.red) } }));
     box.append(h('button', {
-      type: 'button', class: 'bar-row', 'aria-pressed': String(x.name === selectedName),
-      onclick: () => { selectedName = x.name; renderBars(p); renderDetail(p); $('detail-title').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); },
+      type: 'button', class: `bar-row ${x.status}`, dataset: { name: x.name }, 'aria-pressed': String(x.name === selectedName),
+      onclick: () => { select(x.name); revealDetail(); },
     },
     h('span', { class: 'bar-name' }, x.name),
     track,
     h('span', { class: 'bar-val' },
-      `時間外 ${fmtHM(x.overMin)}${x.holidayMin ? ` ＋ 休日 ${fmtHM(x.holidayMin)}` : ''} `,
-      x.status !== 'none' ? h('span', { class: `badge ${x.status}` }, STATUS_BADGE[x.status]) : null,
+      h('span', { class: 'hm' }, '時間外 ', hm(x.overMin), x.holidayMin ? [' ＋ 休日 ', hm(x.holidayMin)] : null, ' '),
+      x.status !== 'none' ? h('span', { class: `badge ${x.status}` }, STATUS_BADGE[x.status], h('small', {}, STATUS_SHORT[x.status])) : null,
       x.streakFlag ? h('span', { class: 'badge streak' }, `${x.maxStreak}連勤`) : null)));
+  });
+  playBars(box, counts);
+}
+
+// ---- 人を選ぶ（横棒からも、日別表の上の名前からも選べる） -----------------------------
+
+function select(name) {
+  selectedName = name;
+  // 横棒は作り直さない（作り直すと、押すたびに全部の棒が伸び直してしまう）。選んだ印だけを付け替える
+  for (const b of document.querySelectorAll('#bars .bar-row, #who button')) b.setAttribute('aria-pressed', String(b.dataset.name === name));
+  const who = $('who');
+  const chip = who.querySelector('[aria-pressed=true]');
+  if (chip && (chip.offsetLeft < who.scrollLeft || chip.offsetLeft + chip.offsetWidth > who.scrollLeft + who.clientWidth)) who.scrollLeft = chip.offsetLeft - 8;
+  renderDetail(period());
+  flash($('detail-title')); // 日別表が入れ替わったことを、見出しを光らせて知らせる
+}
+
+/** 日別表を見える所へ。すでに画面の上半分に見えているときは動かさない */
+function revealDetail() {
+  const el = $('daily');
+  const top = el.getBoundingClientRect().top;
+  if (top >= 0 && top < window.innerHeight * 0.5) return;
+  el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
+}
+
+function renderWho(p) {
+  const box = clear($('who'));
+  for (const x of p.people) {
+    box.append(h('button', { type: 'button', dataset: { name: x.name }, 'aria-pressed': String(x.name === selectedName), onclick: () => select(x.name) },
+      x.name, x.status !== 'none' ? h('span', { class: `badge ${x.status}` }, STATUS_BADGE[x.status]) : null));
   }
 }
 
@@ -298,7 +384,7 @@ function renderDetail(p) {
       td('休憩', `${d.breakMin}分`), td('実労働', fmtHM(d.workMin)), td('時間外', d.overMin ? fmtHM(d.overMin) : '—'),
       td('深夜', d.nightMin ? fmtHM(d.nightMin) : '—'), td('休日労働', d.holidayMin ? fmtHM(d.holidayMin) : '—'), td('備考', notes)));
   }
-  t.append(body);
+  t.append(stagger(body, 10)); // 日ごとの行が、上から順に入ってくる
 }
 
 // ---- Excel --------------------------------------------------------------------------

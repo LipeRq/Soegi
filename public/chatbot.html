@@ -6,52 +6,63 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Shippori+Mincho+B1:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/chatbot.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>サイトのチャットボット｜ソエギ デモ</title>
 </head>
 <body>
 <header class="site"><div class="wrap">
   <a class="brand" href="https://withsoegi.jp/"><b>ソエギ</b><small>デモ</small></a><span class="sub">Webサイトに置くチャットボット</span>
-  <nav><a href="https://withsoegi.jp/">ソエギのサイトへ</a></nav>
+  <nav><a href="/">デモの選択へ</a><a href="https://withsoegi.jp/">ソエギのサイトへ</a></nav>
 </div></header>
 <main class="wrap">
-  <h1>夜や休日の問い合わせにも、サイトの内容どおりに答える</h1>
+  <h1 class="vt-chatbot">夜や休日の問い合わせにも、サイトの内容どおりに答える</h1>
   <p class="lead">ソエギ自身のサイト（withsoegi.jp）の右下に置いているものと同じです。サイトに書いてある内容だけで答え、できないことははっきり言い、相談へご案内します。</p>
   <p class="notice">デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。</p>
 
   <div class="tabs" role="tablist" aria-label="画面の切り替え">
-    <button type="button" role="tab" id="tab-try" aria-selected="true">試す</button>
-    <button type="button" role="tab" id="tab-admin" aria-selected="false">管理画面（何が聞かれたか）</button>
+    <button type="button" role="tab" id="tab-try" aria-selected="true" aria-controls="pane-try">試す</button>
+    <button type="button" role="tab" id="tab-admin" aria-selected="false" aria-controls="pane-admin">管理画面（何が聞かれたか）<span class="tabcount" id="tab-count" aria-hidden="true" hidden></span></button>
   </div>
 
-  <div id="pane-try">
-    <section class="card">
-      <h2>業種別の見本</h2>
-      <div class="faq-lang" id="profiles">
-        <button type="button" data-profile="soegi" aria-pressed="true">ソエギのサイト版</button>
-        <button type="button" data-profile="koumuten" aria-pressed="false">工務店のサイト版（架空）</button>
-        <button type="button" data-profile="yado" aria-pressed="false">宿のサイト版（架空）</button>
+  <div id="pane-try" role="tabpanel" aria-labelledby="tab-try">
+    <section class="chooser" aria-labelledby="h-profiles">
+      <h2 id="h-profiles">業種別の見本</h2>
+      <div class="pickrow">
+        <div class="profiles" id="profiles" role="group" aria-labelledby="h-profiles">
+          <button type="button" data-profile="soegi" aria-pressed="true">ソエギのサイト版</button>
+          <button type="button" data-profile="koumuten" aria-pressed="false">工務店のサイト版（架空）</button>
+          <button type="button" data-profile="yado" aria-pressed="false">宿のサイト版（架空）</button>
+        </div>
+        <button type="button" class="primary" id="open">質問の窓を開く</button>
       </div>
       <p class="small-note">右下の「質問する」を押すと開きます。見本の質問も出ます。</p>
-      <div class="row"><button type="button" class="primary" id="open">質問の窓を開く</button></div>
     </section>
-    <div class="mocksite" aria-label="サイトの見本">
-      <div class="bar" id="mock-url">withsoegi.jp</div>
+    <div class="mocksite" role="group" aria-label="サイトの見本">
+      <div class="bar">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="sample">見本</span>
+        <span class="urlbox"><span id="mock-url">withsoegi.jp</span></span>
+      </div>
       <div class="body" id="mock-body"></div>
     </div>
   </div>
 
-  <div id="pane-admin" hidden>
-    <section class="card">
+  <div id="pane-admin" role="tabpanel" aria-labelledby="tab-admin" hidden>
+    <section class="card monthly">
       <h2>何が何回聞かれたか（月次レポートの見本）</h2>
       <p class="small-note">「先月」は架空の例です。実際の導入では、質問の種類と件数を毎月まとめ、サイトの改善に使います。</p>
-      <div class="tablewrap"><table class="report" id="report"></table></div>
-      <h3>サイトの改善の候補</h3>
-      <ul id="suggest"></ul>
+      <div class="monthgrid">
+        <div class="tablewrap"><table class="report" id="report"></table></div>
+        <div class="ideas">
+          <h3>サイトの改善の候補</h3>
+          <ul id="suggest"></ul>
+        </div>
+      </div>
     </section>
-    <section class="card">
+    <section class="card session">
       <h2>このデモで聞かれた質問</h2>
       <p class="small-note">この画面の中だけで数えています（サーバーには残しません）。</p>
       <div class="tablewrap"><table class="report" id="session-report"></table></div>

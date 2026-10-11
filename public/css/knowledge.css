@@ -1,0 +1,210 @@
+/* 社内ナレッジ検索：左に資料、中央に質問、右に根拠。色・書体・動きの値は /css/style.css の変数だけを使う
+   - 主役は中央の「質問する」（白いタイル）。資料の一覧は地の上に直接置き、根拠は資料を開いたときだけ白い紙になる
+   - 「要確認」「見当たりません」「AIの翻訳です」などの決まった文言は、動きで隠さない（はじめから全文が出ている） */
+
+/* ---- 3つの面 ------------------------------------------------------------------------- */
+.kb { gap: 16px; }
+.kb > section { min-width: 0; }
+.kb .docs h2, .kb .evidence h2 { color: var(--ink-2); letter-spacing: .02em; }
+
+/* 資料の一覧：見出しは動かさず、一覧だけが縦に動く（読んでいる間の線 .scanning を面の上に走らせるため） */
+.kb .docs { position: relative; max-height: none; overflow: hidden; border-radius: var(--r); animation: rise var(--t-slow) var(--ease) both; }
+.kb .docs h2 { margin: 6px 8px 4px; }
+.docscroll { position: relative; overflow: auto; padding: 0 6px 8px; }
+.doclist { font-size: 14px; }
+.doclist .grp { display: flex; align-items: baseline; gap: 2px; margin: 12px 0 2px; padding: 4px 6px; font-size: 12px; color: var(--ink-2); letter-spacing: .04em; background: var(--bg); }
+.doclist .grp:first-child { margin-top: 0; }
+.doclist .grp .n { font-family: var(--mono); font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
+.doclist li button { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 8px; align-items: baseline; min-height: 44px; padding: 8px 10px 8px 18px; border-radius: var(--r); line-height: 1.45; }
+.doclist li button .t { overflow-wrap: anywhere; }
+.doclist li button small { grid-column: 1 / -1; font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+.doclist li button::before { content: ""; position: absolute; left: 7px; top: 11px; bottom: 11px; width: 4px; border-radius: var(--r-pill); background: var(--beni); transform: scaleY(0); transition: transform var(--t) var(--ease); }
+.doclist li button:hover { background: var(--tile); }
+/* いま右に開いている資料：色だけでなく、太字・左の線・「表示中」の文字でも分かるようにする */
+.doclist li button[aria-current=true] { background: var(--tile); box-shadow: var(--shadow); font-weight: 700; }
+.doclist li button[aria-current=true]::before { transform: none; }
+.doclist li button[aria-current=true]::after { content: "表示中"; grid-column: 2; grid-row: 1; font-size: 11px; font-weight: 700; color: var(--beni); background: var(--beni-soft); border-radius: var(--r-pill); padding: 0 8px; white-space: nowrap; }
+.doclist li button[aria-current=true] small { font-weight: 400; }
+
+/* 質問する：この画面の主役 */
+.kb .chat { padding: 22px; }
+.kb .chat > h2 { font-size: 21px; margin-bottom: 14px; }
+
+/* 根拠：資料を開くまでは点線の枠。開くと白い紙になる */
+.kb .evidence { padding: 16px 18px 18px; border-radius: var(--r-tile); border: 1.5px dashed var(--field); animation: rise var(--t-slow) var(--ease) .08s both;
+  transition: background var(--t), border-color var(--t), box-shadow var(--t); }
+.kb .evidence.open { background: var(--tile); border-color: transparent; box-shadow: var(--shadow); }
+.kb .evidence h2 { margin-bottom: 8px; }
+#evidence { padding: 0 3px 3px; }
+#evidence > .small-note { margin: 0; }
+
+@media (min-width: 761px) {
+  /* 質問が長く続いても、資料の一覧は横に付いてくる */
+  .kb .docs { position: sticky; top: 12px; }
+  .docscroll { max-height: calc(100vh - 76px); }
+  .doclist .grp { position: sticky; top: 0; z-index: 1; }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  #evidence { max-height: 60vh; overflow: auto; }
+}
+@media (min-width: 1101px) {
+  .kb { grid-template-columns: 236px minmax(0, 1fr) 340px; }
+  /* 根拠も横に付いてくる。長い資料は、この面の中だけで動かす（ページ全体が動いて、答えが見えなくならないように） */
+  .kb .evidence { position: sticky; top: 12px; max-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+  #evidence { min-height: 0; overflow: auto; }
+}
+
+/* ---- 役になって聞くボタン：小さな札＝誰の役か／大きな文字＝質問 ----------------------------- */
+.roles { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.roles button { position: relative; gap: 5px; min-height: 68px; padding: 10px 14px 12px; border-width: 1.5px; border-radius: var(--r); font-size: 15px; line-height: 1.5; }
+.roles button small { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; padding-right: 22px; font-weight: 400; color: var(--ink-3); line-height: 1.5; }
+.roles button small b { background: var(--beni-soft); color: var(--beni); border-radius: var(--r-pill); padding: 0 10px; font-weight: 700; transition: background var(--t-fast), color var(--t-fast); }
+/* 日本語は文節の切れ目で折り返す（1〜2文字だけ次の行に残らないように）。長い外国語の単語だけは途中で折る */
+.roles button .q { overflow-wrap: break-word; word-break: auto-phrase; line-break: strict; }
+.roles button .q[lang]:not([lang=ja]) { overflow-wrap: anywhere; }
+.roles button::after { content: "→"; position: absolute; right: 14px; top: 8px; color: var(--beni); font-weight: 700; transition: transform var(--t-fast); }
+.roles button:hover { box-shadow: var(--shadow); }
+.roles button:hover::after { transform: translateX(4px); }
+.roles button:hover small b { background: var(--beni); color: var(--tile); }
+/* 管理画面へ行くボタンは、質問ではないので控えめに */
+.roles button.to-admin { border-style: dashed; border-color: var(--field); background: none; }
+.roles button.to-admin small b { background: var(--sunk-2); color: var(--ink-2); }
+.roles button.to-admin:hover small b { background: var(--ink); color: var(--tile); }
+/* 指で押す画面では、押したあとに色が残って「選ばれている」ように見えないようにする */
+@media (hover: none) {
+  .roles button:hover { background: var(--tile); border-color: var(--line); box-shadow: none; }
+  .roles button:hover small b { background: var(--beni-soft); color: var(--beni); }
+  .roles button.to-admin:hover { background: none; border-color: var(--field); }
+  .roles button.to-admin:hover small b { background: var(--sunk-2); color: var(--ink-2); }
+  .roles button.pick:hover { border-color: var(--beni); }
+}
+/* 入口の「外国人スタッフ向け」から来たとき：母国語の質問のボタンを先に目に入れる */
+.roles button.pick { border-color: var(--beni); animation: rise var(--t-slow) var(--ease) both, ring calc(var(--t-slow) * 2) ease-out 3; animation-delay: calc(var(--i, 0) * 55ms), calc(var(--t-slow) + var(--t)); }
+
+/* ---- ラテン文字の言語 ------------------------------------------------------------------
+   BIZ UDPGothic にはベトナム語の ẫ などが無く、記号が文字から離れて見える。
+   共有の変数が用意されるまでの間、ラテン文字の言語だけ総称の sans-serif に任せる（書体の名前は足さない） */
+:is(:lang(vi), :lang(id), :lang(en), :lang(tl), :lang(pt), :lang(es)),
+#q.foreign::placeholder { font-family: sans-serif; }
+
+/* ---- 会話 ---------------------------------------------------------------------------- */
+/* 会話の枠は、入力欄と一緒に画面に収まる高さまで（質問と答えが、できるだけ1画面で読めるように） */
+.chatlog { gap: 14px; padding: 4px 3px; max-height: max(320px, calc(100vh - 210px)); max-height: max(320px, calc(100dvh - 210px)); }
+.chatlog:empty { min-height: 0; padding: 0; }
+.chatlog .who { align-self: flex-end; margin: 4px 4px -10px; font-size: 12px; font-weight: 700; color: var(--ink-3); animation: rise var(--t) var(--ease) both; }
+.msg.user { padding: 10px 16px; font-size: 16px; overflow-wrap: anywhere; }
+.msg.bot { display: grid; gap: 12px; padding: 14px 16px; border-radius: var(--r-tile); border-bottom-left-radius: var(--r-sm); }
+.msg.bot > * { margin: 0; min-width: 0; }
+.msg .part > p, .msg .confirm p { overflow-wrap: anywhere; }
+
+/* 待っている間：点が動く（本当に待っている間だけ） */
+.msg.bot.wait { align-self: flex-start; display: flex; align-items: center; gap: 10px; padding: 8px 16px; }
+.msg.bot.wait .phase { margin: 0; font-size: 14px; }
+
+/* 答え：吹き出しの中でいちばん大きく */
+.msg .part.ans > .lbl { color: var(--beni); }
+.msg .part.ans > p { font-size: 17px; line-height: 1.8; }
+/* 質問の日本語訳は、答えより控えめに */
+.msg .part.ja { background: none; border-radius: 0; border-left: 3px solid var(--line); padding: 0 0 0 10px; }
+.msg .part.ja > p { font-size: 14px; color: var(--ink-2); }
+.msg .part.easy { padding: 10px 14px; }
+
+/* 1文字ずつ出す段落：全文を透明のまま先に置き、同じ場所に重ねて出す。
+   高さがはじめから決まるので、下にある「要確認」や根拠が、答えの途中で動かない */
+.msg .part > p.typed { display: grid; }
+.typed > span { grid-area: 1 / 1; min-width: 0; }
+.typed > .full { color: transparent; }
+@media (forced-colors: active) { .typed > .full { visibility: hidden; } }
+
+/* 資料に無いとき：吹き出しごと別の見た目にする（点線の枠＋札＋太字） */
+.msg.bot.none { background: var(--tile); border: 1.5px dashed var(--field); }
+.msg .notfound .badge { font-size: 13px; padding: 3px 14px; background: var(--sunk-2); border-color: var(--field); color: var(--ink); }
+.msg .notfound > p { margin-top: 6px; font-size: 17px; font-weight: 700; }
+
+/* 要確認：黄色の面・太い枠・札。出た瞬間に輪が広がって目を引く（文言ははじめから全部出ている） */
+.msg .confirm { --ring: color-mix(in srgb, var(--warn-line) 70%, transparent); display: grid; gap: 4px; padding: 10px 14px 12px; border-width: 2px; animation: ring calc(var(--t-slow) * 2) ease-out var(--t) 2; }
+.msg .confirm > .lbl { justify-self: start; margin-bottom: 2px; padding: 1px 12px; border-radius: var(--r-pill); background: var(--warn-ink); color: var(--tile) !important; font-size: 13px; letter-spacing: .1em; }
+.msg .confirm > p:first-of-type { font-size: 16px; font-weight: 700; }
+.msg .confirm > .small-note { color: var(--warn-ink); }
+
+/* 根拠の札：答えが出そろってから、ぽんと出る */
+.cites { gap: 8px; margin-top: 4px; }
+.cites button { min-height: 44px; padding: 6px 14px; border-width: 1.5px; border-radius: var(--r-pill); background: var(--tile); font-size: 14px; text-align: left; justify-content: flex-start; flex-wrap: nowrap; line-height: 1.4; max-width: 100%; }
+/* 札の文字は1かたまりにして、「表示中」は長い札でも右端に1行で付ける */
+.cites button::before { flex: none; white-space: nowrap; }
+.cites button .ct { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.cites button[aria-pressed=true]::after { flex: none; }
+.cites.wait button { opacity: 0; }
+/* キーボードで来た札は、動きの途中でも見えるようにする */
+.cites.wait button:focus-visible { opacity: 1; }
+.cites.in button { animation: pop var(--t) var(--ease) both; animation-delay: calc(var(--i, 0) * 80ms); }
+.cites button:hover { box-shadow: var(--shadow); }
+/* 右に開いている根拠：枠・地の色に加えて「表示中」の文字 */
+.cites button[aria-pressed=true] { border-color: var(--beni); background: var(--beni-soft); font-weight: 700; }
+.cites button[aria-pressed=true]::after { content: "表示中"; margin-left: auto; font-size: 11px; font-weight: 700; color: var(--tile); background: var(--beni); border-radius: var(--r-pill); padding: 0 8px; }
+
+.msg details.part { border-top: 1px dashed var(--line); }
+.msg details.part summary { font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.msg details.part > p { padding: 0 0 4px; }
+/* AIの翻訳であること：小さくしすぎず、朱の点を付ける */
+.msg .translated.ai { position: relative; padding-left: 16px; font-size: 13px; color: var(--ink-2); }
+.msg .translated.ai::before { content: ""; position: absolute; left: 2px; top: .65em; width: 7px; height: 7px; border-radius: 50%; background: var(--beni); }
+/* 根拠を確かめられなかった、などのお知らせ */
+.msg .translated.sys { padding: 6px 12px; border-radius: var(--r-sm); background: var(--warn-bg); font-size: 13px; color: var(--ink); }
+.msg .translated.meta { padding-top: 8px; border-top: 1px solid var(--line); font-size: 12px; letter-spacing: .02em; }
+
+.chatform { margin-top: 14px; scroll-margin: 70px 0 14px; }
+.chatform input { min-height: 48px; }
+
+/* ---- 根拠の箇所 ---------------------------------------------------------------------- */
+/* 資料の名前は、中を動かしても上に残す（下の文が透けないよう、ここだけは出てくる動きを付けない） */
+#evidence > .doc-head { position: sticky; top: 0; z-index: 1; background: var(--tile); animation: none; }
+.evidence .doc-type { margin: 0; font-size: 12px; font-weight: 700; color: var(--ink-3); letter-spacing: .04em; }
+.evidence .doc-title { margin: 0 0 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line-2); font-family: var(--display); font-size: 17px; line-height: 1.45; overflow-wrap: anywhere; }
+.evidence .sec { margin: 4px 0; padding: 8px 12px; overflow-wrap: anywhere; }
+.evidence .sec b { color: var(--ink-2); }
+/* 根拠のある資料では、関係のない節を控えめにして、引用した節を目立たせる */
+.evidence.has-hit .sec:not(.hit) { color: var(--ink-2); }
+.evidence .sec.hit { padding: 10px 12px; font-size: 15px; scroll-margin: 110px 0 16px; }
+.evidence .sec.hit b { color: var(--ink); font-size: 14px; }
+.hitlbl { display: inline-block; margin-bottom: 2px; padding: 0 10px; border-radius: var(--r-pill); background: var(--beni); color: var(--tile); font-size: 12px; font-weight: 700; letter-spacing: .08em; }
+/* 引用した文に、左から印が走る。.hold の間は、まだ印を付けない（答えを出し終えてから走らせるため） */
+.evidence mark { padding: 1px 2px; background: linear-gradient(var(--mark), var(--mark)) 0 0 / 100% 100% no-repeat; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.evidence mark.sweep { animation: kb-sweep var(--t-slow) var(--ease) var(--t) both; }
+#evidence.hold mark { background-size: 0 100%; }
+@keyframes kb-sweep { from { background-size: 0 100%; } }
+
+/* ---- 管理画面 ------------------------------------------------------------------------ */
+#pane-admin .small-note { margin: 0 0 10px; max-width: 52em; font-size: 14px; color: var(--ink-2); }
+.report td.cat { width: 13em; }
+
+
+/* このデモで数えた分は、見本のレポートより控えめな面にする */
+section.card.session { background: none; box-shadow: none; border: 1.5px solid var(--line); }
+section.card.session .report { background: none; }
+
+/* ---- スマホ ---------------------------------------------------------------------------- */
+@media (max-width: 760px) {
+  .kb .chat { padding: 16px; }
+  .kb .chat > h2 { font-size: 19px; }
+  #foreign { scroll-margin-top: 60px; }
+  .kb > section[data-pane] { scroll-margin-top: 64px; }
+  /* 上に貼り付く「資料／質問／根拠」の切り替え（高さ56px）の下に、資料の名前を残す */
+  #evidence > .doc-head { top: 56px; padding-top: 4px; }
+  .evidence .sec.hit { scroll-margin-top: 180px; }
+  .kb .docs { overflow: visible; }
+  .docscroll { overflow: visible; padding: 0; }
+  .roles button { min-height: 60px; }
+  .msg.user { max-width: 92%; }
+  .msg .part.ans > p { font-size: 16.5px; }
+
+  /* レポートの表：1件を「種類と件数／棒／内訳」の3段にする（横にはみ出さない） */
+  .report, .report tbody { display: block; width: 100%; }
+  .report thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .report tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: baseline; padding: 10px 2px; border-bottom: 1px solid var(--line-2); }
+  .report tr:last-child { border-bottom: 0; }
+  .report td { display: block; padding: 0; border: 0; }
+  .report td.cat, .report td.cnt { width: auto; }
+  .report td.cnt::after { content: "件"; margin-left: 2px; font-family: var(--sans); font-size: 12px; color: var(--ink-3); }
+  .report td.barcell, .report td.langs, .report td.empty { grid-column: 1 / -1; width: auto; }
+}

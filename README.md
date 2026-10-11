@@ -12,6 +12,7 @@
 
 - 台本：`docs/demo-scenario.md`
 - 設計（v0.2からの改良点・決めてほしいこと）：`docs/design-v0.3.md`
+- デザインシステム「ライブ」（色・書体・動き・部品・本番への適用）：`docs/design-system-v1.md`
 - サイト（withsoegi.jp）に足すもの：`docs/site-embed.md`
 
 ## 構成
@@ -29,6 +30,8 @@ Cloudflare Worker `soegi-demo`（静的ファイル `public/`＋API `src/`）。
 | `src/cache.js` | 宿の例文・よくある質問の結果の使い回し |
 | `src/mock.js` | `AI_PROVIDER=mock` の固定の架空データ（台本の質問に合わせてある） |
 | `public/data/` | 架空の資料（さくらんぼ食品（仮））、宿の情報、チャットボットの知識 |
+| `public/css/style.css` | 共通のデザイン（色・書体・角丸・動きの変数と共通部品）。画面ごとの見た目は `public/css/<画面>.css`（変数だけを使う）。設計は `docs/design-system-v1.md` |
+| `public/js/motion.js` | 共通の動きの部品（数え上げ・タイプ・順に出す など。「動きを減らす」設定では動かさない） |
 | `public/js/pricing.js` | 料金（画面の案内とチャットボットの知識の両方がここを使う） |
 | `public/js/overtime.js` ほか | 残業の計算・レシートのチェック・Excel・「御社の場合」の計算（すべてプログラム） |
 
