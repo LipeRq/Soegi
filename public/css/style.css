@@ -9,14 +9,14 @@
   --ink: #1B2428; --ink-2: #44525A; --ink-3: #5A676E;
   --bg: #E9EEED; --tile: #FFFFFF; --sunk: #EEF2F1; --sunk-2: #DCE4E3;
   --line: #D5DDDF; --line-2: #E6ECED; --field: #7C888E;
-  --accent: #2E7652; --accent-hover: #245E41; --accent-soft: #E2EFE7; --accent-ink: #1B4A33;
+  --accent: #1A6D73; --accent-hover: #14565B; --accent-soft: #DCF0F0; --accent-ink: #104A4F;
   --danger: #B3243B; --danger-soft: #F7E7EA;
   --leaf: #2E7652; --leaf-soft: #E2EFE7; --leaf-on-ink: #8FE0B5;
   --warn-bg: #FFF4C7; --warn-ink: #6B4E00; --warn-line: #E0B400;
   --orange: #D9772E; --orange-bg: #FFE3CC; --orange-ink: #7A3E00;
   --red-bg: #F6D5D9; --gray-bar: #6F7A80; --mark: #FFE58A;
   --flash: var(--leaf-soft); /* 直した所を光らせる色（黄の「注意」と見間違えないよう、緑がかった色にする） */
-  --accent-bright: #4FA27C; --mark-line: #B08900;
+  --accent-bright: #3FA3A9; --mark-line: #B08900;
   /* 墨の面の上の文字（白との差が 7:1 以上） */
   --on-ink-2: #D4DDE0; --on-ink-3: #C5D0D4; --err-on-ink: #FFC2CB;
 
