@@ -18,24 +18,24 @@
 @media (min-width: 561px) and (max-width: 700px) { .examples { grid-template-columns: minmax(0, 1fr); } }
 .examples button { position: relative; justify-content: flex-start; gap: 8px; min-height: 150px; padding: 16px 18px; background: var(--tile); border: 1.5px solid transparent; border-radius: var(--r-tile); box-shadow: var(--shadow);
   transition: transform var(--t) var(--ease), box-shadow var(--t) var(--ease), border-color var(--t-fast), background var(--t-fast); }
-.examples button:hover { transform: translateY(-3px); box-shadow: var(--shadow-up); border-color: var(--beni); background: var(--tile); }
+.examples button:hover { transform: translateY(-3px); box-shadow: var(--shadow-up); border-color: var(--accent); background: var(--tile); }
 .examples button:active { transform: scale(.99); }
 .examples button small { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--ink); font-size: 14px; }
-.ex-lang { font-family: var(--display); font-size: 13px; line-height: 1.6; color: var(--tile); background: var(--ink); border-radius: var(--r-pill); padding: 1px 12px; white-space: nowrap; transition: background var(--t-fast); }
+.ex-lang { font-family: var(--display); font-size: 13px; line-height: 1.6; color: var(--tile); background: var(--accent); border-radius: var(--r-pill); padding: 1px 12px; white-space: nowrap; transition: background var(--t-fast); }
 .ex-label { flex-basis: 100%; font-family: var(--display); font-size: 17px; line-height: 1.4; }
 .ex-text { font-size: 14.5px; line-height: 1.65; color: var(--ink-2); overflow-wrap: anywhere; }
-.ex-go { margin-top: auto; padding-top: 4px; font-size: 14px; font-weight: 700; color: var(--beni); }
+.ex-go { margin-top: auto; padding-top: 4px; font-size: 14px; font-weight: 700; color: var(--accent); }
 .ex-go::after { content: " →"; display: inline-block; transition: transform var(--t-fast); }
 .examples button:hover .ex-go::after { transform: translateX(4px); }
 /* 選んだ例：朱の枠・薄朱の面に加えて、「選択中」の文字でも分かるようにする */
-.examples button[aria-pressed=true], .examples button[aria-pressed=true]:hover { border-color: var(--beni); background: var(--beni-soft); box-shadow: var(--shadow-up); }
-.examples button[aria-pressed=true] .ex-lang { background: var(--beni); }
-.examples button[aria-pressed=true]::after { content: "選択中"; position: absolute; top: 16px; right: 16px; font-size: 12px; font-weight: 700; line-height: 1.6; color: var(--tile); background: var(--beni); border-radius: var(--r-pill); padding: 1px 10px; animation: pop var(--t) var(--ease) both; }
+.examples button[aria-pressed=true], .examples button[aria-pressed=true]:hover { border-color: var(--accent); background: var(--accent-soft); box-shadow: var(--shadow-up); }
+.examples button[aria-pressed=true] .ex-lang { background: var(--accent-hover); }
+.examples button[aria-pressed=true]::after { content: "選択中"; position: absolute; top: 16px; right: 16px; font-size: 12px; font-weight: 700; line-height: 1.6; color: var(--tile); background: var(--accent); border-radius: var(--r-pill); padding: 1px 10px; animation: pop var(--t) var(--ease) both; }
 
 /* 開く・閉じるの行（自由入力、宿の情報）：ふだんは静かに。開くと白い面が出る */
 .more { margin-top: 8px; }
 .more summary { width: fit-content; max-width: 100%; gap: 10px; padding: 0 10px 0 2px; font-size: 15px; color: var(--ink-2); border-radius: var(--r-sm); }
-.more summary::before { content: "+"; content: "+" / ""; flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--tile); box-shadow: var(--shadow); color: var(--beni); font-family: var(--mono); font-size: 18px; line-height: 1; transition: transform var(--t) var(--ease); }
+.more summary::before { content: "+"; content: "+" / ""; flex: none; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--tile); box-shadow: var(--shadow); color: var(--accent); font-family: var(--mono); font-size: 18px; line-height: 1; transition: transform var(--t) var(--ease); }
 .more[open] summary::before { transform: rotate(45deg); }
 .more summary:hover { color: var(--ink); }
 .more-body { margin-top: 4px; padding: 14px 16px; background: var(--tile); border-radius: var(--r); box-shadow: var(--shadow); animation: rise var(--t) var(--ease) both; }
@@ -58,7 +58,7 @@
 .phaseline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 34px; }
 .phaseline .phase { margin: 0; }
 .result[data-state=done] .phase::before { content: "✓"; content: "✓" / ""; display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 8px; vertical-align: -3px; border-radius: 50%; background: var(--leaf); color: var(--tile); font-size: 13px; line-height: 1; animation: pop var(--t) var(--ease) both; }
-.result[data-state=error] .phase { color: var(--beni); }
+.result[data-state=error] .phase { color: var(--danger); }
 /* 失敗したときは、下書きが無いので箱と数字を出さない（上の「下書きです」のお知らせは、そのまま出ている） */
 .result[data-state=error] :is(.quad, .stats, .notice.draft, #r-used) { display: none; }
 
@@ -108,12 +108,12 @@
 .quad .ja1 p, .quad .ja2 p { font-size: 15px; }
 
 /* お客さまの言葉：墨の面（入口のタイルの「質問」と同じ見せ方） */
-.quad .origin { background: var(--ink); color: var(--tile); }
-.quad .origin h3 { color: var(--sunk-2); }
+.quad .origin { background: var(--accent-soft); color: var(--accent-ink); }
+.quad .origin h3 { color: var(--accent-ink); }
 .quad .origin.in { animation: rise var(--t) var(--ease) both; }
 
 /* ② 返信の下書き：この画面の主役。白い面に墨の枠で、ほかの箱より前に出す */
-.quad .reply { background: var(--tile); border: 1.5px solid var(--ink); box-shadow: var(--shadow-up); display: flex; flex-direction: column; }
+.quad .reply { background: var(--tile); border: 1.5px solid var(--accent); box-shadow: var(--shadow-up); display: flex; flex-direction: column; }
 .quad .reply h3 { color: var(--ink); font-size: 15px; }
 .quad .reply p { font-size: 16.5px; line-height: 1.8; }
 .typebox { display: grid; }
@@ -124,7 +124,7 @@
 
 /* コピーの結果：色と言葉の両方で知らせる（幅は inn.js が固定するので、まわりは動かない） */
 button.copied, button.copied:hover { background: var(--leaf); border-color: var(--leaf); color: var(--tile); animation: pop var(--t) var(--ease) both; }
-button.failed, button.failed:hover { background: var(--beni-soft); border-color: var(--beni); color: var(--beni); }
+button.failed, button.failed:hover { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
 
 /* ④ 要確認：黄の面＋黄の枠＋「!」の印。出てくるときも消さず、位置と光だけを動かす */
 .quad .check { border: 1.5px solid var(--warn-line); --ring: color-mix(in srgb, var(--warn-line) 70%, transparent); }
@@ -157,20 +157,20 @@ button.failed, button.failed:hover { background: var(--beni-soft); border-color:
 .faqcard h2 { margin-bottom: 2px; }
 .faqcard > .small-note { margin: 0 0 12px; font-size: 14px; color: var(--ink-2); }
 .faq-wait { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); }
-.faq-wait.err { min-height: 0; color: var(--beni); }
+.faq-wait.err { min-height: 0; color: var(--danger); }
 .faq-wait:empty { display: none; }
 #faq-note { margin: 0 0 12px; }
 .faq-lang { display: inline-flex; gap: 4px; max-width: 100%; margin: 0; padding: 4px; background: var(--sunk); border-radius: var(--r); }
 .faq-lang button { border: 0; background: none; padding: 6px 16px; border-radius: var(--r-sm); }
 .faq-lang button:hover { background: var(--sunk-2); }
-.faq-lang button[aria-pressed=true], .faq-lang button[aria-pressed=true]:hover { background: var(--ink); color: var(--tile); }
+.faq-lang button[aria-pressed=true], .faq-lang button[aria-pressed=true]:hover { background: var(--accent-soft); color: var(--accent-ink); }
 #faq-list { margin-top: 4px; }
 .qa { padding: 12px 0; border-bottom: 1px solid var(--line-2); }
 .qa dt, .qa dd { display: flex; gap: 10px; margin: 0; overflow-wrap: anywhere; }
 .qa dt { font-size: 16.5px; line-height: 1.6; }
 .qa dd { margin-top: 4px; color: var(--ink-2); }
 .qa dt::before, .qa dd::before { flex: none; width: 1.2em; font-family: var(--mono); font-weight: 500; }
-.qa dt::before { content: "Q"; color: var(--beni); }
+.qa dt::before { content: "Q"; color: var(--accent); }
 .qa dd::before { content: "A"; color: var(--ink-3); }
 /* 言語の切り替えは、さっと（一覧は inn.js が作り直すので、そのたびに上から順に出る） */
 #faq-list.stagger > * { animation-duration: var(--t); animation-delay: calc(var(--i, 0) * 35ms); }

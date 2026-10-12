@@ -1,0 +1,2 @@
+﻿/* 配色の見本（青）。主役の色の変数だけを上書きする */
+:root { --accent: #2F5F9E; --accent-hover: #244C80; --accent-soft: #E3ECF8; --accent-ink: #1D3F6E; --accent-bright: #5B8CCB; }

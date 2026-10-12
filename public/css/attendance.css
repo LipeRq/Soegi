@@ -83,8 +83,8 @@
 .bars .bar-row { position: relative; padding-right: 36px; border-width: 2px; margin-bottom: 2px; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
 .bars .bar-row::after { content: ""; position: absolute; right: 15px; top: 50%; width: 8px; height: 8px; margin-top: -5px; border: solid var(--ink-3); border-width: 0 2px 2px 0; transform: rotate(-45deg); transition: transform var(--t) var(--ease), border-color var(--t-fast); }
 .bars .bar-row:hover { background: none; border-color: var(--field); }
-.bars .bar-row[aria-pressed=true] { background: none; border-color: var(--ink); box-shadow: var(--shadow-up); }
-.bars .bar-row[aria-pressed=true]::after { transform: translateY(-2px) rotate(45deg); border-color: var(--ink); }
+.bars .bar-row[aria-pressed=true] { background: none; border-color: var(--accent); box-shadow: var(--shadow-up); }
+.bars .bar-row[aria-pressed=true]::after { transform: translateY(-2px) rotate(45deg); border-color: var(--accent); }
 .bars .bar-row[aria-pressed=true] .bar-name { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
 /* 目盛りを棒とそろえる：右は行の矢印の分だけ空ける（左右の基本の位置と文字の大きさは style.css の .axis） */
 .axis { padding: 0 38px 0 10px; }
@@ -95,7 +95,7 @@
 .bars .bar-val { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px 6px; white-space: normal; }
 .bars .hm { font-family: var(--mono); white-space: nowrap; }
 .bars .bar-row.orange .hm { color: var(--orange-ink); font-weight: 700; }
-.bars .bar-row.red .hm { color: var(--beni); font-weight: 700; }
+.bars .bar-row.red .hm { color: var(--danger); font-weight: 700; }
 .bars .badge { font-size: 13px; padding: 2px 10px; }
 .bars .badge small { font-size: 12px; font-weight: 400; margin-left: 5px; }
 /* 橙・赤の人は、棒が伸び終わるころに印のまわりへ輪を3回出す（印そのものは、はじめから出ている） */
@@ -122,7 +122,7 @@
 /* 日別表の上でも人を切り替えられる（横棒まで戻らなくてよい）。人数が多いときは横に送る */
 .who { position: relative; display: flex; gap: 6px; overflow-x: auto; padding: 6px 6px 10px; margin: 0 -6px 2px; }
 .who button { flex: none; min-height: 44px; padding: 6px 16px; gap: 8px; border-color: var(--line); border-radius: var(--r-pill); font-weight: 400; white-space: nowrap; }
-.who button[aria-pressed=true] { background: var(--ink); border-color: var(--ink); color: var(--tile); font-weight: 700; }
+.who button[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
 #detail td:not(:nth-child(2)):not(:last-child) { font-family: var(--mono); }
 #summary-table td:first-child { font-weight: 700; white-space: nowrap; }
 /* 判定の文は長いので、幅が足りないときは印の中で折り返す（表の右に隠れて、横に送らないと読めない、を避ける） */

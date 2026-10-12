@@ -18,12 +18,12 @@
 .doclist li button { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 8px; align-items: baseline; min-height: 44px; padding: 8px 10px 8px 18px; border-radius: var(--r); line-height: 1.45; }
 .doclist li button .t { overflow-wrap: anywhere; }
 .doclist li button small { grid-column: 1 / -1; font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
-.doclist li button::before { content: ""; position: absolute; left: 7px; top: 11px; bottom: 11px; width: 4px; border-radius: var(--r-pill); background: var(--beni); transform: scaleY(0); transition: transform var(--t) var(--ease); }
+.doclist li button::before { content: ""; position: absolute; left: 7px; top: 11px; bottom: 11px; width: 4px; border-radius: var(--r-pill); background: var(--accent); transform: scaleY(0); transition: transform var(--t) var(--ease); }
 .doclist li button:hover { background: var(--tile); }
 /* いま右に開いている資料：色だけでなく、太字・左の線・「表示中」の文字でも分かるようにする */
 .doclist li button[aria-current=true] { background: var(--tile); box-shadow: var(--shadow); font-weight: 700; }
 .doclist li button[aria-current=true]::before { transform: none; }
-.doclist li button[aria-current=true]::after { content: "表示中"; grid-column: 2; grid-row: 1; font-size: 11px; font-weight: 700; color: var(--beni); background: var(--beni-soft); border-radius: var(--r-pill); padding: 0 8px; white-space: nowrap; }
+.doclist li button[aria-current=true]::after { content: "表示中"; grid-column: 2; grid-row: 1; font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: var(--r-pill); padding: 0 8px; white-space: nowrap; }
 .doclist li button[aria-current=true] small { font-weight: 400; }
 
 /* 質問する：この画面の主役 */
@@ -58,28 +58,28 @@
 .roles { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px; margin-bottom: 14px; }
 .roles button { position: relative; gap: 5px; min-height: 68px; padding: 10px 14px 12px; border-width: 1.5px; border-radius: var(--r); font-size: 15px; line-height: 1.5; }
 .roles button small { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; padding-right: 22px; font-weight: 400; color: var(--ink-3); line-height: 1.5; }
-.roles button small b { background: var(--beni-soft); color: var(--beni); border-radius: var(--r-pill); padding: 0 10px; font-weight: 700; transition: background var(--t-fast), color var(--t-fast); }
+.roles button small b { background: var(--accent-soft); color: var(--accent); border-radius: var(--r-pill); padding: 0 10px; font-weight: 700; transition: background var(--t-fast), color var(--t-fast); }
 /* 日本語は文節の切れ目で折り返す（1〜2文字だけ次の行に残らないように）。長い外国語の単語だけは途中で折る */
 .roles button .q { overflow-wrap: break-word; word-break: auto-phrase; line-break: strict; }
 .roles button .q[lang]:not([lang=ja]) { overflow-wrap: anywhere; }
-.roles button::after { content: "→"; position: absolute; right: 14px; top: 8px; color: var(--beni); font-weight: 700; transition: transform var(--t-fast); }
+.roles button::after { content: "→"; position: absolute; right: 14px; top: 8px; color: var(--accent); font-weight: 700; transition: transform var(--t-fast); }
 .roles button:hover { box-shadow: var(--shadow); }
 .roles button:hover::after { transform: translateX(4px); }
-.roles button:hover small b { background: var(--beni); color: var(--tile); }
+.roles button:hover small b { background: var(--accent); color: var(--tile); }
 /* 管理画面へ行くボタンは、質問ではないので控えめに */
 .roles button.to-admin { border-style: dashed; border-color: var(--field); background: none; }
 .roles button.to-admin small b { background: var(--sunk-2); color: var(--ink-2); }
-.roles button.to-admin:hover small b { background: var(--ink); color: var(--tile); }
+.roles button.to-admin:hover small b { background: var(--accent-hover); color: var(--tile); }
 /* 指で押す画面では、押したあとに色が残って「選ばれている」ように見えないようにする */
 @media (hover: none) {
   .roles button:hover { background: var(--tile); border-color: var(--line); box-shadow: none; }
-  .roles button:hover small b { background: var(--beni-soft); color: var(--beni); }
+  .roles button:hover small b { background: var(--accent-soft); color: var(--accent); }
   .roles button.to-admin:hover { background: none; border-color: var(--field); }
   .roles button.to-admin:hover small b { background: var(--sunk-2); color: var(--ink-2); }
-  .roles button.pick:hover { border-color: var(--beni); }
+  .roles button.pick:hover { border-color: var(--accent); }
 }
 /* 入口の「外国人スタッフ向け」から来たとき：母国語の質問のボタンを先に目に入れる */
-.roles button.pick { border-color: var(--beni); animation: rise var(--t-slow) var(--ease) both, ring calc(var(--t-slow) * 2) ease-out 3; animation-delay: calc(var(--i, 0) * 55ms), calc(var(--t-slow) + var(--t)); }
+.roles button.pick { border-color: var(--accent); animation: rise var(--t-slow) var(--ease) both, ring calc(var(--t-slow) * 2) ease-out 3; animation-delay: calc(var(--i, 0) * 55ms), calc(var(--t-slow) + var(--t)); }
 
 /* ---- ラテン文字の言語 ------------------------------------------------------------------
    BIZ UDPGothic にはベトナム語の ẫ などが無く、記号が文字から離れて見える。
@@ -102,7 +102,7 @@
 .msg.bot.wait .phase { margin: 0; font-size: 14px; }
 
 /* 答え：吹き出しの中でいちばん大きく */
-.msg .part.ans > .lbl { color: var(--beni); }
+.msg .part.ans > .lbl { color: var(--accent); }
 .msg .part.ans > p { font-size: 17px; line-height: 1.8; }
 /* 質問の日本語訳は、答えより控えめに */
 .msg .part.ja { background: none; border-radius: 0; border-left: 3px solid var(--line); padding: 0 0 0 10px; }
@@ -140,15 +140,15 @@
 .cites.in button { animation: pop var(--t) var(--ease) both; animation-delay: calc(var(--i, 0) * 80ms); }
 .cites button:hover { box-shadow: var(--shadow); }
 /* 右に開いている根拠：枠・地の色に加えて「表示中」の文字 */
-.cites button[aria-pressed=true] { border-color: var(--beni); background: var(--beni-soft); font-weight: 700; }
-.cites button[aria-pressed=true]::after { content: "表示中"; margin-left: auto; font-size: 11px; font-weight: 700; color: var(--tile); background: var(--beni); border-radius: var(--r-pill); padding: 0 8px; }
+.cites button[aria-pressed=true] { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.cites button[aria-pressed=true]::after { content: "表示中"; margin-left: auto; font-size: 11px; font-weight: 700; color: var(--tile); background: var(--accent); border-radius: var(--r-pill); padding: 0 8px; }
 
 .msg details.part { border-top: 1px dashed var(--line); }
 .msg details.part summary { font-size: 14px; font-weight: 700; color: var(--ink-2); }
 .msg details.part > p { padding: 0 0 4px; }
 /* AIの翻訳であること：小さくしすぎず、朱の点を付ける */
 .msg .translated.ai { position: relative; padding-left: 16px; font-size: 13px; color: var(--ink-2); }
-.msg .translated.ai::before { content: ""; position: absolute; left: 2px; top: .65em; width: 7px; height: 7px; border-radius: 50%; background: var(--beni); }
+.msg .translated.ai::before { content: ""; position: absolute; left: 2px; top: .65em; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 /* 根拠を確かめられなかった、などのお知らせ */
 .msg .translated.sys { padding: 6px 12px; border-radius: var(--r-sm); background: var(--warn-bg); font-size: 13px; color: var(--ink); }
 .msg .translated.meta { padding-top: 8px; border-top: 1px solid var(--line); font-size: 12px; letter-spacing: .02em; }
@@ -167,7 +167,7 @@
 .evidence.has-hit .sec:not(.hit) { color: var(--ink-2); }
 .evidence .sec.hit { padding: 10px 12px; font-size: 15px; scroll-margin: 110px 0 16px; }
 .evidence .sec.hit b { color: var(--ink); font-size: 14px; }
-.hitlbl { display: inline-block; margin-bottom: 2px; padding: 0 10px; border-radius: var(--r-pill); background: var(--beni); color: var(--tile); font-size: 12px; font-weight: 700; letter-spacing: .08em; }
+.hitlbl { display: inline-block; margin-bottom: 2px; padding: 0 10px; border-radius: var(--r-pill); background: var(--accent); color: var(--tile); font-size: 12px; font-weight: 700; letter-spacing: .08em; }
 /* 引用した文に、左から印が走る。.hold の間は、まだ印を付けない（答えを出し終えてから走らせるため） */
 .evidence mark { padding: 1px 2px; background: linear-gradient(var(--mark), var(--mark)) 0 0 / 100% 100% no-repeat; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .evidence mark.sweep { animation: kb-sweep var(--t-slow) var(--ease) var(--t) both; }
