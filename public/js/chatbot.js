@@ -1,11 +1,9 @@
 // デモC：サイトのチャットボットの見本ページ。ウィジェット本体は /widget/chat.js（サイトに貼るものと同じ）。
 // 動きは、もう手元にある内容の「見せ方」だけ（見本の入れ替え・棒の伸び・件数の数え上げ）。待ち時間は足していない。
 import { h, clear } from './common.js';
-import { pricingText } from './pricing.js';
 import { reduced, countUp, stagger, replay, flash } from './motion.js';
 
 const $ = (id) => document.getElementById(id);
-$('pricing').textContent = pricingText('chatbot');
 
 const MOCK = {
   soegi: { url: 'withsoegi.jp', title: '削減できた時間を、数字で確かめてから続ける。', lines: ['ソエギ（山形）— 仕事の流れを伺って、AIとITで仕組みを整え、社内に根付かせます。', '料金・進め方・情報の取り扱い・よくあるご質問を載せています。'] },

@@ -6,7 +6,7 @@ import {
 import { toJpeg } from './image.js';
 import { checkReceipts, levelOf, worstLevel } from './receipt-check.js';
 import { buildReceiptWorkbook } from './receipt-xlsx.js';
-import { pricingText, MENUS } from './pricing.js';
+import { MENUS } from './pricing.js';
 import { reduced, countUp, stagger, replay, flash, onVisible } from './motion.js';
 
 requireAuth();
@@ -23,7 +23,6 @@ const STYLE_NOTES = {
 const READ_LABELS = { pending: '待ち', reading: '読み取り中', done: '済', error: '読めず' };
 
 const $ = (id) => document.getElementById(id);
-$('pricing').textContent = pricingText('manual');
 
 let files = []; // 選んだ写真
 let rows = []; // 読み取り結果（確かめる対象）

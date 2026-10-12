@@ -3,7 +3,7 @@
 import {
   requireAuth, api, h, clear, downloadBlob, XLSX_MIME, stamp, pool, setStep, mountRoi,
 } from './common.js';
-import { pricingText, MENUS } from './pricing.js';
+import { MENUS } from './pricing.js';
 import { toJpeg } from './image.js';
 import { decodeCsvBytes, parseCsv, guessColumns, toRecords } from './csv.js';
 import {
@@ -14,7 +14,6 @@ import { reduced, countUp, stagger, replay, flash, onVisible } from './motion.js
 
 requireAuth();
 const $ = (id) => document.getElementById(id);
-$('pricing').textContent = pricingText('manual');
 
 let minutesPerPerson = 15; // 手計算なら1人あたり何分か（仮置き・画面で変えられる）
 let elapsedMs = null;

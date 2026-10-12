@@ -2,12 +2,10 @@
 // 例文はサーバー側でキャッシュされ、同じ例は毎回同じ結果。自由入力は Turnstile ＋ 1日5回まで。
 // 動きの決まり：待ち時間を足さない。出ている秒数は実際に測った値。「要確認」は、動きの途中でも隠さない。
 import { api, h, clear, setStep } from './common.js';
-import { pricingText } from './pricing.js';
 import { FAQ_LANGS, faqToHtml } from './faq-html.js';
 import { reduced, typeText, thinking, stagger, replay, shake } from './motion.js';
 
 const $ = (id) => document.getElementById(id);
-$('pricing').textContent = pricingText('inn');
 
 const LANG_LABEL = { zh: '繁体字中国語', en: '英語', ko: '韓国語', ja: '日本語', vi: 'ベトナム語', th: 'タイ語', fr: 'フランス語', de: 'ドイツ語', es: 'スペイン語' };
 let innName = '';

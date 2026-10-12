@@ -3,12 +3,10 @@
 // 動きの決まり：待たせる動きは入れない。届いた答えの「見せ方」だけを動かす。
 // 「要確認」「見当たりません」「AIの翻訳です」などの決まった文言は、1文字ずつ出さず、はじめから全文を出す。
 import { requireAuth, api, h, clear } from './common.js';
-import { pricingText } from './pricing.js';
 import { reduced, typeText, thinking, stagger } from './motion.js';
 
 requireAuth();
 const $ = (id) => document.getElementById(id);
-$('pricing').textContent = pricingText('knowledge');
 
 const LANG_LABEL = { ja: '日本語', en: '英語', vi: 'ベトナム語', id: 'インドネシア語', zh: '中国語', ko: '韓国語', tl: 'タガログ語', ne: 'ネパール語', my: 'ミャンマー語', th: 'タイ語', pt: 'ポルトガル語', es: 'スペイン語' };
 const TYPE_LABEL = { manual: '作業手順書', rule: 'ルール・就業規則', error: '機械のエラー表', shipping: '出荷ルール', estimate: '過去の見積書' };
