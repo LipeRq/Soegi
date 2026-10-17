@@ -1,6 +1,7 @@
 // 「御社の場合」の画面の部品。入力 → 結果 → 浮いた時間の使い道 → 持ち帰り1枚（印刷）。
 // 何も保存しない（入力は画面を閉じれば消える。localStorage も使わない）。計算は estimate.js。
-import { h, clear } from './common.js';
+import { h, clear, downloadBlob, XLSX_MIME, stamp } from './common.js';
+import { buildRecordWorkbook } from './record-xlsx.js';
 import { flash } from './motion.js';
 import {
   DEMOS, INDUSTRIES, HOUR_VALUES, DEFAULT_HOUR_VALUE, DISCLAIMER, defaultValues, calcEstimate, verdictText, buildTakeaway,
@@ -39,6 +40,8 @@ export function mountEstimate(box, opts) {
       }, DEMOS[k].name.replace(/（.*$/, ''))))
     : null;
   const printBtn = h('button', { type: 'button', onclick: printTakeaway }, '持ち帰り1枚を印刷する');
+  const recordBtn = h('button', { type: 'button', onclick: downloadRecord }, '1週間の記録表をダウンロード');
+  const recordMsg = h('p', { class: 'small-note', role: 'status' });
 
   // append は null を「null」という文字にしてしまうので、無い部品は外してから入れる
   clear(box).append(...[
@@ -48,8 +51,9 @@ export function mountEstimate(box, opts) {
     switcher,
     h('div', { class: 'est-grid' }, inputsBox, resBox),
     useBox,
-    h('div', { class: 'row est-actions' }, printBtn, ...(opts.extraActions ?? []),
+    h('div', { class: 'row est-actions' }, printBtn, recordBtn, ...(opts.extraActions ?? []),
       h('p', { class: 'small-note' }, 'PDFで残すときは、印刷の画面で「PDFに保存」を選んでください。入れた数字は保存しません（画面を閉じると消えます）。')),
+    recordMsg,
   ].filter(Boolean));
   box.setAttribute('aria-labelledby', `${id}-h`);
 
@@ -175,6 +179,27 @@ export function mountEstimate(box, opts) {
     const done = () => { document.documentElement.classList.remove('print-takeaway'); window.removeEventListener('afterprint', done); };
     window.addEventListener('afterprint', done);
     window.print();
+  }
+
+  // ---- 1週間の記録表 ----------------------------------------------------------------
+
+  async function downloadRecord() {
+    recordBtn.disabled = true;
+    try {
+      // ExcelJS を読み込んでいない画面では、押したときに読み込む（同じサーバーのファイル）
+      if (!window.ExcelJS) {
+        await new Promise((ok, ng) => document.head.append(h('script', { src: '/vendor/exceljs.min.js', onload: ok, onerror: ng })));
+      }
+      const wb = buildRecordWorkbook(window.ExcelJS, state.key);
+      const buf = await wb.xlsx.writeBuffer();
+      const name = `1週間の記録表_${DEMOS[state.key].name.replace(/[：（）\s/→]+/g, '_').replace(/_+$/, '')}_${stamp()}.xlsx`;
+      downloadBlob(new Blob([buf], { type: XLSX_MIME }), name);
+      recordMsg.textContent = `記録表を作りました：${name}。お試しの前の1週間、付けてください。`;
+    } catch {
+      recordMsg.textContent = '記録表を作れませんでした。再読み込みしてお試しください。';
+    } finally {
+      recordBtn.disabled = false;
+    }
   }
 
   function render() {
