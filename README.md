@@ -14,6 +14,7 @@
 - 設計（v0.2からの改良点・決めてほしいこと）：`docs/design-v0.3.md`
 - デザインシステム「ライブ」（色・書体・動き・部品・本番への適用）：`docs/design-system-v1.md`
 - サイト（withsoegi.jp）に足すもの：`docs/site-embed.md`
+- 次のタスク（T1〜T11）の設計：`docs/design-v0.4.md`、進捗表：`docs/progress.md`
 
 ## 構成
 
