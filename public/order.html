@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/receipt.css">
+<link rel="stylesheet" href="/css/order.css">
+<link rel="stylesheet" href="/css/estimate.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>注文書 → 受注データ｜ソエギ デモ</title>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">受注：FAX・紙の注文書 → 受注データ</span>
+  <nav><a href="/">デモの選択へ</a></nav>
+</div></header>
+<main class="wrap">
+  <h1>FAX・紙の注文書 → 受注データ</h1>
+  <p class="lead">取引先ごとに違う様式の注文書を読み、商品マスタと照らし合わせて、受注一覧にします。AIは「読むだけ」。どの商品か・数が合っているか・納品日は正しいかは、プログラムが確かめます。最後は人が確かめます。</p>
+  <nav class="steps" aria-label="進み具合"><ol>
+    <li aria-current="step"><span class="n">1</span>注文書を<wbr>選ぶ</li>
+    <li><span class="n">2</span>確かめる</li>
+    <li><span class="n">3</span>受注データに<wbr>する</li>
+  </ol></nav>
+
+  <section class="card" id="step1">
+    <h2><b class="no">1</b>　注文書を選ぶ<small>（写真・PDF、1〜10枚）</small></h2>
+    <p class="small-note company">架空の会社「さくらんぼ食品（仮）」の受注係として試します。取引先・商品もすべて架空です。</p>
+
+    <h3 class="sub-h">見本の注文書で試す</h3>
+    <div class="samples" id="samples"></div>
+    <p class="small-note">「手書き風」の1枚は、手書き風の書体で作った見本です（本物の手書きではありません）。</p>
+
+    <h3 class="sub-h">手元の注文書で試す</h3>
+    <!-- 写真の入れ口。file の入力は hidden にせず見えなくするだけ（キーボードでも押せるように） -->
+    <div class="drop" id="drop">
+      <svg class="drop-art" viewBox="0 0 48 56" aria-hidden="true" focusable="false"><path d="M6 4h28l8 8v40H6z"/><path d="M34 4v8h8M13 20h22M13 28h22M13 36h14"/></svg>
+      <div class="acts">
+        <label class="btn act" for="cam"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>撮る</label>
+        <input type="file" id="cam" class="vh" accept="image/*" capture="environment">
+        <label class="btn act" for="pick"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 12h8M8 16h8"/></svg>写真・PDFを選ぶ</label>
+        <input type="file" id="pick" class="vh" accept="image/*,application/pdf,.pdf" multiple>
+      </div>
+      <p class="drop-hint">パソコンでは、写真やPDFをこの枠の中に置いても入ります</p>
+    </div>
+    <p class="small-note">架空の注文書だけをお使いください（実在の取引先の注文書は使わないでください）。PDFは1〜3ページ目を、1ページ1枚の注文書として読みます。画像は長辺2000pxに縮めて読み取りに使い、保存しません。</p>
+    <p class="small-note pick-msg" id="pick-msg" role="status"></p>
+    <div class="thumbs" id="thumbs"></div>
+    <div class="row mt12 gobar">
+      <button type="button" class="primary btn-xl" id="go" disabled>読み取る</button>
+      <span id="count" class="small-note"></span>
+      <button type="button" id="clear" class="link">全部消す</button>
+    </div>
+    <div id="reading" hidden>
+      <div class="reading-head">
+        <span class="thinking" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="tick" aria-hidden="true"></span>
+        <p class="phase" id="phase" aria-live="polite"></p>
+        <span id="clock" aria-hidden="true"></span>
+      </div>
+      <div class="progress"><div id="bar"></div></div>
+      <p id="progress-text" class="small-note"></p>
+    </div>
+  </section>
+
+  <section class="card" id="step2" hidden>
+    <h2><b class="no">2</b>　確かめる<small>（その場で直せます）</small></h2>
+    <div class="stats" id="stats"></div>
+    <div class="key">
+      <div class="legend" aria-label="色の意味">
+        <span><i class="r"></i>要確認（赤）：数量が空・金額が合わない・納品日が空や過去</span>
+        <span><i class="y"></i>注意（黄）：表記ゆれ・未登録の商品・単位や単価がマスタと違う・読み取りに自信がない</span>
+      </div>
+      <p class="small-note">商品の照合・数量×単価の検算・納品日の確認はプログラムが行います（同じ注文書なら、毎回同じ結果）。黄色の「候補」は、人が選ぶまで商品コードを入れません。</p>
+    </div>
+    <div id="orders"></div>
+    <div class="row mt10">
+      <button type="button" id="retry" hidden>読めなかった注文書をもう一度読み取る</button>
+      <span id="summary" class="small-note"></span>
+    </div>
+  </section>
+
+  <div id="step3" hidden>
+    <section class="card">
+      <h2><b class="no">3</b>　受注データにする</h2>
+      <p class="small-note">Excel には「受注一覧」「取引先別」「納品日別」「要確認」の4枚のシートが入ります。販売管理ソフトに取り込むときは CSV を使います。</p>
+      <div class="row mt10 exportbar">
+        <button type="button" class="primary btn-xl" id="export">Excelをダウンロード</button>
+        <fieldset class="enc">
+          <legend>CSV の文字コード</legend>
+          <label><input type="radio" name="enc" value="utf8" checked>UTF-8（BOM付き）</label>
+          <label><input type="radio" name="enc" value="sjis">Shift_JIS（古い販売管理ソフト向け）</label>
+        </fieldset>
+        <button type="button" id="csv">CSVをダウンロード</button>
+      </div>
+      <p class="made" id="made" role="status" hidden></p>
+      <p class="notice warn" id="sjis-warn" hidden></p>
+      <p class="small-note" id="export-note"></p>
+      <p class="notice plain mt12">取り込みの形（列の並び・文字コード）は、お試し導入で御社の販売管理ソフトに合わせます。この画面の CSV は見本の形です。</p>
+    </section>
+
+    <section class="card" id="estimate"></section>
+  </div>
+
+  <dialog id="zoom"><img alt="注文書の拡大"></dialog>
+</main>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<script src="/vendor/exceljs.min.js"></script>
+<script type="module" src="/js/order.js"></script>
+</body>
+</html>

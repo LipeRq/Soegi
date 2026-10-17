@@ -42,6 +42,24 @@ export const RECORDS = {
       ['確認・直しにかかった分（1週間）', `SUMIF(${c[0]},"確認",${c[2]})+SUMIF(${c[0]},"直し",${c[2]})`, '分'],
     ],
   },
+  order: {
+    perDay: 8,
+    cols: [
+      { header: '取引先', width: 16, type: 'text', count: true },
+      { header: '届き方', width: 10, type: 'list', list: ['FAX', '紙', 'メール', '電話', 'そのほか'] },
+      { header: '明細の行数', width: 10, type: 'num', sum: true },
+      { header: 'かかった分', width: 11, type: 'num', sum: true },
+      { header: '問い合わせ・直し', width: 14, type: 'list', list: YESNO },
+      { header: 'メモ', width: 24, type: 'text' },
+    ],
+    summary: (c) => [
+      ['1週間の注文書の枚数', `COUNTA(${c[0]})`, '枚'],
+      ['1週間にかかった分', `SUM(${c[3]})`, '分'],
+      ['1枚あたりの分（御社の場合の「1枚を受注データに打ち込む時間」）', `IFERROR(ROUND(SUM(${c[3]})/COUNTA(${c[0]}),1),"")`, '分'],
+      ['月に直した枚数（御社の場合の「月に届く注文書の枚数」）', `ROUND(COUNTA(${c[0]})*${WEEKS_PER_MONTH},0)`, '枚'],
+      ['問い合わせ・直しがあった枚数', `COUNTIF(${c[4]},"はい")`, '枚'],
+    ],
+  },
   knowledge: {
     perDay: 8,
     cols: [

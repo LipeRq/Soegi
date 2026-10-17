@@ -1,13 +1,13 @@
 // soegi-demo Worker：静的ファイル（public/）は assets が配信し、ここは /api/* だけを受ける。
 // 何も保存しない（自由入力の1日の回数だけ、IPのハッシュで翌日まで数える）。ログにも本文を出さない。
 //
-//   パスワードが必要（demo.withsoegi.jp の中のデモ）：/api/verify /api/receipt /api/timecard /api/knowledge
+//   パスワードが必要（demo.withsoegi.jp の中のデモ）：/api/verify /api/receipt /api/timecard /api/order /api/knowledge
 //   公開（サイトから使うデモ）：/api/public-config /api/inn-reply /api/inn-faq /api/site-chat
 
 import { AIError } from './ai.js';
 import { json, err, readJson, HttpError } from './http.js';
 import { allowPerMinute, checkPass, clientIp, corsHeaders } from './guard.js';
-import { receipt, timecard } from './demos/office.js';
+import { receipt, timecard, order } from './demos/office.js';
 import { knowledge } from './demos/knowledge.js';
 import { innReply, innFaq, FREE_MAX, FREE_PER_DAY } from './demos/inn.js';
 import { siteChat, CHAT_MAX } from './demos/sitechat.js';
@@ -18,6 +18,7 @@ const PRIVATE = {
   '/api/verify': { max: 4096, run: async () => ({ ok: true }) },
   '/api/receipt': { max: 4 * MB, run: (env, body) => receipt(env, body) },
   '/api/timecard': { max: 4 * MB, run: (env, body) => timecard(env, body) },
+  '/api/order': { max: 4 * MB, run: (env, body) => order(env, body) },
   '/api/knowledge': { max: 8192, run: (env, body) => knowledge(env, body) },
 };
 const PUBLIC = {

@@ -86,6 +86,29 @@ function receipts() {
   });
 }
 
+/** 受注：注文書の行を1行ずつ読み、照らし合わせた結果の行が増える（注意・要確認の印は、行と一緒に最初から出る） */
+function orders() {
+  const box = $('live-od');
+  const rows = Array.from(box.querySelectorAll('tbody tr'));
+  const lines = Array.from(box.querySelectorAll('.paper span'));
+  const set = (n) => {
+    $('od-cnt').textContent = String(n);
+    $('od-prog').style.setProperty('--p', `${(n / rows.length) * 100}%`);
+  };
+  loop(box, 3800, async () => {
+    rows.forEach((r) => r.classList.add('off'));
+    set(0);
+    for (let i = 0; i < rows.length; i += 1) {
+      lines.forEach((l, k) => l.classList.toggle('hit', k === i));
+      await sleep(900);
+      rows[i].classList.remove('off');
+      set(i + 1);
+    }
+    lines.forEach((l) => l.classList.remove('hit'));
+    await sleep(3600);
+  });
+}
+
 function overtime() {
   const box = $('live-ot');
   loop(box, 6000, async () => { replay(box); await sleep(6500); });
@@ -164,5 +187,5 @@ function bot() {
 
 export function startLive() {
   if (reduced()) return;
-  receipts(); overtime(); knowledge(); foreign(); inn(); bot();
+  receipts(); overtime(); orders(); knowledge(); foreign(); inn(); bot();
 }

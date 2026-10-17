@@ -1,0 +1,114 @@
+/* 受注：FAX・紙の注文書 → 受注データ。入れ口・読み取り中・大きな数字は receipt.css と同じ部品を使う。
+   色・書体・角丸・動きの値は /css/style.css の変数だけを使う */
+
+.company { margin-top: 0; }
+.sub-h { margin: 16px 0 8px; font-size: 15px; color: var(--ink-2); }
+
+/* ---- 1. 見本の注文書：押すと入る（もう一度押すと外れる）。入っている札には ✓ と枠 -------------- */
+.samples { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
+.sample { display: grid; grid-template-columns: 64px minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 4px 10px; align-items: start; min-height: 88px; padding: 10px; text-align: left; font-weight: 400; background: var(--tile); border: 2px solid var(--line); border-radius: var(--r-md); }
+.sample img { grid-row: 1 / span 2; width: 64px; height: 86px; object-fit: cover; object-position: top; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--sunk); }
+.sample-name { display: block; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.sample-name small { display: block; font-weight: 400; font-size: 13px; color: var(--ink-2); }
+.sample .badge { justify-self: start; align-self: end; }
+.sample[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
+.sample[aria-pressed=true] .sample-name::before { content: "✓ 入れました"; display: block; font-size: 12px; color: var(--accent-ink); }
+.sample-all { grid-column: 1 / -1; justify-self: start; min-height: 44px; padding: 4px 6px; }
+.pick-msg:empty { display: none; }
+.pick-msg { font-weight: 700; color: var(--ink); }
+
+/* ---- 2. 注文書1枚ずつの札 ------------------------------------------------------------- */
+#orders { display: grid; gap: 16px; margin-top: 8px; }
+.ocard { border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px; background: var(--tile); }
+#orders.stagger > .ocard { animation: rise var(--t-slow) var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.ocard-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.ocard-title { flex: 1; min-width: 0; }
+.ocard-title h3 { margin: 0; font-size: 17px; }
+.ocard-title small { display: block; font-size: 13px; color: var(--ink-3); overflow-wrap: anywhere; }
+.ocard-badge { flex: none; }
+.ocard .flag.red:first-of-type { margin: 4px 0 8px; }
+
+/* 見出し（取引先・日付）：4つの欄 */
+.ohead { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px; }
+.hf { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 4px 6px; border-radius: var(--r-sm); font-size: 13px; color: var(--ink-3); transition: background-color var(--t); }
+.hf input, .hf select { width: 100%; min-height: 44px; }
+.onote { margin: 8px 0 0; padding: 8px 12px; font-size: 14px; background: var(--sunk); border-radius: var(--r-sm); }
+.asof { margin: 6px 0 0; }
+.hflags:not(:empty) { margin: 8px 0 0; }
+
+/* 色の付いた欄：線の色と、その場の言葉（色だけで伝えない） */
+.lv.red, .olines td.red { background: var(--red-bg); }
+.lv.yellow, .olines td.yellow { background: var(--warn-bg); }
+.lv.red input, .lv.red select, .olines td.red input, .olines td.red select { border-color: var(--danger); }
+.lv.yellow input, .lv.yellow select, .olines td.yellow input, .olines td.yellow select { border-color: var(--warn-ink); }
+.lv.red::after, .lv.yellow::after, .olines td.red::after, .olines td.yellow::after { display: block; font-family: var(--sans); font-size: 13px; font-weight: 700; line-height: 1.4; text-align: left; }
+.lv.red::after, .olines td.red::after { content: "要確認"; color: var(--danger); }
+.lv.yellow::after, .olines td.yellow::after { content: "注意"; color: var(--warn-ink); }
+.lv.flash, .olines td.flash { animation: flash 1.2s ease-out; }
+
+/* 明細の表 */
+.ocard .tablewrap { margin-top: 10px; }
+.olines th, .olines td { border-width: 0 0 1px; padding: 6px; vertical-align: top; }
+.olines th { font-size: 12.5px; }
+.olines td:first-child { font-family: var(--mono); color: var(--ink-3); padding-top: 16px; }
+.olines td input, .olines td select { min-height: 44px; width: 100%; }
+.olines td.num input { text-align: right; font-family: var(--mono); }
+.olines td .flags .flag + .flag { margin-top: 2px; }
+.olines .badge.ok.fresh { animation: pop var(--t) var(--ease) both; }
+.olines button.small, .ocard .row button.small { min-height: 44px; min-width: 56px; white-space: nowrap; }
+.olines tr.dupe td.rowflag { background: var(--warn-bg); }
+
+.olines small.calc { display: block; margin-top: 2px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-align: right; white-space: nowrap; }
+.olines small.calc:empty { display: none; }
+.olines button.del { min-width: 44px; padding: 4px 8px; font-size: 18px; }
+
+@media (min-width: 761px) {
+  /* 1280px の画面で横に送らずに収まる幅（足りないときは表だけ横に送れる） */
+  .olines th, .olines td { padding: 6px 4px; }
+  .olines td input, .olines td select { padding-left: 8px; padding-right: 6px; }
+  .olines td[data-f=read] { width: 150px; min-width: 130px; }
+  .olines td[data-f=spec] { width: 84px; min-width: 76px; }
+  .olines td.prod { width: 250px; min-width: 210px; }
+  .olines td[data-f=qty] { width: 64px; min-width: 60px; }
+  .olines td[data-f=unit] { width: 78px; min-width: 70px; }
+  .olines td[data-f=unitPrice] { width: 88px; min-width: 80px; }
+  .olines td[data-f=amount] { width: 96px; min-width: 88px; }
+  .olines td.rowflag { min-width: 180px; }
+}
+
+/* ---- 3. 出力 ------------------------------------------------------------------------- */
+.enc { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; margin: 0; padding: 4px 10px 6px; border: 1px solid var(--line); border-radius: var(--r-md); }
+.enc legend { padding: 0 4px; font-size: 13px; color: var(--ink-3); }
+.enc label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+.enc input { width: 20px; height: 20px; margin: 0; }
+#made { margin-top: 12px; }
+#export-note:empty { display: none; }
+
+/* ---- スマホ --------------------------------------------------------------------------- */
+@media (max-width: 760px) {
+  .samples { grid-template-columns: minmax(0, 1fr); }
+  .ohead { grid-template-columns: minmax(0, 1fr); }
+  .ocard { padding: 10px; }
+  /* 明細1行＝1枚の札。番号と確かめる点を上に、品名・商品マスタは全幅、数の欄は2つずつ並べる */
+  table.olines tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 10px; }
+  table.olines td { grid-column: 1 / -1; align-content: start; }
+  table.olines td:first-child { order: 1; padding-top: 6px; font-weight: 700; }
+  table.olines td.rowflag { order: 2; }
+  table.olines td[data-f=read] { order: 3; }
+  table.olines td.prod { order: 4; }
+  table.olines td[data-f=spec] { order: 5; }
+  table.olines td[data-f=qty] { order: 6; }
+  table.olines td[data-f=unit] { order: 7; }
+  table.olines td[data-f=unitPrice] { order: 8; }
+  table.olines td[data-f=amount] { order: 9; }
+  table.olines td:last-child { order: 10; align-self: end; }
+  table.olines :is(td[data-f=spec], td[data-f=qty], td[data-f=unit], td[data-f=unitPrice], td[data-f=amount], td:last-child) { grid-column: auto; grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  table.olines :is(td[data-f=spec], td[data-f=qty], td[data-f=unit], td[data-f=unitPrice], td[data-f=amount])::before { padding-top: 2px; }
+  table.olines td.num input { text-align: left; }
+  table.olines td.red::after, table.olines td.yellow::after { grid-column: 2; }
+  table.olines :is(td[data-f=qty], td[data-f=unit], td[data-f=unitPrice], td[data-f=amount]):is(.red, .yellow)::after { grid-column: 1; }
+  table.olines small.calc { text-align: left; }
+  table.olines button.del { justify-self: end; }
+  .exportbar #export, .exportbar #csv { flex: 1 1 100%; }
+  .enc { flex: 1 1 100%; }
+}

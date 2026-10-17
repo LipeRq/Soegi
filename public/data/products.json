@@ -1,0 +1,32 @@
+{
+  "note": "さくらんぼ食品（仮）の架空の商品マスタと取引先マスタ。デモ用で、実在しません。",
+  "products": [
+    { "code": "J-101", "name": "ラ・フランスジャム", "spec": "150g", "unit": "個", "caseQty": 24, "price": 430, "aliases": ["洋梨ジャム", "LFジャム"] },
+    { "code": "J-102", "name": "さくらんぼジャム", "spec": "150g", "unit": "個", "caseQty": 24, "price": 530, "aliases": ["チェリージャム"] },
+    { "code": "J-103", "name": "りんごジャム", "spec": "150g", "unit": "個", "caseQty": 24, "price": 380, "aliases": ["アップルジャム"] },
+    { "code": "J-104", "name": "ブルーベリージャム", "spec": "150g", "unit": "個", "caseQty": 24, "price": 450, "aliases": [] },
+    { "code": "J-105", "name": "もものジャム", "spec": "150g", "unit": "個", "caseQty": 24, "price": 480, "aliases": ["桃ジャム", "ピーチジャム"] },
+    { "code": "J-201", "name": "ラ・フランスジャム", "spec": "300g", "unit": "個", "caseQty": 12, "price": 780, "aliases": ["洋梨ジャム"] },
+    { "code": "J-202", "name": "さくらんぼジャム", "spec": "300g", "unit": "個", "caseQty": 12, "price": 950, "aliases": ["チェリージャム"] },
+    { "code": "J-301", "name": "業務用りんごジャム", "spec": "1kg", "unit": "個", "caseQty": 6, "price": 1500, "aliases": ["りんごジャム業務用"] },
+    { "code": "D-101", "name": "ドライラ・フランス", "spec": "40g", "unit": "袋", "caseQty": 30, "price": 400, "aliases": ["ドライ洋梨", "乾燥ラ・フランス"] },
+    { "code": "D-102", "name": "ドライりんご", "spec": "40g", "unit": "袋", "caseQty": 30, "price": 370, "aliases": ["乾燥りんご"] },
+    { "code": "D-103", "name": "ドライさくらんぼ", "spec": "30g", "unit": "袋", "caseQty": 30, "price": 560, "aliases": ["乾燥さくらんぼ"] },
+    { "code": "D-104", "name": "ドライ柿", "spec": "50g", "unit": "袋", "caseQty": 30, "price": 420, "aliases": ["ドライかき"] },
+    { "code": "D-201", "name": "ドライフルーツミックス", "spec": "80g", "unit": "袋", "caseQty": 20, "price": 680, "aliases": ["ミックスドライフルーツ"] },
+    { "code": "G-101", "name": "ギフトセット（ジャム3本）", "spec": "", "unit": "箱", "caseQty": 8, "price": 1800, "aliases": ["ジャム3本ギフト", "ジャムギフト"] },
+    { "code": "G-102", "name": "ギフトセット（ドライ4種）", "spec": "", "unit": "箱", "caseQty": 8, "price": 2200, "aliases": ["ドライ4種ギフト"] },
+    { "code": "S-101", "name": "ラ・フランスシロップ", "spec": "500ml", "unit": "本", "caseQty": 12, "price": 900, "aliases": ["洋梨シロップ"] },
+    { "code": "S-102", "name": "りんごジュース", "spec": "1L", "unit": "本", "caseQty": 6, "price": 650, "aliases": ["りんごストレートジュース"] },
+    { "code": "S-103", "name": "さくらんぼゼリー", "spec": "120g", "unit": "個", "caseQty": 24, "price": 300, "aliases": ["チェリーゼリー"] },
+    { "code": "S-104", "name": "ラ・フランスゼリー", "spec": "120g", "unit": "個", "caseQty": 24, "price": 300, "aliases": ["洋梨ゼリー"] },
+    { "code": "S-105", "name": "洋梨のコンポート", "spec": "300g", "unit": "個", "caseQty": 12, "price": 850, "aliases": ["ラ・フランスのコンポート"] }
+  ],
+  "customers": [
+    { "code": "C-01", "name": "やまびこスーパー（仮）", "aliases": ["やまびこスーパー", "ヤマビコスーパー"] },
+    { "code": "C-02", "name": "月山ストア（仮）", "aliases": ["月山ストア", "がっさんストア"] },
+    { "code": "C-03", "name": "道の駅さくらんぼの里（仮）", "aliases": ["道の駅さくらんぼの里", "さくらんぼの里"] },
+    { "code": "C-04", "name": "温泉旅館みずき（仮）", "aliases": ["旅館みずき", "温泉旅館みずき"] },
+    { "code": "C-05", "name": "カフェ森のテラス（仮）", "aliases": ["森のテラス", "カフェ森のテラス"] }
+  ]
+}

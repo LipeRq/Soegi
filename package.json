@@ -8,13 +8,16 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "node --test \"test/*.test.js\"",
-    "vendor": "cp node_modules/exceljs/dist/exceljs.min.js public/vendor/exceljs.min.js",
-    "sample": "node scripts/gen-sample.mjs"
+    "vendor": "cp node_modules/exceljs/dist/exceljs.min.js public/vendor/exceljs.min.js && mkdir -p public/vendor/pdfjs && cp node_modules/pdfjs-dist/build/pdf.min.mjs node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/vendor/pdfjs/ && cp -r node_modules/pdfjs-dist/cmaps node_modules/pdfjs-dist/standard_fonts public/vendor/pdfjs/",
+    "sample": "node scripts/gen-sample.mjs",
+    "samples": "node scripts/gen-order-samples.mjs"
   },
   "dependencies": {
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "pdfjs-dist": "^4.10.38"
   },
   "devDependencies": {
+    "@fontsource/zen-kurenaido": "^5.3.1",
     "qrcode": "^1.5.4",
     "wrangler": "^4.0.0"
   }

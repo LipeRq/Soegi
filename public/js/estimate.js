@@ -52,6 +52,16 @@ export const DEMOS = {
     hours: (v) => (v.count * v.perPerson - v.after) / 60,
     measures: ['集計にかかった時間', '45時間を超えそうだった人数と、月中に気づけた回数'],
   },
+  order: {
+    name: '受注：FAX・紙の注文書 → 受注データ', menu: 'manual', industry: 'food',
+    inputs: [
+      { key: 'count', label: '月に届く注文書（FAX・紙）の枚数', unit: '枚', def: 200, min: 0, max: 100000, step: 10 },
+      { key: 'before', label: '1枚を受注データに打ち込む時間', unit: '分', def: 5, min: 0, max: 60, step: 0.5 },
+      { key: 'after', label: '導入後の1枚の時間（確かめるだけ）', unit: '分', def: 1.5, min: 0, max: 60, step: 0.5 },
+    ],
+    hours: (v) => (v.count * (v.before - v.after)) / 60,
+    measures: ['1枚あたりの入力時間', '要確認になった明細の割合', '数量・商品の打ち間違いの件数'],
+  },
   knowledge: {
     name: '社内ナレッジ検索', menu: 'knowledge', industry: 'food',
     inputs: [

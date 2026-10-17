@@ -322,3 +322,75 @@ export function validateSiteAnswer(raw) {
     category: str(raw.category, 30),
   };
 }
+
+// ---- 受注：FAX・紙の注文書 ------------------------------------------------------------
+
+export const ORDER_TOOL = {
+  name: 'submit_order',
+  description: '画像の注文書（FAX・紙）から読み取った内容を提出する',
+  schema: {
+    type: 'object',
+    properties: {
+      is_order: { type: 'boolean', description: '注文書・発注書として読めるか' },
+      customer: { type: 'string', description: '発注元（注文してきた会社・店）。読めなければ空文字' },
+      order_date: { type: 'string', description: '発注日。書いてあるとおり（年が無ければ月日だけ）。無ければ空文字' },
+      delivery_date: { type: 'string', description: '納品希望日。書いてあるとおり。無ければ空文字' },
+      lines: {
+        type: 'array',
+        description: '明細（注文された商品ごとに1つ。書いてある順）',
+        items: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', description: '品名（書いてあるとおり。直さない）' },
+            spec: { type: 'string', description: '規格・容量（150g など）。無ければ空文字' },
+            qty: { type: ['integer', 'null'], description: '数量。読めなければ null' },
+            unit: { type: 'string', description: '単位（個・袋・箱・ケース など）。無ければ空文字' },
+            unit_price: { type: ['integer', 'null'], description: '単価（円）。書いていなければ null' },
+            amount: { type: ['integer', 'null'], description: '金額（円）。書いていなければ null' },
+            conf_name: { type: 'string', enum: ['高', '中', '低'], description: '品名の読み取りの確かさ' },
+            conf_qty: { type: 'string', enum: ['高', '中', '低'], description: '数量の読み取りの確かさ' },
+          },
+          required: ['name', 'spec', 'qty', 'unit', 'unit_price', 'amount', 'conf_name', 'conf_qty'],
+        },
+      },
+      note: { type: 'string', description: '備考・連絡事項（書いてあるとおり）。無ければ空文字' },
+      confidence: {
+        type: 'object',
+        properties: { customer: level, order_date: level, delivery_date: level },
+        required: ['customer', 'order_date', 'delivery_date'],
+      },
+    },
+    required: ['is_order', 'customer', 'order_date', 'delivery_date', 'lines', 'note', 'confidence'],
+  },
+};
+
+const lv = (v) => (LEVELS.includes(toStr(v)) ? toStr(v) : '低');
+
+export function validateOrder(raw) {
+  if (!isObj(raw)) fail('object');
+  if (typeof raw.is_order !== 'boolean') fail('is_order');
+  if (!Array.isArray(raw.lines)) fail('lines');
+  if (raw.lines.length > 60) fail('lines length');
+  const conf = isObj(raw.confidence) ? raw.confidence : {};
+  return {
+    is_order: raw.is_order,
+    customer: toStr(raw.customer).slice(0, 80),
+    order_date: toStr(raw.order_date).slice(0, 30),
+    delivery_date: toStr(raw.delivery_date).slice(0, 30),
+    note: toStr(raw.note).slice(0, 300),
+    confidence: { customer: lv(conf.customer), order_date: lv(conf.order_date), delivery_date: lv(conf.delivery_date) },
+    lines: raw.lines.map((l) => {
+      if (!isObj(l)) fail('line');
+      return {
+        name: toStr(l.name).slice(0, 80),
+        spec: toStr(l.spec).slice(0, 30),
+        qty: toIntOrNull(l.qty, 'qty'),
+        unit: toStr(l.unit).slice(0, 10),
+        unit_price: toIntOrNull(l.unit_price, 'unit_price'),
+        amount: toIntOrNull(l.amount, 'amount'),
+        conf_name: lv(l.conf_name),
+        conf_qty: lv(l.conf_qty),
+      };
+    }).filter((l) => l.name || l.qty != null),
+  };
+}

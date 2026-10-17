@@ -1,6 +1,6 @@
-// 経理（レシート）と労務（タイムカード写真）の読み取り。計算・判定は画面側のプログラムで行う。
+// 経理（レシート）・労務（タイムカード写真）・受注（注文書）の読み取り。計算・判定・照合は画面側のプログラムで行う。
 import { extractStructured } from '../ai.js';
-import { RECEIPT_TOOL, TIMECARD_TOOL, ACCOUNTS, validateReceipt, validateTimecard } from '../schemas.js';
+import { RECEIPT_TOOL, TIMECARD_TOOL, ORDER_TOOL, ACCOUNTS, validateReceipt, validateTimecard, validateOrder } from '../schemas.js';
 import { HttpError, withRetry, UNTRUSTED_NOTE, jstToday } from '../http.js';
 
 function imageOf(body) {
@@ -52,4 +52,31 @@ export async function timecard(env, body) {
   // 日だけ返ってきた場合は、指定された年月で補う
   v.entries = v.entries.map((e) => (period && /^\d{1,2}$/.test(e.date) ? { ...e, date: `${period}-${e.date.padStart(2, '0')}` } : e));
   return v;
+}
+
+// ---- 受注：FAX・紙の注文書 → 受注データ（照合・検算は画面側の order-check.js） ----------------
+
+export async function order(env, body) {
+  const image = imageOf(body);
+  return withRetry(async () => validateOrder(await extractStructured(env, {
+    tool: ORDER_TOOL,
+    system: [
+      'あなたは受注係の補助として、取引先から届いた注文書（FAX・紙・写真）を読み取ります。取引先ごとに様式が違います。',
+      '読み取りだけを行います。商品マスタとの照合・数量の検算・単価の確認は、別のプログラムが行います。',
+      UNTRUSTED_NOTE,
+      '決まりごと：',
+      '- 書いてあるとおりに写す。品名を商品マスタの名前に直したり、推測で補ったりしない。読めない所は空文字または null。',
+      '- 明細は書いてある順に、1商品1つ。合計の行・空の行は入れない。',
+      '- 数量・単価・金額は半角の整数。単位（個・袋・箱・ケース など）は数量と分けて unit に入れる。',
+      '- 日付は書いてあるとおり（年が無ければ「1/14」のように月日だけ）。和暦は西暦に直してよい。',
+      '- 手書き・にじみ・訂正で自信がないものは、確かさを 低 にする。',
+      '- 注文書として読めない画像は is_order を false にする。',
+      `今日の日付は ${jstToday()} です。`,
+    ].join('\n'),
+    userText: 'この注文書を読み取って submit_order で提出してください。',
+    imageBase64: image,
+    maxTokens: 4000, // 明細が多い注文書（最大60行）でも途中で切れないように
+    // モックだけが使う見本の名前（本物のAIには送らない）
+    sample: typeof body?.sample === 'string' ? body.sample.slice(0, 40) : '',
+  })));
 }

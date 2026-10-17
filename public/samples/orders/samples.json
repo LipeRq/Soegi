@@ -1,0 +1,60 @@
+{
+  "note": "受注デモの見本の注文書（架空）。画像は scripts/gen-order-samples.mjs で、この中身から作る。モックの答えもこれを使う。asOf：見本を確かめる日（届いた日として扱う。実際の今日で確かめると、日がたつと納品日が過去になるため）",
+  "samples": [
+    {
+      "id": "yamabiko",
+      "asOf": "2027-01-12",
+      "file": "order-yamabiko.jpg",
+      "label": "やまびこスーパー（仮）：印字・表の様式",
+      "kind": "印字",
+      "customer": "やまびこスーパー（仮） 仕入部 御中",
+      "from": "株式会社やまびこスーパー（仮）　仕入部　山形市（架空）",
+      "order_date": "2027年1月12日",
+      "delivery_date": "2027年1月19日",
+      "note": "店舗コード012のラベルを段ボールに貼ってください。",
+      "lines": [
+        { "name": "ラ・フランスジャム", "spec": "150g", "qty": 48, "unit": "個" },
+        { "name": "洋梨ジャム", "spec": "300g", "qty": 24, "unit": "個" },
+        { "name": "さくらんぼジャム", "spec": "150g", "qty": 2, "unit": "ケース" },
+        { "name": "ブルーベリージャム", "spec": "150g", "qty": 24, "unit": "個" },
+        { "name": "山ぶどうジャム", "spec": "150g", "qty": 12, "unit": "個" }
+      ]
+    },
+    {
+      "id": "gassan",
+      "asOf": "2027-01-13",
+      "file": "order-gassan.jpg",
+      "label": "月山ストア（仮）：印字・品番と金額つきの様式",
+      "kind": "印字",
+      "customer": "月山ストア（仮）",
+      "from": "月山ストア（仮）　商品部",
+      "order_date": "2027/01/13",
+      "delivery_date": "2027/01/20",
+      "note": "ギフトセットは別の箱でお願いします。",
+      "lines": [
+        { "code": "G-101", "name": "ギフトセット（ジャム3本）", "spec": "", "qty": 20, "unit": "箱", "unit_price": 1800, "amount": 36000 },
+        { "code": "D-101", "name": "ドライラ・フランス", "spec": "40g", "qty": 60, "unit": "袋", "unit_price": 400, "amount": 24000 },
+        { "code": "D-201", "name": "ドライフルーツミックス", "spec": "80g", "qty": 30, "unit": "袋", "unit_price": 650, "amount": 19500 },
+        { "code": "S-102", "name": "りんごジュース", "spec": "1L", "qty": 12, "unit": "本", "unit_price": 650, "amount": 7500 }
+      ]
+    },
+    {
+      "id": "eki",
+      "asOf": "2027-01-14",
+      "file": "order-eki-handwritten.jpg",
+      "label": "道の駅さくらんぼの里（仮）：手書き風のFAX",
+      "kind": "手書き風",
+      "customer": "道の駅 さくらんぼの里",
+      "from": "道の駅さくらんぼの里（仮）　売店",
+      "order_date": "1/14",
+      "delivery_date": "",
+      "note": "急ぎです。いつ届くか電話ください。",
+      "lines": [
+        { "name": "さくらんぼゼリー", "spec": "", "qty": 48, "unit": "" },
+        { "name": "ラ・フランスゼリー", "spec": "", "qty": 48, "unit": "" },
+        { "name": "ドライさくらんぼ", "spec": "", "qty": 30, "unit": "袋", "conf_qty": "低" },
+        { "name": "もも ジャム", "spec": "", "qty": 24, "unit": "", "conf_name": "中" }
+      ]
+    }
+  ]
+}

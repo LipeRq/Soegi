@@ -99,6 +99,12 @@
 @media (min-width: 560px) { .rc { grid-template-columns: 150px minmax(0, 1fr); } }
 @media (max-width: 559px) { .mini th:nth-child(3), .mini td:nth-child(3) { display: none; } }
 
+/* 受注：注文書（FAX）の行を読んで、照らし合わせた行が増える */
+.paper.fax { font-family: var(--sans); line-height: 1.9; -webkit-mask: none; mask: none; border-radius: 4px; filter: grayscale(1); }
+.paper.fax span { border-radius: 3px; padding: 0 4px; margin: 0 -4px; transition: background-color var(--t); }
+.paper.fax span.hit { background: var(--sunk-2); }
+@media (min-width: 560px) { .od { grid-template-columns: 230px minmax(0, 1fr); } }
+
 /* 労務：背景の色が 45・80・100 時間の区切り（横幅は 120 時間） */
 .zr { display: grid; grid-template-columns: 2.8em minmax(0, 1fr) 3.6em; gap: 8px; align-items: center; margin-bottom: 8px; }
 .zr b { font-weight: 700; }

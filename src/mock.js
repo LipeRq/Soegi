@@ -1,6 +1,8 @@
 // AI_PROVIDER=mock のときの固定の架空データ。AIを呼ばずに画面の流れを確かめるため（本番では使わない）。
 // デモA〜Cは台本の例文に合わせた答えを返す。根拠の引用は実際の資料の文と同じにしてある（テストで照合）。
 
+import orderSamples from '../public/samples/orders/samples.json' with { type: 'json' };
+
 const MOCK_STORES = [
   { payee: 'さくら文具店', summary: 'コピー用紙・ボールペン', total: 1980, a10: 1980, a8: null, tax: 180, acc: '事務用品費', inv: 'T1234567890123' },
   { payee: 'みどり食堂', summary: '日替わり定食 2名', total: 1760, a10: null, a8: 1760, tax: 130, acc: '会議費', inv: 'T2345678901234' },
@@ -143,10 +145,26 @@ function siteAnswer(userText) {
   return { language: 'ja', found: false, answer: '', link_ids: [], suggest_consult: true, category: 'その他' };
 }
 
-export function mockResponse({ tool, userText }) {
+// 受注：見本の注文書を使ったときは、その見本の中身を「読めた」ことにする。それ以外の写真は見本を順に返す
+let orderCounter = 0;
+function order(sample) {
+  const s = orderSamples.samples.find((x) => x.id === sample) ?? orderSamples.samples[orderCounter++ % orderSamples.samples.length];
+  const handwritten = s.kind !== '印字';
+  return {
+    is_order: true, customer: s.customer, order_date: s.order_date, delivery_date: s.delivery_date, note: s.note,
+    confidence: { customer: handwritten ? '中' : '高', order_date: handwritten ? '中' : '高', delivery_date: s.delivery_date ? '高' : '低' },
+    lines: s.lines.map((l) => ({
+      name: l.name, spec: l.spec ?? '', qty: l.qty, unit: l.unit ?? '', unit_price: l.unit_price ?? null, amount: l.amount ?? null,
+      conf_name: l.conf_name ?? (handwritten ? '中' : '高'), conf_qty: l.conf_qty ?? (handwritten ? '中' : '高'),
+    })),
+  };
+}
+
+export function mockResponse({ tool, userText, sample }) {
   switch (tool.name) {
     case 'submit_receipt': return receipt();
     case 'submit_timecard': return timecard();
+    case 'submit_order': return order(sample);
     case 'submit_answer': return knowledge(userText);
     case 'submit_inn_reply': return innReply(userText);
     case 'submit_inn_faq': return innFaq();
