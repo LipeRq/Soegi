@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="/css/attendance.css">
+<link rel="stylesheet" href="/css/estimate.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>打刻データ → 残業の集計｜ソエギ デモ</title>
 </head>
@@ -129,9 +130,9 @@
     <h2><b class="no">3</b>　Excelにする</h2>
     <p class="small-note">一覧／1人1シートの日別表／使った設定、の3つが入ります。判定の色もそのまま付きます。</p>
     <button type="button" class="primary btn-xl" id="export">Excelをダウンロード</button>
-    <h3>御社の場合</h3>
-    <div id="roi"></div>
   </section>
+
+  <section class="card" id="estimate" hidden></section>
 </main>
 <footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
 <script src="/vendor/exceljs.min.js"></script>

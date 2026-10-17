@@ -1,12 +1,13 @@
 // 経理デモ：レシート → Excel。1 撮る・読み込む（3枚ずつ並行）→ 2 確かめる → 3 Excelにする
 // 動きは「いま出ている結果の見せ方」だけ。読み取りを待たせたり、測った秒数を変えたりはしない。
 import {
-  requireAuth, api, h, clear, downloadBlob, XLSX_MIME, stamp, pool, setStep, mountRoi,
+  requireAuth, api, h, clear, downloadBlob, XLSX_MIME, stamp, pool, setStep,
 } from './common.js';
 import { toJpeg } from './image.js';
 import { checkReceipts, levelOf, worstLevel } from './receipt-check.js';
 import { buildReceiptWorkbook } from './receipt-xlsx.js';
-import { MENUS } from './pricing.js';
+import { mountEstimate } from './estimate-ui.js';
+import { defaultValues } from './estimate.js';
 import { reduced, countUp, stagger, replay, flash, onVisible } from './motion.js';
 
 requireAuth();
@@ -28,10 +29,11 @@ let files = []; // 選んだ写真
 let rows = []; // 読み取り結果（確かめる対象）
 let nextId = 1;
 let elapsedSec = null;
-let minutesPerReceipt = 1;
-const roi = mountRoi($('roi'), {
-  unit: '枚', countLabel: 'レシート・領収書は月に何枚？', count: 200,
-  minutesLabel: '1枚の手入力にかかる時間（仮置き）', minutes: minutesPerReceipt, monthlyFee: MENUS.manual.monthly,
+// 1枚の手入力の分（仮置き）。上の「手入力なら約」と下の「御社の場合」で同じ値を使う
+let minutesPerReceipt = defaultValues('receipt').before;
+const est = mountEstimate($('estimate'), {
+  keys: ['receipt'],
+  onChange: (_, v) => { if (v.before !== minutesPerReceipt) { minutesPerReceipt = v.before; if (stats.count) refresh(); } },
 });
 
 // ---- 1. 撮る・選ぶ -----------------------------------------------------------------
@@ -303,7 +305,7 @@ function buildStats() {
     onchange: (e) => {
       minutesPerReceipt = Math.max(0, Number(e.target.value) || 0);
       e.target.value = String(minutesPerReceipt);
-      roi.setMinutes(minutesPerReceipt); refresh();
+      est.set('receipt', 'before', minutesPerReceipt); refresh();
     },
   });
   // かかった時間と手入力の時間を、同じ目盛りの棒で並べる（長さは下の数字から計算。飾りなので読み上げない）

@@ -49,7 +49,7 @@
 
 | トークン | 値 | 役割 | 主な使い先 |
 |---|---|---|---|
-| `--ink` | `#1B2428` | 文字・墨の面・選択中 | 本文、`.tabs` の選択中、`.roi .res`、入口のパスワード欄（必要になったときだけ出す） |
+| `--ink` | `#1B2428` | 文字・墨の面・選択中 | 本文、`.tabs` の選択中、`.est-res`、入口のパスワード欄（必要になったときだけ出す） |
 | `--ink-2` | `#44525A` | 少し薄い文字 | `.lead`、ラベル、補足 |
 | `--ink-3` | `#5A676E` | いちばん薄い文字（補足だけ） | `.small-note`、`.stat span`、`.reason` |
 | `--bg` | `#E9EEED` | ページの地 | `body` |
@@ -61,11 +61,11 @@
 | `--accent` | `#1A6D73` | **青緑**：主操作、選択中、強調、リンク | `button.primary`、`a`、`.tabs` の選択中、`.notice` |
 | `--danger` / `--danger-soft` | `#B3243B` / `#F7E7EA` | **赤**：意味のある場所だけ（要確認・エラー・100時間超・連勤） | `.flag.red`、`.err`、`.badge.red`、`.stat.danger` |
 | `--accent-hover` | `#14565B` | 青緑を押す前（ホバー） | `button.primary:hover` |
-| `--accent-soft` | `#DCF0F0` | 薄い青緑の面（選択中・結果の面・利用者の吹き出し。黒い面は使わない） | `.notice`、選んだ札、`.roi .res`、`.gate`、`.ideas` |
+| `--accent-soft` | `#DCF0F0` | 薄い青緑の面（選択中・結果の面・利用者の吹き出し。黒い面は使わない） | `.notice`、選んだ札、`.est-res`、`.gate`、`.ideas` |
 | `--accent-ink` | `#104A4F` | 薄い青緑の面の上の文字、副ボタンの文字 | `button`、選択中の札 |
 | `--leaf` | `#2E7652` | **緑**：完了・OK・良い | `.stat.good`、`.badge.ok`、`.steps li.done` |
 | `--leaf-soft` | `#E2EFE7` | 薄い緑の面 | `.stat.good`、`.part.easy`（やさしい日本語） |
-| `--leaf-on-ink` | `#8FE0B5` | 墨の面の上の緑 | `.roi .res b.good` |
+| `--leaf-on-ink` | `#8FE0B5` | 墨の面の上の緑 | `.est-row b.good`（緑の面の上） |
 | `--warn-bg` | `#FFF4C7` | **黄**：注意・AIが自信のない所 | `.notice.warn`、`td.yellow`、`.confirm` |
 | `--warn-ink` | `#6B4E00` | 黄の面の上の文字 | `.flag.yellow`、`.stat.warn span` |
 | `--warn-line` | `#E0B400` | 黄の枠・印 | `.confirm` の枠、`.notice.warn::before` |
@@ -113,8 +113,8 @@
 | `--warn-ink` → `--warn-bg` | 7.00 | 可 | `.flag.yellow` |
 | `--ink` → `--warn-bg` | 14.30 | 可 | `.notice.warn` |
 | `--orange-ink` → `--orange-bg` | 6.80 | 可 | `.badge.orange` |
-| 白 → `--ink` | 15.79 | 可 | 選択中、`.roi .res` |
-| `--leaf-on-ink` → `--ink` | 10.15 | 可 | `.roi .res b.good` |
+| 白 → `--ink` | 15.79 | 可 | 選択中、`.est-res` |
+| `--leaf-on-ink` → `--ink` | 10.15 | 可 | `.est-row b.good`（緑の面の上） |
 | `--ink` → `--mark` | 12.66 | 可 | `mark` |
 
 | 枠・図形 | 比 | 判定 | メモ |
@@ -197,7 +197,7 @@
 | 部品 | 使う場面 | 決まり | クラス |
 |---|---|---|---|
 | 白いタイル | 主役、まとまった結果、入口の見本 | 多くしすぎない（労務は4枚）。角丸 `--r-tile`、影 `--shadow`。**設定・補足・注意書きは乗せず、地に直接置く** | `section.card`、入口は `.tile` |
-| 墨の面 | 結果の要約、お客さまの原文、次にすること | 白文字。緑は `--leaf-on-ink` | `.roi .res`、`.gate`、`.quad .origin`、`.ideas` |
+| 墨の面 | 結果の要約、お客さまの原文、次にすること | 白文字。緑は `--leaf-on-ink` | `.est-res`、`.gate`、`.quad .origin`、`.ideas` |
 | 輪郭だけの面 | 脇役（人数・行数、このデモで数えた分） | 背景なし、`--line` の枠 | `#stats .stat.quiet`、`section.card.session` |
 | 点線の面 | まだ選ばれていない場所（入れ口、根拠） | 選ぶと実線や白い面に変わる | `.drop`、`.kb .evidence`、`.msg.bot.none` |
 | 見本の窓 | 見本のサイトを見せる | 小さなブラウザの窓。文字の無い部品は静止（読み込み中に見せない） | `.mocksite`、`.page[data-profile]` |
@@ -248,7 +248,7 @@
 | 根拠の紙 | 資料の該当箇所 | 引用した節は青緑の線＋「根拠」の札、ほかは控えめに。引用文に蛍光ペン | `.evidence`、`.sec.hit`、`mark` |
 | 横棒（ゾーン付き） | 残業時間の比べ | 棒の溝の色が 45／80／100時間の区切り（`--z45` `--z80` `--z100` を JS が入れる）。印は `.mark.m45/m80/m100`。棒は押せる（`aria-pressed`、選ぶと墨の枠＋矢印が下向き）。**橙・赤の棒には言葉の印**（橙 80時間以上 など、数字は `LIMITS` から作る） | `.bars`、`.bar-row`、`.track`、`.seg.none/.yellow/.orange/.red`、`.axis` |
 | 棒（比べる） | 順位・件数 | 溝の上に伸びる棒。いちばん多い行だけ青緑、ほかは墨、「資料に見当たらない」行は灰 | `.report`、`.minibar`、`.bartrack` |
-| 御社の場合 | 元が取れる目安の計算 | 左に入力、右に墨の面の結果。**結果の下に必ず「目安です。実際の数字はお試しで測ります」**。計算は `roi.js`（変えない） | `.roi`、`.seg`、`.field`、`.res`、`.verdict`（`mountRoi()`） |
+| 御社の場合 | 試算と持ち帰り1枚（全デモ共通） | 左に入力、右に薄い青緑の面の結果。**入力より前に必ず「試算です。約束ではありません。お試しの1ヶ月で、御社の数字を測ります」（`.notice`、動かさない）**。計算は `estimate.js`、画面は `estimate-ui.js`（`mountEstimate()`）、見た目は `css/estimate.css`。印刷は `html.print-takeaway` のときだけ A4 の1枚に切り替える | `.est`、`.est-grid`、`.est-res`、`.chips`、`.takeaway` |
 | 読み取り中 | AIが処理している間 | 「していること」の文を最大に。進み具合の棒は本当の進みだけ。写真ごとの状態は言葉（待ち／読み取り中／済／読めず） | `.progress`、`.phase`、`.scanning`、`.thumbs` |
 | 開閉 | 補足を畳む | 見出し行は 44px 以上。開く印は形で示す（色だけにしない） | `details`／`summary` |
 | 画像の拡大 | レシートの拡大 | `dialog` が弾んで出る | `dialog` |
@@ -381,14 +381,14 @@ CSS の部品は `style.css`、JS の部品は `public/js/motion.js`。両方と
 
 ### 6-2. 変えてはいけないもの
 
-動作、API の呼び出し、計算、出力する Excel の中身、要素の `id`、既存の日本語の文言。純粋な計算の部品（`overtime.js` `csv.js` `receipt-check.js` `*-xlsx.js` `xlsx-common.js` `roi.js` `pricing.js` `faq-html.js` `image.js`）は見た目の変更で触らない。`public/widget/chat.js` はサイトに埋め込まれている（7-3）。
+動作、API の呼び出し、計算、出力する Excel の中身、要素の `id`、既存の日本語の文言。純粋な計算の部品（`overtime.js` `csv.js` `receipt-check.js` `*-xlsx.js` `xlsx-common.js` `estimate.js` `pricing.js` `faq-html.js` `image.js`）は見た目の変更で触らない。`public/widget/chat.js` はサイトに埋め込まれている（7-3）。
 
 ### 6-3. アクセシビリティ
 
 | 項目 | 基準 |
 |---|---|
 | 文字のコントラスト | 4.5:1 以上（2-2。新しい組み合わせは必ず計算する） |
-| 押す所 | 44px 以上（`button.small`、`.roi .seg button`、`.stat input`、`.brand` などは共通ファイルで揃えてある） |
+| 押す所 | 44px 以上（`button.small`、`.est .chips button`、`.stat input`、`.brand` などは共通ファイルで揃えてある） |
 | キーボード | すべて操作でき、フォーカスが見える（`:focus-visible` は 3px の墨の輪）。`hidden` にして押せなくしない（経理のファイル入力は見えなくするだけ） |
 | 状態は色＋言葉 | 要確認／注意／選択中／表示中／済／待ち／読めず／橙 80時間以上 |
 | 読み上げ | `aria-live` を残す。動きだけの飾りは `aria-hidden="true"`。タイプ中の文は全文を先に DOM に置き、重ねたほうを `aria-hidden` にする |
@@ -579,7 +579,7 @@ CSS の部品は `style.css`、JS の部品は `public/js/motion.js`。両方と
 |---|---|
 | コメントの数字を実測に直した | `style.css` 冒頭 |
 | `.stat > span`、`label.btn` の横並び、`table.stack td > .reason`、`.axis` の列幅 | `style.css` |
-| 押す所を 44px に統一（`button.small`、`.roi .seg button`、`.roi input[type=range]`、`.stat input`、`td input/select`、`.thumbs button`、`.cites button`、`.doclist` のボタン、`.faq-lang button`、`.brand`） | `style.css` |
+| 押す所を 44px に統一（`button.small`、`.est .chips button`、`.stat input`、`td input/select`、`.thumbs button`、`.cites button`、`.doclist` のボタン、`.faq-lang button`、`.brand`） | `style.css` |
 | `.bar-row` のホバーを、背景なし＋枠の色に | `attendance.css`（このページだけ） |
 | `flash` の色を専用トークン `--flash` に | `style.css` |
 | 3段階の帯（420px 以下）が言葉の途中で折れない（`keep-all`、数字の丸を外す） | `style.css` |
@@ -597,7 +597,7 @@ CSS の部品は `style.css`、JS の部品は `public/js/motion.js`。両方と
 | 14 | （反映済み）主役の色の rgba を `color-mix` に。2026-10-12 |
 | 16 | `style.css` の「チャットボットの見本ページ」のうち、`chatbot.css` が上書きしている部分の整理。`.report .minibar { animation: grow … }` は `chatbot.css` が頼っているので**残す** |
 | 17 | `style.css` の「宿」のうち `inn.css` が上書きしているもの（`.examples`、`.quad .box:nth-child` の遅れ、`.faq-lang`、`.faq dt/dd`）。ほかのページで使っていないか確かめてから整理 |
-| 18 | 選択式の部品（`.tabs`、`.profiles`、`.faq-lang`、`.who`、`.roi .seg`）と「選択中」「表示中」の札の見た目の統一 |
+| 18 | 選択式の部品（`.tabs`、`.profiles`、`.faq-lang`、`.who`、`.est .chips`）と「選択中」「表示中」の札の見た目の統一 |
 | 19 | チェック印 `.tick` の共通化、入口の `.zone` を `.track` に寄せる |
 | 20 | アニメの長さ（0.9s、1.4s、1.6s など）を `--t-loop`、`--t-grow` などのトークンに |
 | 21 | 入口の6本の繰り返しの動きに「動きを止める」ボタンを付けるか。動きを減らす設定の人は守られている（4-3）ので、足すかはオーナー判断 |

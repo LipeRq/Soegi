@@ -4,6 +4,7 @@
 import { api, h, clear, setStep } from './common.js';
 import { FAQ_LANGS, faqToHtml } from './faq-html.js';
 import { reduced, typeText, thinking, stagger, replay, shake } from './motion.js';
+import { mountEstimate } from './estimate-ui.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -288,3 +289,6 @@ $('faq-copy').addEventListener('click', async () => {
 load();
 setupFree();
 setStep(1);
+
+// 御社の場合（試算）と持ち帰り1枚
+mountEstimate(document.getElementById('estimate'), { keys: ['inn'] });

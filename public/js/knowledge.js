@@ -4,6 +4,7 @@
 // 「要確認」「見当たりません」「AIの翻訳です」などの決まった文言は、1文字ずつ出さず、はじめから全文を出す。
 import { requireAuth, api, h, clear } from './common.js';
 import { reduced, typeText, thinking, stagger } from './motion.js';
+import { mountEstimate } from './estimate-ui.js';
 
 requireAuth();
 const $ = (id) => document.getElementById(id);
@@ -378,3 +379,6 @@ if (fromForeign) {
   $('q').classList.add('foreign');
   $('q').lang = 'vi';
 }
+
+// 御社の場合（試算）と持ち帰り1枚
+mountEstimate(document.getElementById('estimate'), { keys: ['knowledge', 'foreign'] });

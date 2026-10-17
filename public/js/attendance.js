@@ -1,9 +1,10 @@
 // 労務デモ：打刻データ → 残業の集計。CSVはブラウザの中だけで計算する（AIも通信も使わない）。
 // 写真（副）だけ、AIで読み取って表にし、確認・修正してから同じ計算に渡す。
 import {
-  requireAuth, api, h, clear, downloadBlob, XLSX_MIME, stamp, pool, setStep, mountRoi,
+  requireAuth, api, h, clear, downloadBlob, XLSX_MIME, stamp, pool, setStep,
 } from './common.js';
-import { MENUS } from './pricing.js';
+import { mountEstimate } from './estimate-ui.js';
+import { defaultValues } from './estimate.js';
 import { toJpeg } from './image.js';
 import { decodeCsvBytes, parseCsv, guessColumns, toRecords } from './csv.js';
 import {
@@ -15,11 +16,13 @@ import { reduced, countUp, stagger, replay, flash, onVisible } from './motion.js
 requireAuth();
 const $ = (id) => document.getElementById(id);
 
-let minutesPerPerson = 15; // 手計算なら1人あたり何分か（仮置き・画面で変えられる）
+// 手計算なら1人あたり何分か（仮置き）。上の「手計算なら約」と下の「御社の場合」で同じ値を使う
+let minutesPerPerson = defaultValues('attendance').perPerson;
 let elapsedMs = null;
-const roi = mountRoi($('roi'), {
-  unit: '人', countLabel: '毎月、何人分の勤怠を集計していますか？', count: 20,
-  minutesLabel: '1人分の手計算にかかる時間（仮置き）', minutes: minutesPerPerson, monthlyFee: MENUS.manual.monthly,
+let manualStat = null; // 「手計算なら約」の数字と入力欄（御社の場合から値が変わったときに直す）
+const est = mountEstimate($('estimate'), {
+  keys: ['attendance'],
+  onChange: (_, v) => { if (v.perPerson !== minutesPerPerson) manualStat?.setMinutes(v.perPerson); },
 });
 
 const FIELDS = [['name', '氏名'], ['date', '日付'], ['start', '出勤'], ['end', '退勤'], ['breakMin', '休憩（分）']];
@@ -184,6 +187,7 @@ $('calc').addEventListener('click', () => {
   elapsedMs = performance.now() - t0;
   $('result').hidden = false;
   $('step3').hidden = false;
+  $('estimate').hidden = false;
   setStep(2);
   if (!result.periods.length) {
     periodKey = null;
@@ -192,6 +196,7 @@ $('calc').addEventListener('click', () => {
     $('chart').hidden = true; $('daily').hidden = true;
     $('export').disabled = true;
     $('step3').hidden = true;
+    $('estimate').hidden = true;
     return;
   }
   $('export').disabled = false;
@@ -231,16 +236,18 @@ function renderStats(p) {
   const manual = num(p.people.length * minutesPerPerson);
   const mins = h('input', {
     type: 'number', min: '0', max: '120', step: '1', value: String(minutesPerPerson), inputMode: 'numeric', 'aria-label': '1人分の手計算の分',
-    onchange: (e) => {
-      // 表を作り直さず、変わった数字だけを前の値から動かす（ほかの数字まで数え直すと、何が変わったか分からなくなる）
-      const before = p.people.length * minutesPerPerson;
-      minutesPerPerson = Math.max(0, Number(e.target.value) || 0); roi.setMinutes(minutesPerPerson);
-      e.target.value = String(minutesPerPerson);
-      const to = p.people.length * minutesPerPerson;
-      countUp(manual, to, { from: before, format: exact(to) });
-      flash(manual.parentElement);
-    },
+    onchange: (e) => { setMinutes(Math.max(0, Number(e.target.value) || 0)); est.set('attendance', 'perPerson', minutesPerPerson); },
   });
+  // 表を作り直さず、変わった数字だけを前の値から動かす（ほかの数字まで数え直すと、何が変わったか分からなくなる）
+  function setMinutes(n) {
+    const before = p.people.length * minutesPerPerson;
+    minutesPerPerson = n;
+    mins.value = String(n);
+    const to = p.people.length * minutesPerPerson;
+    countUp(manual, to, { from: before, format: exact(to) });
+    flash(manual.parentElement);
+  }
+  manualStat = { setMinutes };
   box.append(
     stat('集計した人数', num(p.people.length), '人', 'quiet'),
     stat('打刻の行数', num(p.people.reduce((t, x) => t + x.days.length, 0)), '行', 'quiet'),

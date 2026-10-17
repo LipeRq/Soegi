@@ -194,20 +194,6 @@ section.card > h2 { font-size: clamp(19px, 2.4vw, 22px); }
 .stat input { width: 4.5em; min-height: 44px; padding: 2px 6px; font-size: 14px; }
 
 /* ---- 「御社の場合」の計算：結果は墨の面に大きく出す ----------------------------------- */
-.roi { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.roi .seg { display: flex; flex-wrap: wrap; gap: 6px; }
-.roi .seg button { min-height: 44px; padding: 6px 14px; font-weight: 400; border-radius: var(--r-pill); border-color: var(--line); }
-.roi .seg button[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
-.roi .field { margin-bottom: 12px; }
-.roi .field > span { display: block; font-size: 14px; color: var(--ink-2); margin-bottom: 4px; }
-.roi input[type=range] { width: 100%; min-height: 44px; }
-.roi .res { background: var(--accent-soft); color: var(--accent-ink); border-radius: var(--r-tile); padding: 14px 18px; }
-.roi .res div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 6px 0; border-bottom: 1px dashed color-mix(in srgb, var(--accent) 30%, transparent); font-size: 14px; }
-.roi .res div:last-child { border-bottom: 0; }
-.roi .res b { font-family: var(--mono); font-weight: 500; font-size: 22px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.roi .res b.good { color: var(--leaf); }
-.roi .verdict { margin: 12px 0 0; font-size: 14px; }
-@media (max-width: 760px) { .roi { grid-template-columns: 1fr; } }
 
 /* ---- ファイル選択・進み具合 ----------------------------------------------------------- */
 .thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
@@ -437,5 +423,5 @@ ul.errs { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
 }
 /* iPhone の Safari は、16px 未満の入力欄を押すと画面が拡大される。スマホの幅では 16px にする（高さは 44px のまま） */
 @media (max-width: 760px) {
-  td input, td select, .stat input, label input:not([type=radio]):not([type=checkbox]):not([type=range]), label select, .roi input:not([type=range]) { font-size: 16px; }
+  td input, td select, .stat input, label input:not([type=radio]):not([type=checkbox]):not([type=range]), label select { font-size: 16px; }
 }

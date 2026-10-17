@@ -2,6 +2,7 @@
 // 動きは、もう手元にある内容の「見せ方」だけ（見本の入れ替え・棒の伸び・件数の数え上げ）。待ち時間は足していない。
 import { h, clear } from './common.js';
 import { reduced, countUp, stagger, replay, flash } from './motion.js';
+import { mountEstimate } from './estimate-ui.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -155,3 +156,6 @@ function setTab(which) {
 }
 $('tab-try').addEventListener('click', () => setTab('try'));
 $('tab-admin').addEventListener('click', () => setTab('admin'));
+
+// 御社の場合（試算）と持ち帰り1枚
+mountEstimate(document.getElementById('estimate'), { keys: ['chatbot'] });
