@@ -87,6 +87,12 @@ test('validateReceipt：形が崩れていたら例外（再試行の合図）',
 
 test('validateTimecard', () => {
   const v = validateTimecard({ employee_name: ' 青木 一郎 ', entries: [{ date: '2026-09-01', start: '9:00', end: '18時00分', break_min: '60' }] });
-  assert.deepEqual(v.entries[0], { date: '2026-09-01', start: '09:00', end: '18:00', break_min: 60 });
+  assert.deepEqual(v.entries[0], {
+    date: '2026-09-01', start: '09:00', end: '18:00', out: '', back: '', break_min: 60, start_alt: '', end_alt: '',
+    conf: { start: '低', end: '低', out: '高', back: '高' }, note: '', // 確かさが無いときは「低」に倒す
+  });
+  const w = validateTimecard({ employee_name: '', entries: [{ date: '2026-09-15', start: '8:21', end: '17:32', end_alt: '21:48', out: '12:05', back: '13:20', conf_start: '高', conf_end: '低', conf_out: '中', conf_back: 'x', note: '二重打刻' }] });
+  assert.equal(w.entries[0].end_alt, '21:48');
+  assert.deepEqual(w.entries[0].conf, { start: '高', end: '低', out: '中', back: '低' });
   assert.throws(() => validateTimecard({ entries: 'x' }), /schema/);
 });

@@ -43,11 +43,16 @@ export async function timecard(env, body) {
       '決まりごと：',
       '- 時刻は 24時間表記の HH:MM。書かれていない・読めない時刻は空文字にする。',
       '- 休みの日（記録のない日）は entries に含めない。',
-      '- 休憩の時間が書かれていなければ break_min は null にする（推測しない）。',
+      '- 休憩の時間が書かれていなければ break_min は null にする（推測しない）。外出・戻りの時刻は out・back に写し、休憩を計算しない。',
+      '- 1つの欄に時刻が2つある（二重打刻）ときは、上（先）の時刻を start・end に、もう1つを start_alt・end_alt に入れ、確かさを 低 にする。どちらが正しいか決めない。',
+      '- 打刻を線で消して手書きで直してある・にじんでいる・かすれている時刻は、読めた時刻を入れて確かさを 低 にし、note に何があったかを短く書く。',
       period ? `- 対象は ${period} です。日付は ${period}-DD の形で答える。` : '- 年月が分かれば YYYY-MM-DD、分からなければ日だけを答える。',
     ].join('\n'),
     userText: 'この出勤簿を読み取って submit_timecard で提出してください。',
     imageBase64: image,
+    maxTokens: 6000, // 1か月分（31日）の時刻と確かさ
+    // モックだけが使う見本の名前（本物のAIには送らない）
+    sample: typeof body?.sample === 'string' ? body.sample.slice(0, 40) : '',
   })));
   // 日だけ返ってきた場合は、指定された年月で補う
   v.entries = v.entries.map((e) => (period && /^\d{1,2}$/.test(e.date) ? { ...e, date: `${period}-${e.date.padStart(2, '0')}` } : e));

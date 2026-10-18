@@ -1,0 +1,1009 @@
+{
+ "note": "労務デモの見本のタイムカード（架空・2026年9月）。画像は scripts/gen-timecard-samples.mjs で、この中身から作る。entries はモックの答え（AIが読んだとする内容）。手書き風は書体で作ったもので、本物の手書きではない",
+ "samples": [
+  {
+   "id": "sato",
+   "file": "timecard-sato.jpg",
+   "label": "佐藤 花子（架空）：打刻カード",
+   "kind": "印字",
+   "period": "2026-09",
+   "employee_name": "佐藤 花子（架空）",
+   "entries": [
+    {
+     "date": "2026-09-01",
+     "start": "08:51",
+     "end": "18:05",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-02",
+     "start": "08:52",
+     "end": "18:02",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-03",
+     "start": "08:53",
+     "end": "19:10",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-04",
+     "start": "08:54",
+     "end": "18:00",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-07",
+     "start": "08:57",
+     "end": "18:31",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-08",
+     "start": "08:58",
+     "end": "18:04",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-09",
+     "start": "08:50",
+     "end": "20:15",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-10",
+     "start": "08:50",
+     "end": "18:02",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-11",
+     "start": "08:52",
+     "end": "17:58",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-14",
+     "start": "08:56",
+     "end": "18:10",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-15",
+     "start": "08:56",
+     "end": "19:42",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-16",
+     "start": "08:57",
+     "end": "18:03",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-17",
+     "start": "08:58",
+     "end": "18:00",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-18",
+     "start": "08:50",
+     "end": "18:35",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-24",
+     "start": "08:56",
+     "end": "18:01",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-25",
+     "start": "08:57",
+     "end": "20:05",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-28",
+     "start": "08:51",
+     "end": "18:02",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-29",
+     "start": "08:52",
+     "end": "18:30",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-30",
+     "start": "08:50",
+     "end": "18:00",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "id": "suzuki",
+   "file": "timecard-suzuki.jpg",
+   "label": "鈴木 健太（架空）：打刻カード（手書きの修正・二重打刻）",
+   "kind": "印字＋手書き風",
+   "period": "2026-09",
+   "employee_name": "鈴木 健太（架空）",
+   "entries": [
+    {
+     "date": "2026-09-01",
+     "start": "08:21",
+     "end": "19:31",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-02",
+     "start": "08:22",
+     "end": "19:45",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-03",
+     "start": "08:23",
+     "end": "19:20",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-04",
+     "start": "08:24",
+     "end": "19:52",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-07",
+     "start": "08:20",
+     "end": "19:38",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-08",
+     "start": "08:30",
+     "end": "19:30",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "低",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": "出勤：打刻の10:02を線で消し、手書きで8:30"
+    },
+    {
+     "date": "2026-09-09",
+     "start": "08:22",
+     "end": "20:12",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-10",
+     "start": "08:23",
+     "end": "19:41",
+     "out": "12:05",
+     "back": "13:20",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-11",
+     "start": "08:24",
+     "end": "19:05",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-14",
+     "start": "08:20",
+     "end": "19:33",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-15",
+     "start": "08:21",
+     "end": "17:32",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "低",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "21:48",
+     "note": "退勤：1つの欄に2つの打刻（17:32 と 21:48）"
+    },
+    {
+     "date": "2026-09-16",
+     "start": "08:22",
+     "end": "19:48",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-17",
+     "start": "08:23",
+     "end": "19:26",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-18",
+     "start": "08:24",
+     "end": "19:58",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-24",
+     "start": "08:23",
+     "end": "19:40",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-25",
+     "start": "08:24",
+     "end": "20:15",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "低",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": "退勤：打刻が無く、手書きで20:15"
+    },
+    {
+     "date": "2026-09-28",
+     "start": "08:20",
+     "end": "19:35",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-29",
+     "start": "08:21",
+     "end": "19:44",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-30",
+     "start": "08:22",
+     "end": "19:22",
+     "out": "",
+     "back": "",
+     "break_min": null,
+     "conf": {
+      "start": "高",
+      "end": "高",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    }
+   ],
+   "truth": {
+    "2026-09-15": {
+     "end": "21:48"
+    }
+   }
+  },
+  {
+   "id": "tanaka",
+   "file": "timecard-tanaka-handwritten.jpg",
+   "label": "田中 美咲（架空）：手書きの出勤簿",
+   "kind": "手書き風",
+   "period": "2026-09",
+   "employee_name": "田中 美咲（架空）",
+   "entries": [
+    {
+     "date": "2026-09-01",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-02",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-03",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-04",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-07",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-08",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-09",
+     "start": "08:30",
+     "end": "19:00",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-10",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-12",
+     "start": "22:00",
+     "end": "07:00",
+     "out": "",
+     "back": "",
+     "break_min": 120,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-14",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-15",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-16",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-17",
+     "start": "08:30",
+     "end": "18:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "低",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": "退勤：にじんで読みにくい（18:30 か 18:50）"
+    },
+    {
+     "date": "2026-09-18",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-24",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-25",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-26",
+     "start": "22:00",
+     "end": "07:00",
+     "out": "",
+     "back": "",
+     "break_min": 120,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-28",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    },
+    {
+     "date": "2026-09-29",
+     "start": "08:30",
+     "end": "17:30",
+     "out": "",
+     "back": "",
+     "break_min": 60,
+     "conf": {
+      "start": "中",
+      "end": "中",
+      "out": "高",
+      "back": "高"
+     },
+     "start_alt": "",
+     "end_alt": "",
+     "note": ""
+    }
+   ]
+  }
+ ]
+}

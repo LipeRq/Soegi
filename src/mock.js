@@ -2,6 +2,7 @@
 // デモA〜Cは台本の例文に合わせた答えを返す。根拠の引用は実際の資料の文と同じにしてある（テストで照合）。
 
 import orderSamples from '../public/samples/orders/samples.json' with { type: 'json' };
+import timecardSamples from '../public/samples/timecards/samples.json' with { type: 'json' };
 
 const MOCK_STORES = [
   { payee: 'さくら文具店', summary: 'コピー用紙・ボールペン', total: 1980, a10: 1980, a8: null, tax: 180, acc: '事務用品費', inv: 'T1234567890123' },
@@ -24,13 +25,18 @@ function receipt() {
   };
 }
 
-function timecard() {
+// 見本のタイムカード（public/samples/timecards/samples.json）の、AIが読んだとする内容。見本でない写真は順に返す
+let timecardCounter = 0;
+function timecard(sample) {
+  const list = timecardSamples.samples;
+  const s = list.find((x) => x.id === sample) ?? list[timecardCounter++ % list.length];
   return {
-    employee_name: '（モック）青木 一郎',
-    entries: [
-      { date: '1', start: '09:00', end: '18:00', break_min: 60 },
-      { date: '2', start: '09:00', end: '20:30', break_min: null },
-    ],
+    employee_name: s.employee_name,
+    entries: s.entries.map((x) => ({
+      date: x.date, start: x.start, end: x.end, out: x.out, back: x.back, break_min: x.break_min,
+      start_alt: x.start_alt, end_alt: x.end_alt,
+      conf_start: x.conf.start, conf_end: x.conf.end, conf_out: x.conf.out, conf_back: x.conf.back, note: x.note,
+    })),
   };
 }
 
@@ -163,7 +169,7 @@ function order(sample) {
 export function mockResponse({ tool, userText, sample }) {
   switch (tool.name) {
     case 'submit_receipt': return receipt();
-    case 'submit_timecard': return timecard();
+    case 'submit_timecard': return timecard(sample);
     case 'submit_order': return order(sample);
     case 'submit_answer': return knowledge(userText);
     case 'submit_inn_reply': return innReply(userText);

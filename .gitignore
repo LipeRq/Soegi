@@ -4,3 +4,4 @@ node_modules/
 .env
 *.log
 .order-samples-tmp/
+.timecard-samples-tmp/

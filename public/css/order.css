@@ -2,18 +2,8 @@
    色・書体・角丸・動きの値は /css/style.css の変数だけを使う */
 
 .company { margin-top: 0; }
-.sub-h { margin: 16px 0 8px; font-size: 15px; color: var(--ink-2); }
 
-/* ---- 1. 見本の注文書：押すと入る（もう一度押すと外れる）。入っている札には ✓ と枠 -------------- */
-.samples { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
-.sample { display: grid; grid-template-columns: 64px minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 4px 10px; align-items: start; min-height: 88px; padding: 10px; text-align: left; font-weight: 400; background: var(--tile); border: 2px solid var(--line); border-radius: var(--r-md); }
-.sample img { grid-row: 1 / span 2; width: 64px; height: 86px; object-fit: cover; object-position: top; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--sunk); }
-.sample-name { display: block; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
-.sample-name small { display: block; font-weight: 400; font-size: 13px; color: var(--ink-2); }
-.sample .badge { justify-self: start; align-self: end; }
-.sample[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
-.sample[aria-pressed=true] .sample-name::before { content: "✓ 入れました"; display: block; font-size: 12px; color: var(--accent-ink); }
-.sample-all { grid-column: 1 / -1; justify-self: start; min-height: 44px; padding: 4px 6px; }
+/* 見本の札（.samples・.sample）は style.css の共通の部品 */
 .pick-msg:empty { display: none; }
 .pick-msg { font-weight: 700; color: var(--ink); }
 
@@ -90,7 +80,6 @@
 
 /* ---- スマホ --------------------------------------------------------------------------- */
 @media (max-width: 760px) {
-  .samples { grid-template-columns: minmax(0, 1fr); }
   .ohead { grid-template-columns: minmax(0, 1fr); }
   .ocard { padding: 10px; }
   /* 明細1行＝1枚の札。番号と確かめる点を上に、品名・商品マスタは全幅、数の欄は2つずつ並べる */

@@ -51,21 +51,38 @@
     </div>
 
     <div id="pane-photo" hidden>
+      <h3 class="sub-h">見本のタイムカードで試す</h3>
+      <div class="samples" id="tc-samples"></div>
+      <p class="small-note">「手書き風」は、手書き風の書体で作った見本です（本物の手書きではありません）。人も会社も架空です。</p>
+      <h3 class="sub-h">手元のタイムカード・出勤簿で試す</h3>
       <div class="row">
         <label>対象の年月<input type="month" id="period"></label>
         <label class="btn primary" for="photofile">写真を選ぶ（10枚まで）</label>
         <input type="file" id="photofile" class="vh" accept="image/*" multiple>
         <button type="button" id="readphotos" disabled>読み取る</button>
       </div>
-      <p class="small-note">写真はAIが読み取って表にします。計算の前に、下の表で必ず確認・修正してください（最大10枚）。</p>
+      <ul class="pfiles" id="pfiles"></ul>
+      <p class="small-note">AIは写真を読んで表にするだけで、計算はしません。架空の、または本人のタイムカードだけをお使いください。写真は保存しません。</p>
       <div class="progress" id="pprog" hidden><div id="pbar"></div></div>
-      <p id="ptext" class="small-note"></p>
-      <div class="tablewrap" id="photobox" hidden>
-        <table id="phototable">
-          <thead><tr><th>氏名</th><th>日付</th><th>出勤</th><th>退勤</th><th>休憩（分）</th><th></th></tr></thead>
-          <tbody id="photorows"></tbody>
-        </table>
-        <button type="button" id="addrow" class="mt8">＋ 行を追加</button>
+      <p id="ptext" class="small-note" role="status"></p>
+      <div id="photobox" hidden>
+        <div class="legend" aria-label="色の意味">
+          <span><i class="r"></i>要確認（赤）：空・読めない時刻・対象の月の外の日付</span>
+          <span><i class="y"></i>注意（黄）：二重打刻・手書きの修正・にじみ・日またぎ・16時間超・同じ日が2行</span>
+        </div>
+        <!-- 直す前（AIが読んだまま）と、直した後（いまの表）を、同じ計算で並べる -->
+        <div class="photodiff" id="photodiff" aria-live="polite"></div>
+        <label class="inline"><input type="checkbox" id="onlyflagged" checked>確かめる点のある行だけ出す</label>
+        <div class="tablewrap">
+          <table class="stack" id="phototable">
+            <thead><tr><th>氏名</th><th>日付</th><th>出勤</th><th>外出</th><th>戻り</th><th>退勤</th><th>休憩（分）</th><th class="rowflag">確かめる点</th><th></th></tr></thead>
+            <tbody id="photorows"></tbody>
+          </table>
+        </div>
+        <div class="row mt8">
+          <button type="button" id="addrow">＋ 行を追加</button>
+          <span class="small-note" id="psummary"></span>
+        </div>
       </div>
     </div>
   </section>

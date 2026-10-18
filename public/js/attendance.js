@@ -11,6 +11,7 @@ import {
   calculate, DEFAULT_SETTINGS, LIMITS, STATUS_TEXT, WEEKDAY_LABELS, fmtHM, fmtClock,
 } from './overtime.js';
 import { buildAttendanceWorkbook } from './attendance-xlsx.js';
+import { checkTimecards, effectiveBreak, toCalcRecord, compareRuns, levelOf as levelAtTc, worstOf as worstTc } from './timecard-check.js';
 import { reduced, countUp, stagger, replay, flash, onVisible } from './motion.js';
 
 requireAuth();
@@ -105,16 +106,87 @@ $('sample').addEventListener('click', async () => {
 });
 
 // ---- 写真（副） ---------------------------------------------------------------------
+// AIは読むだけ。表の確かめ（赤・黄）は timecard-check.js、集計は overtime.js（直す前と直した後を同じ計算で並べる）
 
-let photoFiles = [];
+const MAX_PHOTOS = 10;
+let photoFiles = []; // [{file, name, sample}]
+let photoOriginal = []; // AIが読んだまま（直す前）。行を直しても変えない
+let tcSamples = [];
+const tcLoading = new Set();
 const lastMonth = new Date(); lastMonth.setDate(1); lastMonth.setMonth(lastMonth.getMonth() - 1);
 $('period').value = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, '0')}`;
 
-$('photofile').addEventListener('change', (e) => {
-  photoFiles = [...e.target.files].filter((f) => f.type.startsWith('image/')).slice(0, 10);
-  e.target.value = '';
-  $('ptext').textContent = photoFiles.length ? `${photoFiles.length}枚を選びました` : '';
+function renderPhotoFiles() {
+  const box = clear($('pfiles'));
+  photoFiles.forEach((f) => box.append(h('li', {}, f.sample ? `見本：${f.name}` : f.name,
+    h('button', { type: 'button', class: 'link', 'aria-label': `${f.name}を外す`, onclick: () => { photoFiles = photoFiles.filter((x) => x !== f); renderPhotoFiles(); } }, '外す'))));
   $('readphotos').disabled = photoFiles.length === 0;
+  for (const b of $('tc-samples').querySelectorAll('button.sample')) b.setAttribute('aria-pressed', String(photoFiles.some((x) => x.sample === b.dataset.id)));
+  const all = $('tc-samples').querySelector('.sample-all');
+  if (all) all.hidden = tcSamples.every((x) => photoFiles.some((y) => y.sample === x.id));
+}
+
+async function addTcSample(s) {
+  if (tcLoading.has(s.id) || photoFiles.some((x) => x.sample === s.id) || photoFiles.length >= MAX_PHOTOS) return;
+  tcLoading.add(s.id);
+  try {
+    const res = await fetch(`/samples/timecards/${s.file}`);
+    if (!res.ok) throw new Error();
+    const blob = await res.blob();
+    if (!photoFiles.some((x) => x.sample === s.id)) photoFiles.push({ file: new File([blob], s.file, { type: 'image/jpeg' }), name: s.label.replace(/：.*$/, ''), sample: s.id });
+    $('period').value = s.period; // 見本は 2026年9月分
+    $('ptext').textContent = '';
+  } catch {
+    $('ptext').textContent = '見本を読み込めませんでした。再読み込みしてお試しください';
+  } finally {
+    tcLoading.delete(s.id);
+  }
+  renderPhotoFiles();
+}
+
+/** 見本の札は1回だけ作る（押すたびに作り直すと、キーボードの位置が外れるため）。押すと入る・もう一度押すと外れる */
+async function loadTcSamples() {
+  try {
+    const res = await fetch('/samples/timecards/samples.json');
+    tcSamples = res.ok ? (await res.json()).samples : [];
+  } catch { tcSamples = []; }
+  const box = clear($('tc-samples'));
+  for (const s of tcSamples) {
+    box.append(h('button', {
+      type: 'button', class: 'sample', 'aria-pressed': 'false', dataset: { id: s.id },
+      onclick: () => {
+        if (tcLoading.has(s.id)) return;
+        const cur = photoFiles.find((x) => x.sample === s.id);
+        if (cur) { photoFiles = photoFiles.filter((x) => x !== cur); renderPhotoFiles(); } else addTcSample(s);
+      },
+    },
+    h('img', { src: `/samples/timecards/${s.file}`, alt: '', loading: 'lazy' }),
+    h('span', { class: 'sample-name' }, s.label.replace(/：.*$/, ''), h('small', {}, s.label.replace(/^.*?：/, ''))),
+    h('span', { class: `badge ${s.kind === '印字' ? 'gray' : 'yellow'}` }, s.kind)));
+  }
+  if (tcSamples.length) {
+    box.append(h('button', {
+      type: 'button', class: 'link sample-all',
+      onclick: async () => { for (const s of tcSamples) if (!photoFiles.some((x) => x.sample === s.id)) await addTcSample(s); },
+    }, '見本を3枚とも入れる'));
+  }
+  renderPhotoFiles();
+}
+loadTcSamples();
+
+$('photofile').addEventListener('change', (e) => {
+  const room = MAX_PHOTOS - photoFiles.length;
+  const picked = [...e.target.files].filter((f) => f.type.startsWith('image/'));
+  for (const f of picked.slice(0, room)) photoFiles.push({ file: f, name: f.name, sample: '' });
+  $('ptext').textContent = picked.length > room ? `1回に読み取れるのは${MAX_PHOTOS}枚までです` : '';
+  e.target.value = '';
+  renderPhotoFiles();
+});
+
+/** AIの答え（1日分）→ 画面の行 */
+const fromEntry = (name, e) => ({
+  name, date: e.date, start: e.start, end: e.end, out: e.out ?? '', back: e.back ?? '', breakMin: e.break_min ?? '',
+  startAlt: e.start_alt ?? '', endAlt: e.end_alt ?? '', conf: { start: '高', end: '高', out: '高', back: '高', ...(e.conf ?? {}) }, note: e.note ?? '',
 });
 
 $('readphotos').addEventListener('click', async () => {
@@ -126,39 +198,135 @@ $('readphotos').addEventListener('click', async () => {
   upd();
   await pool(photoFiles, 3, async (f, i) => {
     try {
-      const { base64 } = await toJpeg(f);
-      out[i] = await api('/api/timecard', { image: base64, period: $('period').value });
+      const { base64 } = await toJpeg(f.file);
+      out[i] = await api('/api/timecard', { image: base64, period: $('period').value, sample: f.sample });
     } catch (e) { failed.push(`${f.name}：${e.message}`); }
     done++; upd();
   });
-  for (const d of out) {
-    if (!d) continue;
-    for (const e of d.entries) {
-      photoRecords.push({ name: d.employee_name, date: e.date, start: e.start, end: e.end, breakMin: e.break_min ?? '' });
-    }
-  }
+  // 読み取りのたびに、表を作り直す（前の結果に足さない。足すと同じ日が2行になる）
+  photoRecords = [];
+  for (const d of out) if (d) for (const e of d.entries) photoRecords.push(fromEntry(d.employee_name, e));
+  photoOriginal = photoRecords.map((r) => structuredClone(r));
   $('pprog').hidden = true;
   if (failed.length) $('ptext').textContent = `読み取れなかった写真：${failed.join(' ／ ')}`;
   $('readphotos').disabled = false;
   renderPhotoRows();
 });
 
+const PHOTO_COLS = [['name', '氏名', 120], ['date', '日付', 116], ['start', '出勤', 76], ['out', '外出', 76], ['back', '戻り', 76], ['end', '退勤', 76], ['breakMin', '休憩（分）', 70]];
+const CONF_FIELDS = ['start', 'end', 'out', 'back'];
+
 function renderPhotoRows() {
   $('photobox').hidden = false;
   const body = clear($('photorows'));
   photoRecords.forEach((r, i) => {
-    const cell = (k, w) => h('td', {}, h('input', { type: 'text', value: r[k] ?? '', style: { minWidth: `${w}px` }, oninput: (e) => { r[k] = e.target.value; updateCalcState(); } }));
-    body.append(h('tr', {}, cell('name', 110), cell('date', 110), cell('start', 70), cell('end', 70), cell('breakMin', 70),
-      h('td', {}, h('button', { type: 'button', class: 'small', onclick: () => { photoRecords.splice(i, 1); renderPhotoRows(); } }, '削除'))));
+    const td = (key, label, w) => {
+      const input = h('input', {
+        type: 'text', value: r[key] ?? '', 'aria-label': `${i + 1}行目の${label}`, style: { minWidth: `${w}px` },
+        // 人が直した時刻は、読み取りの自信のなさの印を消す
+        oninput: (e) => { r[key] = e.target.value; if (CONF_FIELDS.includes(key)) r.conf[key] = '高'; refreshPhoto(); },
+      });
+      const cell = h('td', { dataset: { label, f: key } }, input);
+      // 二重打刻：どちらの時刻にするかを、人が選ぶ
+      const alt = key === 'start' ? r.startAlt : key === 'end' ? r.endAlt : '';
+      if (alt) {
+        cell.append(h('span', { class: 'alts', role: 'group', 'aria-label': `${label}の二重打刻` },
+          [r[key], alt].filter(Boolean).map((t) => h('button', {
+            type: 'button', class: 'small',
+            onclick: () => { r[key] = t; if (key === 'start') r.startAlt = ''; else r.endAlt = ''; r.conf[key] = '高'; renderPhotoRows(); },
+          }, `${t} にする`))));
+      }
+      if (key === 'breakMin') cell.append(h('small', { class: 'calc' }));
+      return cell;
+    };
+    body.append(h('tr', {},
+      ...PHOTO_COLS.map(([k, label, w]) => td(k, label, w)),
+      h('td', { class: 'rowflag', dataset: { label: '確かめる点', f: 'row' } }, h('div', { class: 'flags' })),
+      h('td', { class: 'nolabel' }, h('button', { type: 'button', class: 'small', 'aria-label': `${i + 1}行目を削除`, onclick: () => { photoRecords.splice(i, 1); renderPhotoRows(); } }, '削除'))));
   });
+  applyPhotoFilter();
+  refreshPhoto();
+}
+
+/**
+ * 「確かめる点のある行だけ出す」：表を作ったとき・印を変えたときだけ絞る
+ * （直してOKになった行は、その場では消さない。消えると、どこを直したか分からなくなるため）
+ */
+function applyPhotoFilter() {
+  const only = $('onlyflagged').checked;
+  const checks = checkTimecards(photoRecords, $('period').value);
+  [...$('photorows').children].forEach((tr, i) => {
+    const r = photoRecords[i];
+    if (checks[i]?.flags.length) r.keep = true; // 一度出した行は、直してOKになっても出したままにする
+    tr.hidden = only && !r.keep;
+  });
+}
+$('onlyflagged').addEventListener('change', () => { applyPhotoFilter(); refreshPhoto(); });
+$('addrow').addEventListener('click', () => {
+  photoRecords.push({ name: photoRecords.at(-1)?.name ?? '', date: '', start: '', end: '', out: '', back: '', breakMin: '', startAlt: '', endAlt: '', conf: { start: '高', end: '高', out: '高', back: '高' }, note: '' });
+  renderPhotoRows();
+  $('photorows').lastElementChild?.querySelector('input')?.focus();
+});
+
+const statusWord = (st) => (st && st !== 'none' ? `${STATUS_BADGE[st]}（${STATUS_SHORT[st]}）` : 'なし');
+
+/** 入力のたびに確かめ直して、色と指摘、直す前→直した後だけ書き換える（入力欄は作り直さない） */
+function refreshPhoto() {
+  const checks = checkTimecards(photoRecords, $('period').value);
+  let red = 0; let yellow = 0;
+  [...$('photorows').children].forEach((tr, i) => {
+    const r = photoRecords[i]; const c = checks[i];
+    if (!r || !c) return;
+    for (const td of tr.querySelectorAll('td[data-f]')) {
+      if (td.dataset.f === 'row') continue;
+      const lv = levelAtTc(c.flags, td.dataset.f);
+      td.classList.toggle('red', lv === 'red'); td.classList.toggle('yellow', lv === 'yellow');
+    }
+    const note = tr.querySelector('small.calc');
+    const br = effectiveBreak(r);
+    note.textContent = r.out && r.back && typeof br === 'number' ? `${br}分（戻り−外出）` : '';
+    const box = clear(tr.querySelector('.flags'));
+    for (const f of c.flags) box.append(h('span', { class: `flag ${f.level}` }, f.message));
+    if (!c.flags.length) box.append(h('span', { class: 'badge ok' }, 'OK'));
+    const w = worstTc(c.flags);
+    if (w === 'red') red++; else if (w === 'yellow') yellow++;
+  });
+  const shown = [...$('photorows').children].filter((tr) => !tr.hidden).length;
+  $('psummary').textContent = `${photoRecords.length}行：要確認（赤）${red}行／注意（黄）${yellow}行${shown < photoRecords.length ? `（いま出しているのは${shown}行）` : ''}`;
+  renderPhotoDiff();
   updateCalcState();
 }
-$('addrow').addEventListener('click', () => { photoRecords.push({ name: photoRecords.at(-1)?.name ?? '', date: '', start: '', end: '', breakMin: '' }); renderPhotoRows(); });
+
+/** 直す前（AIが読んだまま）→ 直した後（いまの表）。時間外と判定を、同じ計算エンジンで並べる */
+function renderPhotoDiff() {
+  const box = $('photodiff');
+  const rows = compareRuns(photoOriginal, photoRecords, readSettings());
+  if (!rows.length) { clear(box); return; }
+  const hm = (x) => (x ? fmtHM(x.overMin) : '—');
+  const prev = new Map([...box.querySelectorAll('tr[data-name]')].map((tr) => [tr.dataset.name, tr.dataset.sig]));
+  const table = h('table', { class: 'diff' },
+    h('thead', {}, h('tr', {}, h('th', {}, '氏名'), h('th', {}, '時間外（直す前 → 直した後）'), h('th', {}, '判定（直す前 → 直した後）'))),
+    h('tbody', {}, rows.map((x) => {
+      const changed = hm(x.before) !== hm(x.after) || x.before?.status !== x.after?.status;
+      const sig = `${hm(x.after)}|${x.after?.status}`;
+      const tr = h('tr', { dataset: { name: x.name, sig }, class: changed ? 'changed' : '' },
+        h('td', { dataset: { label: '氏名' } }, x.name),
+        h('td', { class: 'num', dataset: { label: '時間外' } }, `${hm(x.before)} → ${hm(x.after)}`),
+        h('td', { dataset: { label: '判定' } }, `${statusWord(x.before?.status)} → ${statusWord(x.after?.status)}`, changed ? h('b', { class: 'chg' }, '変わりました') : null));
+      if (prev.has(x.name) && prev.get(x.name) !== sig) flash(tr);
+      return tr;
+    })));
+  clear(box).append(h('p', { class: 'small-note' }, '表を直すたびに、同じ計算で集計し直します（AIは計算しません）。判定は目安です。'), table);
+}
+
+// 設定（所定労働時間・休憩・締め日など）を変えたら、直す前・直した後も計算し直す
+for (const id of ['s-sched', 's-break', 's-holiday', 's-close']) $(id).addEventListener('change', () => { if (photoRecords.length) refreshPhoto(); });
+$('period').addEventListener('change', () => { if (photoRecords.length) refreshPhoto(); });
 
 // ---- 計算 ---------------------------------------------------------------------------
 
 function currentRecords() {
-  if (source === 'photo') return photoRecords.map((r, i) => ({ ...r, row: i + 1 }));
+  if (source === 'photo') return photoRecords.map(toCalcRecord);
   if (!csvRows) return [];
   return toRecords(csvRows, mapping, true);
 }

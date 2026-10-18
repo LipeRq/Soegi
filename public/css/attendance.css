@@ -27,9 +27,62 @@
   #preview { font-size: 12.5px; }
 }
 
+/* 写真：選んだ写真の一覧（外せる） */
+.pfiles { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.pfiles:empty { display: none; }
+.pfiles li { display: inline-flex; align-items: center; gap: 4px; padding: 0 0 0 12px; background: var(--sunk); border-radius: var(--r-pill); font-size: 14px; }
+
 #photobox { margin-top: 10px; }
-#photorows td:last-child { width: 1%; }
-#photorows td:last-child button { white-space: nowrap; }
+#photobox .legend { margin: 0 0 8px; }
+/* 直す前 → 直した後（同じ計算エンジン） */
+.photodiff:empty { display: none; }
+.photodiff { margin: 0 0 12px; padding: 10px 14px; background: var(--sunk); border-radius: var(--r); }
+.photodiff .small-note { margin: 0 0 6px; }
+.photodiff table.diff { width: 100%; border-collapse: collapse; background: none; font-size: 14px; }
+.photodiff th, .photodiff td { border: 0; border-bottom: 1px solid var(--line-2); padding: 6px 8px; text-align: left; background: none; }
+.photodiff td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.photodiff tr.changed td { background: var(--warn-bg); }
+.photodiff .chg { margin-left: 8px; font-size: 13px; color: var(--warn-ink); }
+.photodiff tr.flash { animation: flash 1.2s ease-out; }
+
+#phototable th, #phototable td { border-width: 0 0 1px; padding: 6px; vertical-align: top; }
+#phototable td input { min-height: 44px; width: 100%; font-family: var(--mono); }
+#phototable td[data-f=name] input { font-family: var(--sans); }
+#phototable td.red input { border-color: var(--danger); }
+#phototable td.yellow input { border-color: var(--warn-ink); }
+#phototable td.red { background: var(--red-bg); }
+#phototable td.yellow { background: var(--warn-bg); }
+/* 色の付いたマスには、その場に言葉も出す（色だけで伝えない） */
+#phototable td.red::after, #phototable td.yellow::after { display: block; font-size: 13px; font-weight: 700; line-height: 1.4; }
+#phototable td.red::after { content: "要確認"; color: var(--danger); }
+#phototable td.yellow::after { content: "注意"; color: var(--warn-ink); }
+#phototable .alts { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+#phototable .alts button { min-height: 44px; white-space: nowrap; font-family: var(--mono); }
+#phototable small.calc { display: block; margin-top: 2px; font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+#phototable small.calc:empty { display: none; }
+#phototable td.rowflag { min-width: 220px; }
+#phototable td:last-child { width: 1%; }
+#phototable td:last-child button { white-space: nowrap; min-height: 44px; }
+#photobox > label.inline { margin: 0 0 6px; }
+@media (max-width: 760px) {
+  /* 1行＝1枚の札。確かめる点を上に、時刻は2つずつ並べる */
+  #phototable tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 10px; }
+  #phototable td { grid-template-columns: minmax(0, 1fr); gap: 2px; align-content: start; }
+  #phototable td.rowflag, #phototable td:last-child { grid-column: 1 / -1; }
+  #phototable td:last-child { width: auto; }
+  #phototable td.rowflag { order: -1; grid-template-columns: 7em minmax(0, 1fr); }
+  #phototable td input { min-width: 0 !important; }
+  #phototable td.red::after, #phototable td.yellow::after { grid-column: 1; }
+  #phototable td:last-child button { justify-self: end; }
+  /* 直す前 → 直した後：1人ずつの札にする（横にはみ出さない） */
+  .photodiff { padding: 10px; }
+  .photodiff thead { display: none; }
+  .photodiff tr, .photodiff td { display: block; }
+  .photodiff tr { padding: 6px 0; border-bottom: 1px solid var(--line-2); }
+  .photodiff td { border: 0; padding: 2px 4px; }
+  .photodiff td:first-child { font-weight: 700; }
+  .photodiff td:not(:first-child)::before { content: attr(data-label) "　"; color: var(--ink-3); font-size: 13px; font-family: var(--sans); }
+}
 
 /* ---- 設定と「計算する」：白い面にしない。ボタンだけを大きくする ------------------------- */
 .setup { padding: 0 20px; margin: 16px 0 6px; }
