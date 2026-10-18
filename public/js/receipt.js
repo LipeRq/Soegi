@@ -115,6 +115,7 @@ const blankRow = (f) => ({
   id: f.id, file: f.file, filename: f.filename, thumb: f.thumb, status: 'pending', error: '',
   date: '', payee: '', total: null, amount10: null, amount8: null, tax: null, invoiceNo: '',
   payment: '', summary: '', account: '', reason: '', conf: {},
+  confirmed: false, // 勘定科目を人が確かめた（会計ソフトの形式で出すのは、確かめた行だけ）
 });
 
 function applyResult(row, d) {
@@ -237,9 +238,13 @@ function renderRows(opts = {}) {
   body.classList.remove('stagger'); // 順に出すのは読み取りの直後だけ（行を消す・足すたびに全部が動かないように）
   rows.forEach((row, i) => {
     const td = (label, content, extra = {}) => h('td', { dataset: { label }, ...extra }, content);
-    const account = h('select', { 'aria-label': '勘定科目', onchange: (e) => { row.account = e.target.value; row.conf.account = '高'; refresh(); } },
+    // 科目を選び直したら、人が確かめたものとして「確定」にする。AIの候補のままでよければ「確定」に印を付ける
+    const account = h('select', { 'aria-label': '勘定科目', onchange: (e) => { row.account = e.target.value; row.conf.account = '高'; row.confirmed = Boolean(row.account); refresh(); } },
       h('option', { value: '' }, '（選んでください）'),
       ACCOUNTS.map((a) => h('option', { value: a, selected: a === row.account }, a)));
+    const confirm = h('label', { class: 'inline confirm' },
+      h('input', { type: 'checkbox', checked: row.confirmed, onchange: (e) => { row.confirmed = e.target.checked && Boolean(row.account); refresh(); } }),
+      '確定');
     body.append(h('tr', { dataset: { id: row.id } },
       td('#', String(i + 1), { class: 'nolabel' }),
       td('写真', row.thumb
@@ -257,7 +262,7 @@ function renderRows(opts = {}) {
       td('登録番号', field(row, 'invoiceNo'), { dataset: { label: '登録番号', f: 'invoiceNo' } }),
       td('支払方法', field(row, 'payment')),
       td('品目', field(row, 'summary')),
-      td('勘定科目', [account, h('span', { class: 'reason' }, row.reason || '')], { dataset: { label: '勘定科目（候補）', f: 'account' } }),
+      td('勘定科目', [account, h('span', { class: 'reason' }, row.reason || ''), confirm], { dataset: { label: '勘定科目（候補）', f: 'account' } }),
       td('確かめる点', h('div', { class: 'flags' }), { class: 'rowflag', dataset: { label: '確かめる点', f: 'row' } }),
       td('', h('button', { type: 'button', class: 'small', onclick: () => { rows = rows.filter((r) => r !== row); renderRows(); } }, '削除'), { class: 'nolabel' }),
     ));
@@ -271,6 +276,10 @@ function refresh(opts = {}) {
   const checks = checkReceipts(rows);
   [...$('rows').children].forEach((tr, i) => {
     const row = rows[i]; const c = checks[i];
+    // 「確定」：科目が無ければ付けられない
+    const cb = tr.querySelector('label.confirm input');
+    if (!row.account) row.confirmed = false;
+    cb.checked = row.confirmed; cb.disabled = !row.account;
     for (const td of tr.querySelectorAll('td[data-f]')) {
       td.classList.remove('red', 'yellow');
       const lv = levelOf(c.flags, td.dataset.f);

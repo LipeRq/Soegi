@@ -405,7 +405,7 @@ ul.errs { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
   table.stack td:last-child { border-bottom: 0; }
   table.stack td::before { content: attr(data-label); color: var(--ink-3); font-size: 12px; font-family: var(--sans); padding-top: 8px; }
   table.stack td.num { text-align: left; }
-  table.stack td > .reason { grid-column: 2; }
+  table.stack td > .reason, table.stack td > label.confirm { grid-column: 2; }
   table.stack td.nolabel { grid-template-columns: 1fr; }
   table.stack td.nolabel::before { display: none; }
   .bar-row { grid-template-columns: 5.5em minmax(0, 1fr); }

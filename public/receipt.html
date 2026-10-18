@@ -91,6 +91,7 @@
     <section class="card">
       <h2><b class="no">3</b>　Excelにする</h2>
       <!-- 様式の見本（小さな表）は飾り。列の名前とシートの名前は receipt-xlsx.js と同じにしてある -->
+      <h3 class="opts-h">Excel で見る</h3>
       <div class="opts" role="radiogroup" aria-label="Excelの様式">
         <label class="opt">
           <input type="radio" name="style" value="standard" checked>
@@ -123,6 +124,31 @@
           </span>
         </label>
       </div>
+      <h3 class="opts-h" id="acct-h" hidden>会計ソフトに取り込む</h3>
+      <!-- 列の並びと税区分の文字は accounting-formats.js の1か所。試用版で取り込めたと確かめるまで「取り込み未確認」の札を出す -->
+      <!-- T4 の作業中：形式の中身ができるまで隠しておく -->
+      <div class="opts opts-2" id="acct-opts" role="radiogroup" aria-label="会計ソフトの形式" hidden>
+        <label class="opt">
+          <input type="radio" name="style" value="yayoi">
+          <span class="opt-name"><b>弥生会計の形式</b><small>（弥生インポート形式。マネーフォワード クラウド会計でも取り込めます）</small><span class="badge yellow unverified">取り込み未確認</span></span>
+          <span class="ms" aria-hidden="true">
+            <span class="ms-row ms-head c-yay"><i>識別</i><i>取引日付</i><i>借方勘定科目</i><i>借方税区分</i><i>…</i></span>
+            <span class="ms-row c-yay"><i>2000</i><i></i><i></i><i class="t">課対仕入内10%</i><i></i></span>
+            <span class="ms-row c-yay"><i>2000</i><i></i><i></i><i class="t">課対仕入内軽減8%</i><i></i></span>
+            <span class="ms-tabs"><i class="on">CSV（Shift_JIS）</i></span>
+          </span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="style" value="freee">
+          <span class="opt-name"><b>freee の形式</b><small>（取引のインポート）</small><span class="badge yellow unverified">取り込み未確認</span></span>
+          <span class="ms" aria-hidden="true">
+            <span class="ms-row ms-head c-fre"><i>収支区分</i><i>発生日</i><i>勘定科目</i><i>税区分</i><i>金額</i></span>
+            <span class="ms-row c-fre"><i>支出</i><i></i><i></i><i class="t">課対仕入10%</i><i></i></span>
+            <span class="ms-row c-fre"><i>支出</i><i></i><i></i><i class="t">課対仕入8%（軽）</i><i></i></span>
+            <span class="ms-tabs"><i class="on">CSV</i></span>
+          </span>
+        </label>
+      </div>
       <p class="small-note" id="style-note"></p>
       <div class="row mt10 exportbar">
         <label id="credit-label" hidden>貸方科目の既定
@@ -131,6 +157,8 @@
         <button type="button" class="primary btn-xl" id="export">Excelをダウンロード</button>
         <p class="made" id="made" role="status" hidden></p>
       </div>
+      <!-- 会計ソフトの形式で出さなかった行（未確定・要確認）。ダウンロードの前から出しておく -->
+      <div class="notice warn mt12" id="excluded" hidden></div>
       <p class="notice plain mt12">電子帳簿保存法のスキャナ保存の要件を満たす仕組みではありません。原本の保存は今までどおりお願いします。</p>
     </section>
 

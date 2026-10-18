@@ -95,6 +95,10 @@ h2 small { display: inline-block; font-family: var(--sans); font-size: 14px; fon
 #tbl td.flash { animation: flash 1.2s ease-out; }
 #tbl .badge.ok.fresh { animation: pop var(--t) var(--ease) both; }
 #tbl button.small { min-height: 44px; min-width: 56px; white-space: nowrap; }
+/* 勘定科目の「確定」（会計ソフトの形式で出すのは、確定した行だけ） */
+#tbl label.confirm { min-height: 44px; font-size: 14px; color: var(--ink); cursor: pointer; }
+#tbl label.confirm input { width: 22px; height: 22px; min-height: 0; margin: 0; padding: 0; border: 0; background: none; accent-color: var(--accent); }
+#tbl label.confirm:has(input:disabled) { color: var(--ink-3); cursor: default; }
 #rows tr.in { animation: rise var(--t-slow) var(--ease) both; }
 .thumb-sm:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
@@ -135,6 +139,13 @@ h2 small { display: inline-block; font-family: var(--sans); font-size: 14px; fon
 .ms-row.c-std { grid-template-columns: 30fr 50fr 80fr 80fr 30fr; }
 .ms-row.c-jnl { grid-template-columns: 44fr 60fr 60fr 44fr 70fr; }
 .ms-row.c-ofc { grid-template-columns: 54fr 76fr 120fr 54fr 22fr; }
+.ms-row.c-yay { grid-template-columns: 34fr 54fr 70fr 110fr 20fr; }
+.ms-row.c-fre { grid-template-columns: 46fr 46fr 56fr 96fr 40fr; }
+.opts-h { margin: 18px 0 8px; font-size: 15px; color: var(--ink-2); }
+.opts-h:first-of-type { margin-top: 4px; }
+.opts.opts-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.opt .unverified { display: inline-block; margin-top: 4px; }
+#excluded ul { margin: 4px 0 0; padding-left: 1.2em; }
 .ms-row > i { padding: 3px 4px; min-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-right: 1px solid var(--line-2); }
 .ms-row > i:last-child { border-right: 0; }
 .ms-head > i { background: var(--sunk); font-weight: 700; }
@@ -182,7 +193,7 @@ h2 small { display: inline-block; font-family: var(--sans); font-size: 14px; fon
   #tbl td.red, #tbl td.yellow { border-radius: var(--r-sm); }
   #tbl td.red::after, #tbl td.yellow::after { grid-column: 2; }
   #tbl td.num input { text-align: left; }
-  .opts { grid-template-columns: minmax(0, 1fr); }
+  .opts, .opts.opts-2 { grid-template-columns: minmax(0, 1fr); }
   .opt:not(:has(input:checked)) .ms { display: none; }
   .opt:has(input:checked) { transform: none; }
   .exportbar #export { flex: 1 1 100%; }
