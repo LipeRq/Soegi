@@ -79,6 +79,14 @@ const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
 
 const toStr = (v) => (v == null ? '' : String(v).normalize('NFKC').trim());
 
+/** 数（丸めない）。注文書の数量は、小数のままプログラムに渡して「数ではない」の赤にする */
+function toNumOrNull(v, key) {
+  if (v == null || v === '') return null;
+  const n = typeof v === 'number' ? v : typeof v === 'string' ? Number(v.normalize('NFKC').replace(/[,，円¥￥\s]/g, '')) : NaN;
+  if (!Number.isFinite(n)) fail(key);
+  return n;
+}
+
 function toIntOrNull(v, key) {
   if (v == null || v === '') return null;
   if (typeof v === 'number') {
@@ -343,7 +351,7 @@ export const ORDER_TOOL = {
           properties: {
             name: { type: 'string', description: '品名（書いてあるとおり。直さない）' },
             spec: { type: 'string', description: '規格・容量（150g など）。無ければ空文字' },
-            qty: { type: ['integer', 'null'], description: '数量。読めなければ null' },
+            qty: { type: ['number', 'null'], description: '数量。書いてあるとおり（小数も丸めない）。読めなければ null' },
             unit: { type: 'string', description: '単位（個・袋・箱・ケース など）。無ければ空文字' },
             unit_price: { type: ['integer', 'null'], description: '単価（円）。書いていなければ null' },
             amount: { type: ['integer', 'null'], description: '金額（円）。書いていなければ null' },
@@ -384,13 +392,13 @@ export function validateOrder(raw) {
       return {
         name: toStr(l.name).slice(0, 80),
         spec: toStr(l.spec).slice(0, 30),
-        qty: toIntOrNull(l.qty, 'qty'),
+        qty: toNumOrNull(l.qty, 'qty'),
         unit: toStr(l.unit).slice(0, 10),
         unit_price: toIntOrNull(l.unit_price, 'unit_price'),
         amount: toIntOrNull(l.amount, 'amount'),
         conf_name: lv(l.conf_name),
         conf_qty: lv(l.conf_qty),
       };
-    }).filter((l) => l.name || l.qty != null),
+    }).filter((l) => l.name || l.spec || l.qty != null || l.unit_price != null || l.amount != null), // 品名が読めない行も、何か書いてあれば残す（黙って消さない）
   };
 }

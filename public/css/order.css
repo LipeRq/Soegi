@@ -18,7 +18,8 @@
 .pick-msg { font-weight: 700; color: var(--ink); }
 
 /* ---- 2. 注文書1枚ずつの札 ------------------------------------------------------------- */
-#orders { display: grid; gap: 16px; margin-top: 8px; }
+/* 列の幅を 0 から始める（auto だと札が明細の表の幅まで広がり、761〜1099px でページが横にはみ出す）。横に送るのは表の中だけ */
+#orders { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 8px; }
 .ocard { border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px; background: var(--tile); }
 #orders.stagger > .ocard { animation: rise var(--t-slow) var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms); }
 .ocard-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
@@ -30,7 +31,7 @@
 
 /* 見出し（取引先・日付）：4つの欄 */
 .ohead { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px; }
-.hf { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 4px 6px; border-radius: var(--r-sm); font-size: 13px; color: var(--ink-3); transition: background-color var(--t); }
+.hf { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 4px 6px; border-radius: var(--r-sm); font-size: 14px; color: var(--ink-2); transition: background-color var(--t); }
 .hf input, .hf select { width: 100%; min-height: 44px; }
 .onote { margin: 8px 0 0; padding: 8px 12px; font-size: 14px; background: var(--sunk); border-radius: var(--r-sm); }
 .asof { margin: 6px 0 0; }
@@ -60,7 +61,6 @@
 
 .olines small.calc { display: block; margin-top: 2px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-align: right; white-space: nowrap; }
 .olines small.calc:empty { display: none; }
-.olines button.del { min-width: 44px; padding: 4px 8px; font-size: 18px; }
 
 @media (min-width: 761px) {
   /* 1280px の画面で横に送らずに収まる幅（足りないときは表だけ横に送れる） */
@@ -74,15 +74,19 @@
   .olines td[data-f=unitPrice] { width: 88px; min-width: 80px; }
   .olines td[data-f=amount] { width: 96px; min-width: 88px; }
   .olines td.rowflag { min-width: 180px; }
+  /* 表を横に送っても「確かめる点」が見えるよう、右に貼り付ける（経理の表と同じ） */
+  .olines .rowflag { position: sticky; right: 0; z-index: 1; background: var(--tile); border-left: 2px solid var(--line); }
+  .olines th.rowflag { background: var(--sunk); }
+  .ocard .tablewrap { scroll-padding-right: 200px; }
 }
 
 /* ---- 3. 出力 ------------------------------------------------------------------------- */
 .enc { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; margin: 0; padding: 4px 10px 6px; border: 1px solid var(--line); border-radius: var(--r-md); }
 .enc legend { padding: 0 4px; font-size: 13px; color: var(--ink-3); }
-.enc label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+.enc label { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; min-height: 44px; color: var(--ink); }
 .enc input { width: 20px; height: 20px; margin: 0; }
 #made { margin-top: 12px; }
-#export-note:empty { display: none; }
+#export-note { margin: 10px 0 0; }
 
 /* ---- スマホ --------------------------------------------------------------------------- */
 @media (max-width: 760px) {
@@ -108,7 +112,7 @@
   table.olines td.red::after, table.olines td.yellow::after { grid-column: 2; }
   table.olines :is(td[data-f=qty], td[data-f=unit], td[data-f=unitPrice], td[data-f=amount]):is(.red, .yellow)::after { grid-column: 1; }
   table.olines small.calc { text-align: left; }
-  table.olines button.del { justify-self: end; }
+  table.olines td:last-child button { justify-self: end; }
   .exportbar #export, .exportbar #csv { flex: 1 1 100%; }
   .enc { flex: 1 1 100%; }
 }

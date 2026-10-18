@@ -235,8 +235,8 @@ function renderStats(p) {
   const near = p.people.filter((x) => x.status !== 'none').length;
   const manual = num(p.people.length * minutesPerPerson);
   const mins = h('input', {
-    type: 'number', min: '0', max: '120', step: '1', value: String(minutesPerPerson), inputMode: 'numeric', 'aria-label': '1人分の手計算の分',
-    onchange: (e) => { setMinutes(Math.max(0, Number(e.target.value) || 0)); est.set('attendance', 'perPerson', minutesPerPerson); },
+    type: 'number', min: '0', max: '240', step: '1', value: String(minutesPerPerson), inputMode: 'numeric', 'aria-label': '1人分の手計算の分',
+    onchange: (e) => { setMinutes(est.set('attendance', 'perPerson', Math.max(0, Number(e.target.value) || 0))); },
   });
   // 表を作り直さず、変わった数字だけを前の値から動かす（ほかの数字まで数え直すと、何が変わったか分からなくなる）
   function setMinutes(n) {

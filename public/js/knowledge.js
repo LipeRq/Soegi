@@ -381,4 +381,5 @@ if (fromForeign) {
 }
 
 // 御社の場合（試算）と持ち帰り1枚
-mountEstimate(document.getElementById('estimate'), { keys: ['knowledge', 'foreign'] });
+// 入口の「外国人スタッフ向け」（#foreign）から来たときは、外国人スタッフ向けの試算から始める
+mountEstimate(document.getElementById('estimate'), { keys: ['knowledge', 'foreign'], initialKey: fromForeign ? 'foreign' : 'knowledge' });

@@ -6,7 +6,8 @@ import {
 } from './common.js';
 import { toJpeg } from './image.js';
 import { checkOrder, worst, levelAt } from './order-check.js';
-import { orderRows, buildOrderWorkbook, orderCsvBlob } from './order-xlsx.js';
+import { orderRows, buildOrderWorkbook, orderCsv, orderCsvBlob } from './order-xlsx.js';
+import { sjisUnmappable } from './sjis.js';
 import { mountEstimate } from './estimate-ui.js';
 import { defaultValues } from './estimate.js';
 import { reduced, countUp, stagger, replay, flash, onVisible } from './motion.js';
@@ -32,9 +33,15 @@ let nextId = 1;
 let elapsedSec = null;
 // 1枚の手入力の分（仮置き）。上の「手入力なら約」と下の「御社の場合」で同じ値を使う
 let minutesPerSheet = defaultValues('order').before;
+let minsInput = null; // 上の「1枚 ◯ 分」の欄（大きな数字を作るときにできる）
 const est = mountEstimate($('estimate'), {
   keys: ['order'],
-  onChange: (_, v) => { if (v.before !== minutesPerSheet) { minutesPerSheet = v.before; if (stats.count) refresh(); } },
+  onChange: (_, v) => {
+    if (v.before === minutesPerSheet) return;
+    minutesPerSheet = v.before;
+    if (minsInput) minsInput.value = String(minutesPerSheet); // 上の欄もそろえる
+    if (stats.count) refresh();
+  },
 });
 
 const pickMsg = (text) => { $('pick-msg').textContent = text; };
@@ -66,6 +73,7 @@ async function pdfToImages(file, room) {
   const doc = await lib.getDocument({
     data: new Uint8Array(await file.arrayBuffer()),
     isEvalSupported: false,
+    useSystemFonts: false, // 端末の書体を URL で読みに行かない（CSP の font-src に止められるため）。標準書体は同梱のものを使う
     cMapUrl: `${PDF_DIR}cmaps/`, cMapPacked: true,
     standardFontDataUrl: `${PDF_DIR}standard_fonts/`,
   }).promise;
@@ -92,6 +100,9 @@ async function pdfToImages(file, room) {
     doc.destroy();
   }
 }
+
+/** 写真の一時 URL を捨てる。確かめる札（読み取った注文書）がまだ使っていれば、捨てない */
+const revoke = (url) => { if (url.startsWith('blob:') && !orders.some((o) => o.thumb === url)) URL.revokeObjectURL(url); };
 
 const isPdf = (f) => f.type === 'application/pdf' || /\.pdf$/i.test(f.name || '');
 
@@ -121,17 +132,25 @@ async function addFiles(list) {
   renderThumbs();
 }
 
+const loadingSamples = new Set(); // 読み込み中の見本（続けて押しても2枚入らないように）
+const sampleName = (s) => s.label.replace(/：.*$/, '');
+
 async function addSample(s) {
-  if (sheets.some((x) => x.sample === s.id)) return;
+  if (loadingSamples.has(s.id) || sheets.some((x) => x.sample === s.id)) return;
   if (sheets.length >= MAX_SHEETS) { pickMsg(`1回に読み取れるのは${MAX_SHEETS}枚までです`); return; }
+  loadingSamples.add(s.id);
   try {
     const res = await fetch(`/samples/orders/${s.file}`);
     if (!res.ok) throw new Error();
     const blob = await res.blob();
-    pushSheet({ file: new File([blob], s.file, { type: 'image/jpeg' }), filename: s.file, thumb: `/samples/orders/${s.file}`, sample: s.id, asOf: s.asOf, kind: s.kind });
+    if (!sheets.some((x) => x.sample === s.id)) {
+      pushSheet({ file: new File([blob], s.file, { type: 'image/jpeg' }), filename: s.file, label: sampleName(s), thumb: `/samples/orders/${s.file}`, sample: s.id, asOf: s.asOf, kind: s.kind });
+    }
     pickMsg('');
   } catch {
     pickMsg('見本を読み込めませんでした。再読み込みしてお試しください');
+  } finally {
+    loadingSamples.delete(s.id);
   }
   renderThumbs();
 }
@@ -143,12 +162,13 @@ function renderSamples() {
     box.append(h('button', {
       type: 'button', class: 'sample', 'aria-pressed': 'false', dataset: { id: s.id },
       onclick: () => {
+        if (loadingSamples.has(s.id)) return;
         const cur = sheets.find((x) => x.sample === s.id);
         if (cur) removeSheet(cur); else addSample(s);
       },
     },
     h('img', { src: `/samples/orders/${s.file}`, alt: '', loading: 'lazy' }),
-    h('span', { class: 'sample-name' }, s.label.replace(/：.*$/, ''), h('small', {}, s.label.replace(/^.*?：/, ''))),
+    h('span', { class: 'sample-name' }, sampleName(s), h('small', {}, s.label.replace(/^.*?：/, ''))),
     h('span', { class: `badge ${s.kind === '印字' ? 'gray' : 'yellow'}` }, s.kind)));
   }
   if (samples.length) {
@@ -164,11 +184,14 @@ function syncSamples() {
   for (const b of $('samples').querySelectorAll('button.sample')) {
     b.setAttribute('aria-pressed', String(sheets.some((x) => x.sample === b.dataset.id)));
   }
+  // 3枚とも入ったら「3枚とも入れる」は出さない（押しても何も起きないため）
+  const all = $('samples').querySelector('.sample-all');
+  if (all) all.hidden = samples.every((x) => sheets.some((y) => y.sample === x.id));
 }
 
 function removeSheet(f) {
-  if (f.thumb.startsWith('blob:')) URL.revokeObjectURL(f.thumb);
   sheets = sheets.filter((x) => x !== f);
+  revoke(f.thumb);
   renderThumbs();
 }
 
@@ -183,7 +206,7 @@ function renderThumbs() {
     const fig = h('figure', { class: shown.has(f.id) ? 'seen' : '', dataset: { state } },
       shot,
       h('button', { type: 'button', title: '外す', 'aria-label': `${f.filename}を外す`, onclick: () => removeSheet(f) }, '×'),
-      h('figcaption', {}, f.sample ? `見本：${f.filename}` : f.filename));
+      h('figcaption', {}, f.sample ? `見本：${f.label}` : f.filename));
     if (!shown.has(f.id)) { fig.style.setProperty('--i', String(Math.min(fresh++, 12))); shown.add(f.id); }
     thumbEls.set(f.id, { fig, shot, st });
     box.append(fig);
@@ -209,8 +232,10 @@ function markThumb(id, state) {
 $('cam').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
 $('pick').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
 $('clear').addEventListener('click', () => {
-  sheets.forEach((f) => { if (f.thumb.startsWith('blob:')) URL.revokeObjectURL(f.thumb); });
-  sheets = []; pickMsg(''); renderThumbs();
+  const old = sheets;
+  sheets = []; pickMsg('');
+  old.forEach((f) => revoke(f.thumb));
+  renderThumbs();
 });
 
 const drop = $('drop');
@@ -229,7 +254,7 @@ drop.addEventListener('drop', (e) => {
 // ---- 読み取り -------------------------------------------------------------------------
 
 const blankOrder = (s) => ({
-  id: s.id, sheet: s, filename: s.filename, thumb: s.thumb, sample: s.sample || '', kind: s.kind || '',
+  id: s.id, sheet: s, filename: s.filename, label: s.label || '', thumb: s.thumb, sample: s.sample || '', kind: s.kind || '',
   asOf: s.asOf || '', status: 'pending', error: '',
   customer: '', customerCode: '', orderDate: '', deliveryDate: '', note: '', conf: {}, lines: [],
 });
@@ -277,7 +302,8 @@ function startClock(t0) {
 }
 
 let reading = false;
-async function readAll(targets) {
+/** @param retry 読めなかった分だけを読み直すとき（かかった時間は、前の分に足す） */
+async function readAll(targets, { retry = false } = {}) {
   reading = true;
   $('reading').hidden = false;
   $('reading').dataset.state = 'busy';
@@ -299,11 +325,12 @@ async function readAll(targets) {
     markThumb(o.id, o.status === 'done' ? 'done' : 'error');
     done++; update();
   });
-  elapsedSec = (performance.now() - t0) / 1000;
+  const sec = (performance.now() - t0) / 1000;
+  elapsedSec = retry && elapsedSec != null ? elapsedSec + sec : sec;
   stopClock();
   reading = false;
   $('reading').dataset.state = targets.some((o) => o.status === 'error') ? 'ended' : 'done';
-  $('phase').textContent = `読み取りが終わりました（${elapsedSec.toFixed(1)}秒）`;
+  $('phase').textContent = `読み取りが終わりました（${sec.toFixed(1)}秒）`;
   $('go').disabled = sheets.length === 0;
   $('retry').disabled = false;
   renderOrders({ quiet: true });
@@ -318,11 +345,17 @@ async function readAll(targets) {
 
 $('go').addEventListener('click', () => {
   if (reading) return;
+  const before = orders;
   orders = sheets.map(blankOrder);
+  // 前の結果の札は消してから読む（読み取り中に古い欄を触って、新しい注文書と食い違わないように）
+  clear($('orders'));
+  $('step2').hidden = true;
+  $('step3').hidden = true;
+  before.forEach((o) => { if (!sheets.some((x) => x.thumb === o.thumb)) revoke(o.thumb); });
   readState.clear();
   readAll(orders);
 });
-$('retry').addEventListener('click', () => { if (!reading) readAll(orders.filter((o) => o.status === 'error')); });
+$('retry').addEventListener('click', () => { if (!reading) readAll(orders.filter((o) => o.status === 'error'), { retry: true }); });
 
 // ---- 2. 確かめる ---------------------------------------------------------------------
 
@@ -341,10 +374,13 @@ const productLabel = (p) => `${p.code} ${p.name}${p.spec ? ` ${p.spec}` : ''}`;
  * @param conf 人が直したら「確かさ」を高にする項目（AIの自信のなさの印は、人が確かめたら消す）
  */
 function textInput(obj, key, label, { num = false, placeholder = '', conf = '' } = {}) {
+  // 数でない文字を入れたときは、その文字を覚えておく（札を作り直しても、空の欄に赤だけ残らないように）
+  const shownValue = num ? (Number.isNaN(obj[key]) ? obj.raw?.[key] ?? '' : numText(obj[key])) : obj[key] ?? '';
   return h('input', {
-    type: 'text', value: num ? numText(obj[key]) : obj[key] ?? '', inputMode: num ? 'numeric' : undefined, placeholder, 'aria-label': label,
+    type: 'text', value: shownValue, inputMode: num ? 'numeric' : undefined, placeholder, 'aria-label': label,
     oninput: (e) => {
       obj[key] = num ? toNum(e.target.value) : e.target.value;
+      if (num) obj.raw = { ...obj.raw, [key]: e.target.value };
       if (conf) obj.conf = { ...obj.conf, [conf]: '高' };
       refresh();
     },
@@ -358,6 +394,8 @@ function autoProductText(r) {
   if (m.kind === 'exact') return productLabel(m.product);
   if (m.kind === 'alias' || m.kind === 'similar') return `候補：${productLabel(m.product)}`;
   if (m.kind === 'nospec') return '規格を選んでください';
+  if (m.kind === 'badspec') return '規格を確かめてください';
+  if (m.kind === 'empty') return '（選んでください）';
   return '未登録';
 }
 function autoCustomerText(c) {
@@ -412,9 +450,9 @@ function lineRow(o, line, idx) {
     td('金額', [textInput(line, 'amount', '金額', { num: true }), h('small', { class: 'calc' })], { f: 'amount', class: 'num' }),
     td('確かめる点', h('div', { class: 'flags' }), { f: 'row', class: 'rowflag' }),
     td('', h('button', {
-      type: 'button', class: 'small del', title: 'この行を削除', 'aria-label': `${idx + 1}行目を削除`,
+      type: 'button', class: 'small', 'aria-label': `${idx + 1}行目を削除`,
       onclick: () => { o.lines = o.lines.filter((l) => l !== line); renderOrders(); },
-    }, '×'), { class: 'nolabel' }),
+    }, '削除'), { class: 'nolabel' }),
   );
 }
 
@@ -439,14 +477,14 @@ function orderCard(o, i) {
       thumb,
       h('div', { class: 'ocard-title' },
         h('h3', {}, `注文書 ${i + 1}`),
-        h('small', {}, o.sample ? `見本（${o.kind}）：${o.filename}` : o.filename)),
+        h('small', {}, o.sample ? `見本（${o.kind}）：${o.label}` : o.filename)),
       h('span', { class: 'ocard-badge' })),
     o.error ? h('p', { class: 'flag red' }, o.error) : null,
     h('div', { class: 'ohead' },
       headField('取引先（読んだまま）', 'customer', textInput(o, 'customer', '取引先（読んだまま）', { conf: 'customer' })),
       headField('取引先マスタ', 'customer', custSel),
-      headField('発注日', 'orderDate', textInput(o, 'orderDate', '発注日', { placeholder: '2027/1/12', conf: 'order_date' })),
-      headField('納品日', 'deliveryDate', textInput(o, 'deliveryDate', '納品日', { placeholder: '2027/1/19', conf: 'delivery_date' }))),
+      headField('発注日', 'orderDate', textInput(o, 'orderDate', '発注日', { placeholder: '年/月/日', conf: 'order_date' })),
+      headField('納品日', 'deliveryDate', textInput(o, 'deliveryDate', '納品日', { placeholder: '年/月/日', conf: 'delivery_date' }))),
     o.note ? h('p', { class: 'onote' }, h('b', {}, '注文書の備考：'), o.note) : null,
     o.asOf ? h('p', { class: 'small-note asof' }, `見本は、届いた日（${jpDate(o.asOf)}）を「今日」として、納品日が過去かどうかを確かめます。`) : null,
     h('div', { class: 'flags hflags' }),
@@ -496,18 +534,26 @@ function putFlags(box, flags, extra = []) {
 function refresh(opts = {}) {
   checks = orders.map((o) => checkOrder(o, master, o.asOf || todayIso()));
   let red = 0; let yellow = 0; let lineCount = 0;
+  let unread = 0;
   [...$('orders').children].forEach((card, i) => {
     const o = orders[i]; const c = checks[i];
+    if (!o || !c) return;
+    // 読めなかった注文書で、まだ何も入れていないとき：見出しの照合（マスタに無い・納品日が空）は出さない。「読めなかった」だけを出す
+    const blank = o.status === 'error' && !o.lines.length && !o.customer && !o.orderDate && !o.deliveryDate;
+    const headFlags = blank ? [] : c.header.flags;
+    if (o.status === 'error') unread++;
     // 見出しの欄
-    for (const el of card.querySelectorAll('.ohead .hf')) paint(el, levelAt(c.header.flags, el.dataset.f));
+    for (const el of card.querySelectorAll('.ohead .hf')) paint(el, levelAt(headFlags, el.dataset.f));
     const custSel = card.querySelector('.ohead select');
-    custSel.options[0].textContent = autoCustomerText(c);
+    custSel.options[0].textContent = blank ? '（選んでください）' : autoCustomerText(c);
     if (custSel.value !== (o.customerCode || '')) custSel.value = o.customerCode || '';
-    putFlags(card.querySelector('.hflags'), c.header.flags);
+    putFlags(card.querySelector('.hflags'), headFlags);
     // 明細
     const trs = card.querySelectorAll('tbody tr');
-    let cardRed = c.header.flags.some((f) => f.level === 'red') || Boolean(o.error);
-    let cardYellow = c.header.flags.some((f) => f.level === 'yellow');
+    const headLevel = worst(headFlags);
+    let cardRed = headLevel === 'red' || Boolean(o.error);
+    let cardYellow = headLevel === 'yellow';
+    if (blank) red++; // 読めなかった注文書も、要確認として数える（出力でも1行になる）
     o.lines.forEach((line, k) => {
       const r = c.lines[k]; const tr = trs[k];
       if (!tr) return;
@@ -521,27 +567,45 @@ function refresh(opts = {}) {
       // 注文書に単価・金額が無いとき：決まった商品のマスタの単価と、数量×単価を小さく出す（候補のままなら出さない）
       const [priceNote, amountNote] = tr.querySelectorAll('small.calc');
       const fromMaster = r.settled && r.priceFrom === 'マスタ';
-      priceNote.textContent = fromMaster ? `マスタ ${yen(r.price)}` : '';
+      // ケースのときは、もとの単価と入数も出す（1ケースの値段だけだと、マスタと違うように見える）
+      priceNote.textContent = !fromMaster ? '' : r.perUnit > 1 ? `マスタ ${yen(r.product.price)}×${r.perUnit}${r.product.unit}` : `マスタ ${yen(r.price)}`;
       amountNote.textContent = typeof line.amount !== 'number' && r.settled && r.amount != null ? `計算 ${yen(r.amount)}` : '';
       const box = tr.querySelector('.flags');
       putFlags(box, r.flags);
-      const lv = worst([...c.header.flags, ...r.flags]);
+      // 行の色の数え方は、出力（Excel の要確認の列）と同じ：見出しの指摘も、その注文書の全部の行に入る
+      const lv = worst([...headFlags, ...r.flags]);
       if (lv === 'red') red++; else if (lv === 'yellow') yellow++;
       if (r.flags.some((x) => x.level === 'red')) cardRed = true;
       if (r.flags.some((x) => x.level === 'yellow')) cardYellow = true;
-      const ok = !r.flags.length;
+      if (!r.flags.length && headLevel) box.append(h('span', { class: `flag ${headLevel}` }, '注文書の見出し（取引先・日付）を確かめてください'));
+      const ok = !lv;
       if (ok) box.append(h('span', { class: tr.dataset.ok === '0' ? 'badge ok fresh' : 'badge ok' }, 'OK'));
       tr.dataset.ok = ok ? '1' : '0';
       tr.classList.toggle('dupe', r.flags.some((x) => x.field === 'row'));
     });
     const badge = card.querySelector('.ocard-badge');
-    badge.className = `ocard-badge badge ${cardRed ? 'red' : cardYellow ? 'yellow' : 'ok'}`;
-    badge.textContent = cardRed ? '要確認あり' : cardYellow ? '注意あり' : 'OK';
+    badge.className = `ocard-badge badge ${blank ? 'red' : cardRed ? 'red' : cardYellow ? 'yellow' : 'ok'}`;
+    badge.textContent = blank ? '読めず' : cardRed ? '要確認あり' : cardYellow ? '注意あり' : 'OK';
   });
-  $('summary').textContent = `${orders.length}枚・明細${lineCount}行：要確認（赤）${red}行／注意（黄）${yellow}行`;
+  $('summary').textContent = `${orders.length}枚${unread ? `（読めず${unread}枚）` : ''}・明細${lineCount}行：要確認（赤）${red}行／注意（黄）${yellow}行`;
   renderStats(lineCount, red, yellow, opts.quiet);
-  $('export-note').textContent = red
-    ? `要確認（赤）の明細が${red}行あります。出力はできますが、「要確認」の列とシートに理由が入ります。取引先に確かめてから使ってください。`
+  // 出力の前に知らせる（ボタンより上・注意の面）
+  const note = $('export-note');
+  note.textContent = red
+    ? `要確認（赤）が${red}行あります${unread ? `（読めなかった注文書${unread}枚を含む）` : ''}。出力はできますが、「要確認」の列とシートに理由が入ります。取引先に確かめてから使ってください。`
+    : '';
+  note.hidden = !red;
+  checkSjis();
+}
+
+/** Shift_JIS を選んでいるとき、変換できない文字を、ダウンロードの前に知らせる */
+function checkSjis(after = false) {
+  const warn = $('sjis-warn');
+  const sjis = document.querySelector('input[name=enc]:checked')?.value === 'sjis';
+  const bad = sjis && orders.length ? [...new Set(sjisUnmappable(orderCsv(rowsNow())))] : [];
+  warn.hidden = !bad.length;
+  warn.textContent = bad.length
+    ? `Shift_JIS にできない文字があります${after ? '（「?」に置き換えました）' : '（CSV では「?」になります）'}：${bad.join(' ')}。UTF-8 で出すか、品名を直してください。`
     : '';
 }
 
@@ -560,11 +624,13 @@ function buildStats() {
   const mins = h('input', {
     type: 'number', min: '0', max: '60', step: '0.5', value: String(minutesPerSheet), inputMode: 'decimal', 'aria-label': '1枚の手入力の分',
     onchange: (e) => {
-      minutesPerSheet = Math.max(0, Number(e.target.value) || 0);
+      // 下の「御社の場合」と同じ範囲に寄せた値にそろえる
+      minutesPerSheet = est.set('order', 'before', Math.max(0, Number(e.target.value) || 0));
       e.target.value = String(minutesPerSheet);
-      est.set('order', 'before', minutesPerSheet); refresh();
+      refresh();
     },
   });
+  minsInput = mins;
   const bar = () => h('i', { class: 'cmp', 'aria-hidden': 'true', hidden: true }, h('i', { class: 'grow' }));
   linesEm = h('em', {});
   clear($('stats')).append(
@@ -666,12 +732,10 @@ $('csv').addEventListener('click', () => {
   const { blob, unmappable } = orderCsvBlob(rowsNow(), enc);
   const filename = `受注一覧_${stamp()}_${enc === 'sjis' ? 'SJIS' : 'UTF8'}.csv`;
   downloadBlob(blob, filename);
-  const warn = $('sjis-warn');
-  warn.hidden = !unmappable.length;
-  warn.textContent = unmappable.length ? `Shift_JIS にできない文字がありました（「?」に置き換えています）：${unmappable.join(' ')}。UTF-8 で出すか、品名を直してください。` : '';
+  if (unmappable.length) checkSjis(true);
   made('CSVを作りました：', filename);
 });
-document.querySelectorAll('input[name=enc]').forEach((el) => el.addEventListener('change', () => { $('made').hidden = true; $('sjis-warn').hidden = true; }));
+document.querySelectorAll('input[name=enc]').forEach((el) => el.addEventListener('change', () => { $('made').hidden = true; checkSjis(); }));
 
 // ---- はじめ ---------------------------------------------------------------------------
 

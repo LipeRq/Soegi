@@ -61,6 +61,7 @@ a { color: var(--accent); text-underline-offset: 3px; }
 .vt-knowledge { view-transition-name: vt-knowledge; }
 .vt-inn { view-transition-name: vt-inn; }
 .vt-chatbot { view-transition-name: vt-chatbot; }
+.vt-order { view-transition-name: vt-order; }
 
 /* ---- 動きの部品（/js/motion.js と組で使う） ------------------------------------------ */
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
@@ -423,5 +424,6 @@ ul.errs { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
 }
 /* iPhone の Safari は、16px 未満の入力欄を押すと画面が拡大される。スマホの幅では 16px にする（高さは 44px のまま） */
 @media (max-width: 760px) {
-  td input, td select, .stat input, label input:not([type=radio]):not([type=checkbox]):not([type=range]), label select { font-size: 16px; }
+  /* td input[type=text] まで書く（上の input[type=text] { font: inherit } より強くするため） */
+  td input, td input[type=text], td input[type=number], td select, .stat input, label input:not([type=radio]):not([type=checkbox]):not([type=range]), label select { font-size: 16px; }
 }

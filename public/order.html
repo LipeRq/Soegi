@@ -20,7 +20,7 @@
   <nav><a href="/">デモの選択へ</a></nav>
 </div></header>
 <main class="wrap">
-  <h1>FAX・紙の注文書 → 受注データ</h1>
+  <h1 class="vt-order">FAX・紙の注文書 → 受注データ</h1>
   <p class="lead">取引先ごとに違う様式の注文書を読み、商品マスタと照らし合わせて、受注一覧にします。AIは「読むだけ」。どの商品か・数が合っているか・納品日は正しいかは、プログラムが確かめます。最後は人が確かめます。</p>
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>注文書を<wbr>選ぶ</li>
@@ -76,7 +76,7 @@
         <span><i class="r"></i>要確認（赤）：数量が空・金額が合わない・納品日が空や過去</span>
         <span><i class="y"></i>注意（黄）：表記ゆれ・未登録の商品・単位や単価がマスタと違う・読み取りに自信がない</span>
       </div>
-      <p class="small-note">商品の照合・数量×単価の検算・納品日の確認はプログラムが行います（同じ注文書なら、毎回同じ結果）。黄色の「候補」は、人が選ぶまで商品コードを入れません。</p>
+      <p class="small-note">商品の照合・数量×単価の検算・納品日の確認はプログラムが行います（AIが同じように読めば、毎回同じ結果になります）。黄色の「候補」は、人が選ぶまで商品コードを入れません。</p>
     </div>
     <div id="orders"></div>
     <div class="row mt10">
@@ -89,6 +89,8 @@
     <section class="card">
       <h2><b class="no">3</b>　受注データにする</h2>
       <p class="small-note">Excel には「受注一覧」「取引先別」「納品日別」「要確認」の4枚のシートが入ります。販売管理ソフトに取り込むときは CSV を使います。</p>
+      <!-- 要確認が残っていることは、ダウンロードのボタンより先に知らせる -->
+      <p class="notice warn" id="export-note" hidden></p>
       <div class="row mt10 exportbar">
         <button type="button" class="primary btn-xl" id="export">Excelをダウンロード</button>
         <fieldset class="enc">
@@ -100,7 +102,6 @@
       </div>
       <p class="made" id="made" role="status" hidden></p>
       <p class="notice warn" id="sjis-warn" hidden></p>
-      <p class="small-note" id="export-note"></p>
       <p class="notice plain mt12">取り込みの形（列の並び・文字コード）は、お試し導入で御社の販売管理ソフトに合わせます。この画面の CSV は見本の形です。</p>
     </section>
 

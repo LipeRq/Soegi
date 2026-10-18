@@ -32,7 +32,7 @@ test('商品の照合：一致・表記ゆれ・似ている・規格なし・�
   assert.equal(nospec.kind, 'nospec');
   assert.deepEqual(nospec.candidates.map((p) => p.code), ['J-102', 'J-202']);
   assert.equal(matchProduct({ name: '山ぶどうジャム', spec: '150g' }, P).kind, 'none');
-  assert.equal(matchProduct({ name: '', spec: '' }, P).kind, 'none');
+  assert.equal(matchProduct({ name: '', spec: '' }, P).kind, 'empty');
 });
 
 test('取引先の照合', () => {
@@ -114,4 +114,61 @@ test('確かさ「低」は黄', () => {
   const r = checkOrder(order({ conf: { customer: '低' }, lines: [line({ conf: { qty: '低' } })] }), master, today);
   assert.equal(levelAt(r.header.flags, 'customer'), 'yellow');
   assert.equal(levelAt(r.lines[0].flags, 'qty'), 'yellow');
+});
+
+test('レビューの指摘から：規格がマスタに無い・含むだけの取引先・曜日と和暦・遠い月日', () => {
+  const bad = matchProduct({ name: 'ラ・フランスジャム', spec: '250g' }, P);
+  assert.equal(bad.kind, 'badspec');
+  assert.equal(bad.product, null);
+  assert.deepEqual(bad.candidates.map((p) => p.code), ['J-101', 'J-201']);
+  assert.equal(matchProduct({ name: '洋梨ジャム', spec: '' }, P).kind, 'nospec'); // 表記ゆれが2品に当たり、規格なし
+  const r = checkOrder(order({ lines: [line({ spec: '250g' })] }), master, today);
+  assert.match(r.lines[0].flags[0].message, /規格（250g）がマスタにありません（150g／300g）/);
+  assert.equal(r.lines[0].settled, false);
+  // 名前を含むだけの取引先は候補（黄）
+  const c = checkOrder(order({ customer: 'やまびこスーパー西店' }), master, today);
+  assert.equal(c.customer.code, '');
+  assert.equal(levelAt(c.header.flags, 'customer'), 'yellow');
+  assert.equal(matchCustomer('やまびこスーパー（仮）御中', master.customers).kind, 'exact');
+  // 曜日・和暦・後ろの言葉
+  assert.equal(parseOrderDate('1/20(水)', '2027-01-12'), '2027-01-20');
+  assert.equal(parseOrderDate('2027年1月19日（火）午前着', today), '2027-01-19');
+  assert.equal(parseOrderDate('令和9年1月20日', today), '2027-01-20');
+  assert.equal(parseOrderDate('R9.1.20', today), '2027-01-20');
+  assert.equal(parseOrderDate('1月20日 水曜日', '2027-01-12'), '2027-01-20');
+  // 年の無い日付は、前後半年の中だけ（2/29 が1年先にならない）
+  assert.equal(parseOrderDate('2/29', '2027-03-01'), null);
+  // 発注日の確かさ「低」は黄
+  const o = checkOrder(order({ conf: { order_date: '低' } }), master, today);
+  assert.equal(levelAt(o.header.flags, 'orderDate'), 'yellow');
+});
+
+test('レビューの指摘から：単位と個数・金額の計算・重複', () => {
+  // 決まった商品でケース以外の違う単位 → 個数に直さず、マスタの単価も使わない
+  const doz = checkOrder(order({ lines: [line({ qty: 2, unit: 'ダース' })] }), master, today).lines[0];
+  assert.equal(doz.pieces, null);
+  assert.equal(doz.price, null);
+  assert.equal(doz.amount, null);
+  assert.equal(levelAt(doz.flags, 'unit'), 'yellow');
+  // 商品が決まらない（未登録）でケース → 入数が分からない
+  const unk = checkOrder(order({ lines: [line({ name: '山ぶどうジャム', qty: 2, unit: 'ケース' })] }), master, today).lines[0];
+  assert.equal(unk.pieces, null);
+  assert.match(unk.flags.map((f) => f.message).join(), /ケースの入数が分かりません/);
+  // 負・小数の数量では金額を作らない
+  for (const qty of [-3, 2.5]) {
+    const x = checkOrder(order({ lines: [line({ qty })] }), master, today).lines[0];
+    assert.equal(x.amount, null, String(qty));
+    assert.equal(levelAt(x.flags, 'qty'), 'red');
+  }
+  // 金額だけ書かれていて単価が無い → マスタの単価で計算した額と比べる（黄）
+  const am = checkOrder(order({ lines: [line({ qty: 24, amount: 9999 })] }), master, today).lines[0];
+  assert.equal(levelAt(am.flags, 'amount'), 'yellow');
+  assert.equal(checkOrder(order({ lines: [line({ qty: 24, amount: 24 * 430 })] }), master, today).lines[0].flags.length, 0);
+  // 重複は、決まった商品どうしだけ
+  const dup = checkOrder(order({ lines: [line({ name: 'もも ジャム', spec: '' }), line({ name: 'ももジャム', spec: '' })] }), master, today);
+  assert.ok(dup.lines.every((x) => !x.flags.some((f) => f.field === 'row')));
+  const dup2 = checkOrder(order({ lines: [line(), line()] }), master, today);
+  assert.ok(dup2.lines.every((x) => x.flags.some((f) => f.field === 'row')));
+  // 品名が空の行
+  assert.match(checkOrder(order({ lines: [line({ name: '', spec: '' })] }), master, today).lines[0].flags[0].message, /品名が空です/);
 });

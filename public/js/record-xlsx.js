@@ -9,7 +9,9 @@ const WEEKS_PER_MONTH = 4.3;
 
 /**
  * デモごとの記録表。cols：見出し・幅・種類（num＝数、list＝選ぶ、text＝文字）。
- * summary：まとめの行。f は数式（列は記録表の列の文字、{rows} は記録する行の範囲）
+ * summary：まとめの行 [項目, 数式か数, 単位, 御社の場合の入力の key]。数式の c[i] は記録表の i 列目の範囲。
+ *   数のときは人が書き換えるマス（黄色）。4つ目があれば、項目のあとに「御社の場合の『（画面の項目名）』」を付ける
+ * hint：1枚目2行目の、そのデモだけの説明。closing：まとめの最後の文（無ければ、浮く時間の試算の文）
  */
 export const RECORDS = {
   receipt: {
@@ -23,13 +25,14 @@ export const RECORDS = {
     summary: (c) => [
       ['1週間の枚数', `SUM(${c[0]})`, '枚'],
       ['1週間にかかった分', `SUM(${c[1]})`, '分'],
-      ['1枚あたりの分（御社の場合の「1枚の手入力にかかる時間」）', `IFERROR(SUM(${c[1]})/SUM(${c[0]}),"")`, '分'],
-      ['月に直した枚数（御社の場合の「月の枚数」）', `ROUND(SUM(${c[0]})*${WEEKS_PER_MONTH},0)`, '枚'],
+      ['1枚あたりの分', `IFERROR(ROUND(SUM(${c[1]})/SUM(${c[0]}),1),"")`, '分', 'before'],
+      ['月に直した枚数', `ROUND(SUM(${c[0]})*${WEEKS_PER_MONTH},0)`, '枚', 'count'],
       ['手直しした件数（1週間）', `SUM(${c[2]})`, '件'],
     ],
   },
   attendance: {
     perDay: 3,
+    hint: '集計は月に1回の作業です。この1週間に集計が無ければ、前の月の集計にかかった分を1行に書いてください。',
     cols: [
       { header: '作業', width: 12, type: 'list', list: ['集計', '確認', '直し'] },
       { header: '人数', width: 8, type: 'num', sum: true },
@@ -38,7 +41,7 @@ export const RECORDS = {
     ],
     summary: (c) => [
       ['集計にかかった分（1週間）', `SUMIF(${c[0]},"集計",${c[2]})`, '分'],
-      ['1人あたりの集計の分（御社の場合の「1人分の手計算」）', `IFERROR(SUMIF(${c[0]},"集計",${c[2]})/SUMIF(${c[0]},"集計",${c[1]}),"")`, '分'],
+      ['1人あたりの集計の分', `IFERROR(ROUND(SUMIF(${c[0]},"集計",${c[2]})/SUMIF(${c[0]},"集計",${c[1]}),1),"")`, '分', 'perPerson'],
       ['確認・直しにかかった分（1週間）', `SUMIF(${c[0]},"確認",${c[2]})+SUMIF(${c[0]},"直し",${c[2]})`, '分'],
     ],
   },
@@ -55,8 +58,8 @@ export const RECORDS = {
     summary: (c) => [
       ['1週間の注文書の枚数', `COUNTA(${c[0]})`, '枚'],
       ['1週間にかかった分', `SUM(${c[3]})`, '分'],
-      ['1枚あたりの分（御社の場合の「1枚を受注データに打ち込む時間」）', `IFERROR(ROUND(SUM(${c[3]})/COUNTA(${c[0]}),1),"")`, '分'],
-      ['月に直した枚数（御社の場合の「月に届く注文書の枚数」）', `ROUND(COUNTA(${c[0]})*${WEEKS_PER_MONTH},0)`, '枚'],
+      ['1枚あたりの分', `IFERROR(ROUND(SUM(${c[3]})/COUNTA(${c[0]}),1),"")`, '分', 'before'],
+      ['月に直した枚数', `ROUND(COUNTA(${c[0]})*${WEEKS_PER_MONTH},0)`, '枚', 'count'],
       ['問い合わせ・直しがあった枚数', `COUNTIF(${c[4]},"はい")`, '枚'],
     ],
   },
@@ -72,8 +75,8 @@ export const RECORDS = {
     summary: (c) => [
       ['聞かれた回数（1週間）', `COUNTA(${c[2]})`, '回'],
       ['記録した日数', 5, '日'],
-      ['1日に聞かれる回数（御社の場合の「1日に聞かれる回数」）', `IFERROR(ROUND(COUNTA(${c[2]})/{days},1),"")`, '回'],
-      ['1回の説明の分（御社の場合の「1回の説明にかかる時間」）', `IFERROR(ROUND(AVERAGE(${c[4]}),1),"")`, '分'],
+      ['1日に聞かれる回数', `IFERROR(ROUND(COUNTA(${c[2]})/{days},1),"")`, '回', 'asks'],
+      ['1回の説明の分', `IFERROR(ROUND(AVERAGE(${c[4]}),1),"")`, '分', 'minutes'],
     ],
   },
   foreign: {
@@ -92,7 +95,7 @@ export const RECORDS = {
       ['夜・休日の回数', `COUNTIF(${c[5]},"はい")`, '回'],
       ['外国人スタッフの人数', 6, '人'],
       ['記録した日数', 5, '日'],
-      ['1人に1日説明している分（御社の場合）', `IFERROR(ROUND(SUM(${c[4]})/{staff}/{days},1),"")`, '分'],
+      ['1人に1日説明している分', `IFERROR(ROUND(SUM(${c[4]})/{staff}/{days},1),"")`, '分', 'minutes'],
     ],
   },
   inn: {
@@ -106,14 +109,17 @@ export const RECORDS = {
     ],
     summary: (c) => [
       ['外国語の問い合わせ（1週間）', `COUNTA(${c[1]})`, '通'],
-      ['月に直した通数（御社の場合の「月の通数」）', `ROUND(COUNTA(${c[1]})*${WEEKS_PER_MONTH},0)`, '通'],
-      ['1通の返信の分（御社の場合の「1通の返信にかかる時間」）', `IFERROR(ROUND(AVERAGE(${c[2]}),1),"")`, '分'],
+      ['月に直した通数', `ROUND(COUNTA(${c[1]})*${WEEKS_PER_MONTH},0)`, '通', 'mails'],
+      ['1通の返信の分', `IFERROR(ROUND(AVERAGE(${c[2]}),1),"")`, '分', 'before'],
       ['返信までの平均（時間）', `IFERROR(ROUND(AVERAGE(${c[3]}),1),"")`, '時間'],
       ['予約に至った件数', `COUNTIF(${c[4]},"はい")`, '件'],
     ],
   },
   chatbot: {
     perDay: 5,
+    // チャットボットの試算は「1件の成約の粗利」だけ。まとめの件数は、お試しの前後で比べるためのもの
+    sheetNote: '2枚目「まとめ」に、お試しの前後で比べる件数が出ます。',
+    closing: 'お試しの前後で、問い合わせ・夜・休日の件数と、相談・見積に進んだ件数を比べます。試算は約束ではありません。',
     cols: [
       { header: '時刻', width: 8, type: 'text' },
       { header: '経路', width: 10, type: 'list', list: ['電話', 'メール', 'フォーム', 'そのほか'] },
@@ -132,6 +138,9 @@ export const RECORDS = {
   },
 };
 
+/** 結合したマスの文字が切れないよう、行の高さを決める（Excel は結合したマスの高さを自動で合わせない） */
+const fitHeight = (text, widthSum) => Math.max(1, Math.ceil((String(text).length * 2.1) / widthSum)) * 16 + 6;
+
 const colLetter = (n) => { let s = ''; for (let x = n; x > 0; x = Math.floor((x - 1) / 26)) s = String.fromCharCode(65 + ((x - 1) % 26)) + s; return s; };
 
 export function buildRecordWorkbook(ExcelJS, key) {
@@ -147,16 +156,23 @@ export function buildRecordWorkbook(ExcelJS, key) {
   cols.forEach((c, i) => { ws.getColumn(i + 1).width = c.width; });
 
   // 1行目：使い方。2行目：補足。3行目：見出し
+  const widthSum = cols.reduce((t, c) => t + c.width, 0);
+  const line1 = 'お試しの前の1週間、これを付けてください。1件1行。分は大まかで構いません。';
+  const line2 = [DEMOS[key].name, rec.hint, rec.sheetNote ?? '2枚目「まとめ」に、試算（御社の場合）に入れる数字が出ます。', 'この表はソエギに送らなくても構いません。'].filter(Boolean).join('　');
   ws.mergeCells(`A1:${last}1`);
-  ws.getCell('A1').value = 'お試しの前の1週間、これを付けてください。1件1行。分は大まかで構いません。';
+  ws.getCell('A1').value = line1;
   ws.getCell('A1').font = { bold: true, size: 13 };
-  ws.getRow(1).height = 24;
+  ws.getCell('A1').alignment = { wrapText: true, vertical: 'top' };
+  ws.getRow(1).height = fitHeight(line1, widthSum / 1.2) + 4; // 13pt の太字のぶん広めに
   ws.mergeCells(`A2:${last}2`);
-  ws.getCell('A2').value = `${DEMOS[key].name}／2枚目「まとめ」に、試算（御社の場合）に入れる数字が出ます。この表はソエギに送らなくても構いません。`;
+  ws.getCell('A2').value = line2;
   ws.getCell('A2').font = { color: { argb: 'FF44525A' } };
+  ws.getCell('A2').alignment = { wrapText: true, vertical: 'top' };
+  ws.getRow(2).height = fitHeight(line2, widthSum);
   const head = ws.getRow(3);
   cols.forEach((c, i) => { head.getCell(i + 1).value = c.header; });
   styleHeader(head);
+  head.height = 36; // 2段に折り返す見出し（「手直しした件数」など）が切れない高さ
 
   const first = 4;
   const lastRow = first + DAYS * rec.perDay - 1;
@@ -164,8 +180,12 @@ export function buildRecordWorkbook(ExcelJS, key) {
     for (let k = 0; k < rec.perDay; k++) {
       const r = ws.getRow(first + d * rec.perDay + k);
       r.getCell(1).value = `${d + 1}日目`;
-      if (d % 2 === 1) r.eachCell({ includeEmpty: true }, (cell, n) => { if (n <= cols.length) cell.fill = fill(COLORS.gray); });
-      for (let i = 0; i < cols.length; i++) r.getCell(i + 1).border = { bottom: { style: 'hair', color: { argb: 'FFD5DDDF' } } };
+      // 1日おきの灰色と下線は、全部の列に付ける（まだ値の無いマスにも）
+      for (let i = 1; i <= cols.length; i++) {
+        const cell = r.getCell(i);
+        if (d % 2 === 1) cell.fill = fill(COLORS.gray);
+        cell.border = { bottom: { style: 'hair', color: { argb: 'FFD5DDDF' } } };
+      }
     }
   }
   // 入力の決まり（選ぶ列はプルダウン、数の列は0以上の数）
@@ -174,10 +194,8 @@ export function buildRecordWorkbook(ExcelJS, key) {
     for (let r = first; r <= lastRow; r++) {
       const cell = ws.getCell(`${L}${r}`);
       if (c.type === 'list') cell.dataValidation = { type: 'list', allowBlank: true, formulae: [`"${c.list.join(',')}"`] };
-      if (c.type === 'num') {
-        cell.dataValidation = { type: 'decimal', operator: 'greaterThanOrEqual', allowBlank: true, formulae: [0], showErrorMessage: true, errorTitle: '数を入れてください', error: '0以上の数を入れてください' };
-        cell.numFmt = '0.#';
-      }
+      // 数の列は表示形式を付けない（標準）。「0.#」だと整数が「3.」と出るため
+      if (c.type === 'num') cell.dataValidation = { type: 'decimal', operator: 'greaterThanOrEqual', allowBlank: true, formulae: [0], showErrorMessage: true, errorTitle: '数を入れてください', error: '0以上の数を入れてください' };
     }
   });
   // 合計の行
@@ -189,11 +207,11 @@ export function buildRecordWorkbook(ExcelJS, key) {
     else if (c.count) total.getCell(i + 3).value = { formula: `COUNTA(${L}${first}:${L}${lastRow})`, result: 0 };
   });
   total.font = { bold: true };
-  total.eachCell({ includeEmpty: true }, (cell, n) => { if (n <= cols.length) { cell.fill = fill(COLORS.shuLight); cell.border = { top: { style: 'thin' } }; } });
+  for (let i = 1; i <= cols.length; i++) { const cell = total.getCell(i); cell.fill = fill(COLORS.shuLight); cell.border = { top: { style: 'thin' } }; }
 
   // まとめ（数式は記録表を参照する）
   const sum = wb.addWorksheet('まとめ');
-  sum.columns = [{ header: '項目', width: 58 }, { header: '値', width: 12 }, { header: '単位', width: 8 }];
+  sum.columns = [{ header: '項目', width: 70 }, { header: '値', width: 12 }, { header: '単位', width: 8 }];
   styleHeader(sum.getRow(1));
   const ranges = rec.cols.map((_, i) => { const L = colLetter(i + 3); return `'1週間の記録'!${L}${first}:${L}${lastRow}`; });
   const items = rec.summary(ranges);
@@ -205,18 +223,25 @@ export function buildRecordWorkbook(ExcelJS, key) {
       if (label.includes('人数')) refs.staff = `B${i + 2}`;
     }
   });
-  items.forEach(([label, f, unit], i) => {
-    const row = sum.addRow([label, null, unit]);
+  const inputLabel = (k) => DEMOS[key].inputs.find((x) => x.key === k)?.label;
+  items.forEach(([label, f, unit, target], i) => {
+    // 御社の場合のどの欄に入れるかは、画面の項目名をそのまま使う（言葉がずれないように）
+    const to = target && inputLabel(target) ? `（御社の場合の「${inputLabel(target)}」に入れる）` : '';
+    const row = sum.addRow([`${label}${to}`, null, unit]);
     if (typeof f === 'number') {
       row.getCell(2).value = f;
       row.getCell(2).fill = fill(COLORS.yellow);
-      row.getCell(1).value = `${label}（黄色のマスは書き換えてください）`;
+      row.getCell(1).value = `${label}${to}（黄色のマスは書き換えてください）`;
     } else {
       row.getCell(2).value = { formula: f.replace('{days}', refs.days).replace('{staff}', refs.staff), result: 0 };
     }
+    row.getCell(1).alignment = { wrapText: true, vertical: 'top' };
   });
   sum.addRow([]);
-  sum.addRow([`月に直すときは、1週間の数を${WEEKS_PER_MONTH}倍しています（1か月＝約${WEEKS_PER_MONTH}週）。`]);
-  sum.addRow(['この数字を、デモの「御社の場合（試算）」に入れると、浮く時間の試算が出ます。試算は約束ではありません。']);
+  // 4.3倍の説明は、月に直す数式があるデモだけ
+  if (items.some(([, f]) => typeof f === 'string' && f.includes(`*${WEEKS_PER_MONTH}`))) {
+    sum.addRow([`月に直すときは、1週間の数を${WEEKS_PER_MONTH}倍しています（1ヶ月＝約${WEEKS_PER_MONTH}週）。`]);
+  }
+  sum.addRow([rec.closing ?? 'この数字を、デモの「御社の場合（試算）」に入れると、浮く時間の試算が出ます。試算は約束ではありません。']);
   return wb;
 }

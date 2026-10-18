@@ -23,6 +23,17 @@ export function orderRows(orders, checks, master) {
     const c = checks[i];
     const cust = custByCode.get(c.customer.code);
     const headerMsg = c.header.flags.map((f) => f.message);
+    const orderNo = `O-${String(i + 1).padStart(2, '0')}`;
+    // 明細の無い注文書（読み取れなかったなど）も、黙って抜かず「要確認」の1行にする
+    if (!o.lines.length) {
+      out.push({
+        orderNo, customerCode: cust?.code ?? '', customer: cust?.name ?? o.customer ?? '', orderDate: c.orderDate ?? '', deliveryDate: c.deliveryDate ?? '',
+        productCode: '', name: '', spec: '', qty: null, unit: '', pieces: null, price: null, priceFrom: '', amount: null, readName: '',
+        review: o.error ? `注文書を読み取れませんでした（${o.error}）` : ['明細がありません', ...headerMsg].join('／'),
+        image: o.filename, level: 'red', fieldLevels: {},
+      });
+      return;
+    }
     o.lines.forEach((l, k) => {
       const r = c.lines[k];
       // 候補のまま（人が選んでいない）の商品は、コード・マスタの単価・ケースの換算を入れない
@@ -30,7 +41,7 @@ export function orderRows(orders, checks, master) {
       const fromSheet = r.priceFrom === '注文書';
       const flags = [...c.header.flags, ...r.flags];
       out.push({
-        orderNo: `O-${String(i + 1).padStart(2, '0')}`,
+        orderNo,
         customerCode: cust?.code ?? '',
         customer: cust?.name ?? o.customer,
         orderDate: c.orderDate ?? '',
@@ -40,7 +51,8 @@ export function orderRows(orders, checks, master) {
         spec: p?.spec ?? l.spec,
         qty: Number.isFinite(l.qty) ? l.qty : null,
         unit: l.unit || p?.unit || '',
-        pieces: p || r.pieces === l.qty ? r.pieces : null,
+        // 候補のままなら、ケースの換算（候補の入数）は使わない
+        pieces: p || r.perUnit === 1 ? r.pieces : null,
         price: p || fromSheet ? r.price : null,
         priceFrom: p || fromSheet ? r.priceFrom : '',
         amount: p || typeof l.amount === 'number' ? r.amount : null,
@@ -62,7 +74,7 @@ export function orderRows(orders, checks, master) {
   return out;
 }
 
-const dateCell = (cell, iso) => { if (iso) { cell.value = toExcelDate(iso); cell.numFmt = 'yyyy/mm/dd'; } else cell.value = ''; };
+const dateCell = (cell, iso) => { if (iso) { cell.value = toExcelDate(iso); cell.numFmt = 'yyyy/mm/dd'; } else cell.value = null; };
 
 export function buildOrderWorkbook(ExcelJS, rows) {
   const wb = new ExcelJS.Workbook();
@@ -71,10 +83,12 @@ export function buildOrderWorkbook(ExcelJS, rows) {
   ws.columns = ORDER_COLUMNS.map(([header, width]) => ({ header, width }));
   styleHeader(ws.getRow(1));
   for (const r of rows) {
-    const row = ws.addRow([r.orderNo, r.customerCode, r.customer, null, null, r.productCode, r.name, r.spec, r.qty ?? '', r.unit, r.pieces ?? '', r.price ?? '', r.priceFrom, r.amount ?? '', r.readName, r.review, r.image]);
+    // 数の無いマスは空のまま（'' を入れると、集計の数式で文字として扱われる）
+    const row = ws.addRow([r.orderNo, r.customerCode, r.customer, null, null, r.productCode, r.name, r.spec, r.qty, r.unit, r.pieces, r.price, r.priceFrom, r.amount, r.readName, r.review, r.image]);
     dateCell(row.getCell(4), r.orderDate);
     dateCell(row.getCell(5), r.deliveryDate);
-    for (const n of [9, 11, 12, 14]) row.getCell(n).numFmt = '#,##0';
+    // 3桁区切りは整数だけ（小数の数量 2.5 を「3」と見せない）
+    for (const n of [9, 11, 12, 14]) if (Number.isInteger(row.getCell(n).value)) row.getCell(n).numFmt = '#,##0';
     const paint = (n, lv) => { if (lv) row.getCell(n).fill = fill(LEVEL_FILL[lv]); };
     paint(3, r.fieldLevels.customer); paint(5, r.fieldLevels.deliveryDate); paint(7, r.fieldLevels.name);
     paint(9, r.fieldLevels.qty); paint(12, r.fieldLevels.price); paint(14, r.fieldLevels.amount);
@@ -83,6 +97,9 @@ export function buildOrderWorkbook(ExcelJS, rows) {
   }
   const last = rows.length + 1;
   ws.autoFilter = { from: 'A1', to: `Q${Math.max(last, 2)}` };
+
+  // 集計の数式は SUMPRODUCT の「=」で比べる（COUNTIF・SUMIF は * ? を文字の代わりとして読むため、品名・取引先名で数がずれる）
+  const R = (col) => `'受注一覧'!$${col}$2:$${col}$${Math.max(last, 2)}`;
 
   // 取引先別（受注一覧を参照する数式。結果も入れておく）
   const byCust = wb.addWorksheet('取引先別');
@@ -93,27 +110,37 @@ export function buildOrderWorkbook(ExcelJS, rows) {
     const n = i + 2;
     const matched = rows.filter((r) => r.customer === name);
     const row = byCust.addRow([name, null, null]);
-    row.getCell(2).value = { formula: `COUNTIF('受注一覧'!$C$2:$C$${last},A${n})`, result: matched.length };
-    row.getCell(3).value = { formula: `SUMIF('受注一覧'!$C$2:$C$${last},A${n},'受注一覧'!$N$2:$N$${last})`, result: matched.reduce((t, r) => t + (r.amount || 0), 0) };
+    row.getCell(2).value = { formula: `SUMPRODUCT(--(${R('C')}=A${n}))`, result: matched.length };
+    row.getCell(3).value = { formula: `SUMPRODUCT(--(${R('C')}=A${n}),${R('N')})`, result: matched.reduce((t, r) => t + (r.amount || 0), 0) };
     row.getCell(3).numFmt = '#,##0';
   });
 
-  // 納品日別：納品日×商品の個数（バラ）。商品マスタに無い品は品名で分ける
+  // 納品日別：納品日×商品の個数（バラ）。商品マスタに無い品は品名で分ける。
+  // 個数に直せない明細（単位が分からない・候補のままのケース）は 0 として足さず、行数を隣に出して黄にする
   const byDay = wb.addWorksheet('納品日別');
-  byDay.columns = [{ header: '納品日', width: 12 }, { header: '商品コード', width: 11 }, { header: '品名', width: 28 }, { header: '個数（バラ）の合計', width: 16 }];
+  byDay.columns = [{ header: '納品日', width: 12 }, { header: '商品コード', width: 11 }, { header: '品名', width: 28 }, { header: '個数（バラ）の合計', width: 16 }, { header: '個数に直せない明細', width: 18 }];
   styleHeader(byDay.getRow(1));
   const keys = [];
   for (const r of rows) {
-    const k = `${r.deliveryDate}|${r.productCode || r.name}`;
+    if (!r.name && !r.productCode) continue; // 明細の無い注文書の行は、商品の集計に入れない
+    const k = `${r.deliveryDate}|${r.productCode}|${r.name}`;
     if (!keys.some((x) => x.k === k)) keys.push({ k, r });
   }
   keys.sort((a, b) => (a.r.deliveryDate || '9999').localeCompare(b.r.deliveryDate || '9999') || a.k.localeCompare(b.k));
-  for (const { r } of keys) {
-    const same = rows.filter((x) => x.deliveryDate === r.deliveryDate && (x.productCode || x.name) === (r.productCode || r.name));
-    const row = byDay.addRow([null, r.productCode, r.name, same.reduce((t, x) => t + (x.pieces || 0), 0)]);
+  keys.forEach(({ r }, i) => {
+    const n = i + 2;
+    const same = rows.filter((x) => x.deliveryDate === r.deliveryDate && x.productCode === r.productCode && x.name === r.name);
+    const row = byDay.addRow([null, r.productCode || null, r.name, null, null]);
     if (r.deliveryDate) dateCell(row.getCell(1), r.deliveryDate); else { row.getCell(1).value = '（納品日なし）'; row.getCell(1).fill = fill(COLORS.red); }
+    const cond = `(${R('E')}=${r.deliveryDate ? `A${n}` : '""'})*(${R('F')}=B${n})*(${R('G')}=C${n})`;
+    row.getCell(4).value = { formula: `SUMPRODUCT(${cond},${R('K')})`, result: same.reduce((t, x) => t + (x.pieces || 0), 0) };
     row.getCell(4).numFmt = '#,##0';
-  }
+    const unknown = same.filter((x) => x.pieces == null).length;
+    row.getCell(5).value = { formula: `SUMPRODUCT(${cond}*(${R('K')}=""))`, result: unknown };
+    if (unknown) { row.getCell(4).fill = fill(COLORS.yellow); row.getCell(5).fill = fill(COLORS.yellow); }
+  });
+  byDay.addRow([]);
+  byDay.addRow(['※「個数に直せない明細」が1以上の行は、合計にその明細が入っていません。「要確認」のシートを見てください。']);
 
   // 要確認の行だけ
   const rev = wb.addWorksheet('要確認');

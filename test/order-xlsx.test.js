@@ -74,14 +74,14 @@ test('Excel：受注一覧・取引先別・納品日別・要確認', async () 
   assert.equal(ws.rowCount, rows.length + 1);
   assert.equal(ws.getCell('F2').value, 'J-101');
   assert.ok(ws.getCell('D2').value instanceof Date);
-  assert.equal(ws.getCell('E6').value, ''); // 納品日が空
+  assert.equal(ws.getCell('E6').value, null); // 納品日が空
   assert.equal(ws.getCell('E6').fill?.fgColor?.argb, 'FFF6C9C4'); // 赤
   assert.equal(ws.getCell('K3').value, 48);
   const cust = wb.getWorksheet('取引先別');
   assert.equal(cust.getCell('A2').value, 'やまびこスーパー（仮）');
-  assert.match(cust.getCell('B2').value.formula, /^COUNTIF\('受注一覧'!\$C\$2:\$C\$6,A2\)$/);
+  assert.equal(cust.getCell('B2').value.formula, "SUMPRODUCT(--('受注一覧'!$C$2:$C$6=A2))");
   assert.equal(cust.getCell('B2').value.result, 4);
-  assert.match(cust.getCell('C2').value.formula, /^SUMIF\(/);
+  assert.equal(cust.getCell('C2').value.formula, "SUMPRODUCT(--('受注一覧'!$C$2:$C$6=A2),'受注一覧'!$N$2:$N$6)");
   const day = wb.getWorksheet('納品日別');
   const labels = []; day.eachRow((r, n) => { if (n > 1) labels.push(r.getCell(1).value); });
   assert.ok(labels.includes('（納品日なし）'));
@@ -118,4 +118,27 @@ test('CSV：UTF-8 は BOM 付き、Shift_JIS は変換できない文字を知�
   assert.deepEqual(s.unmappable, []);
   rows[0].name = '🍐ジャム';
   assert.ok(orderCsvBlob(rows, 'sjis').unmappable.length > 0);
+});
+
+test('読めなかった注文書も1行（要確認）で出る。納品日別は個数に直せない明細を数える', async () => {
+  const o = [...structuredClone(orders), { filename: 'x.jpg', customer: '', orderDate: '', deliveryDate: '', conf: {}, lines: [], error: '読み取れませんでした' }];
+  o[0].lines.push(line({ name: 'ラ・フランスジャム', spec: '150g', qty: 2, unit: 'ダース' }));
+  const rows = orderRows(o, o.map((x) => checkOrder(x, master, today)), master);
+  const last = rows.at(-1);
+  assert.equal(last.orderNo, 'O-03');
+  assert.equal(last.level, 'red');
+  assert.match(last.review, /注文書を読み取れませんでした/);
+  assert.match(orderCsv(rows), /O-03,/);
+  const wb = await roundTrip(buildOrderWorkbook(ExcelJS, rows));
+  const day = wb.getWorksheet('納品日別');
+  let found = null;
+  day.eachRow((r, n) => { if (n > 1 && r.getCell(2).value === 'J-101') found = r; });
+  assert.equal(found.getCell(4).value.result, 24); // ダースの2は足さない
+  assert.equal(found.getCell(5).value.result, 1);
+  assert.match(found.getCell(5).value.formula, /^SUMPRODUCT\(/);
+  // 小数の数量には3桁区切りの書式を付けない
+  const q = [...structuredClone(orders)]; q[0].lines[0].qty = 2.5;
+  const ws = (await roundTrip(buildOrderWorkbook(ExcelJS, orderRows(q, q.map((x) => checkOrder(x, master, today)), master)))).getWorksheet('受注一覧');
+  assert.equal(ws.getCell('I2').value, 2.5);
+  assert.notEqual(ws.getCell('I2').numFmt, '#,##0');
 });

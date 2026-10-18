@@ -31,9 +31,15 @@ let nextId = 1;
 let elapsedSec = null;
 // 1枚の手入力の分（仮置き）。上の「手入力なら約」と下の「御社の場合」で同じ値を使う
 let minutesPerReceipt = defaultValues('receipt').before;
+let minsInput = null; // 上の「1枚 ◯ 分」の欄（大きな数字を作るときにできる）
 const est = mountEstimate($('estimate'), {
   keys: ['receipt'],
-  onChange: (_, v) => { if (v.before !== minutesPerReceipt) { minutesPerReceipt = v.before; if (stats.count) refresh(); } },
+  onChange: (_, v) => {
+    if (v.before === minutesPerReceipt) return;
+    minutesPerReceipt = v.before;
+    if (minsInput) minsInput.value = String(minutesPerReceipt); // 上の「1枚 ◯ 分」の欄もそろえる
+    if (stats.count) refresh();
+  },
 });
 
 // ---- 1. 撮る・選ぶ -----------------------------------------------------------------
@@ -301,13 +307,15 @@ function buildStats() {
     return box;
   };
   const mins = h('input', {
-    type: 'number', min: '0', max: '30', step: '0.5', value: String(minutesPerReceipt), inputMode: 'decimal', 'aria-label': '1枚の手入力の分',
+    type: 'number', min: '0', max: '60', step: '0.5', value: String(minutesPerReceipt), inputMode: 'decimal', 'aria-label': '1枚の手入力の分',
     onchange: (e) => {
-      minutesPerReceipt = Math.max(0, Number(e.target.value) || 0);
+      // 下の「御社の場合」と同じ範囲に寄せた値にそろえる
+      minutesPerReceipt = est.set('receipt', 'before', Math.max(0, Number(e.target.value) || 0));
       e.target.value = String(minutesPerReceipt);
-      est.set('receipt', 'before', minutesPerReceipt); refresh();
+      refresh();
     },
   });
+  minsInput = mins;
   // かかった時間と手入力の時間を、同じ目盛りの棒で並べる（長さは下の数字から計算。飾りなので読み上げない）
   const bar = () => h('i', { class: 'cmp', 'aria-hidden': 'true', hidden: true }, h('i', { class: 'grow' }));
   clear($('stats')).append(
