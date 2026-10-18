@@ -6,6 +6,7 @@ import {
 import { toJpeg } from './image.js';
 import { checkReceipts, levelOf, worstLevel } from './receipt-check.js';
 import { buildReceiptWorkbook } from './receipt-xlsx.js';
+import { selectRows, caveats, yayoiRows, yayoiFile, freeeRows, freeeFile, VERIFIED } from './accounting-formats.js';
 import { mountEstimate } from './estimate-ui.js';
 import { defaultValues } from './estimate.js';
 import { reduced, countUp, stagger, replay, flash, onVisible } from './motion.js';
@@ -19,7 +20,10 @@ const STYLE_NOTES = {
   standard: '1枚1行の明細に、科目別の集計と「要確認」の行だけのシートが付きます。',
   journal: '会計ソフトに取り込みやすい、日付・借方・貸方・金額・摘要の5列です。',
   office: '架空の会計事務所の取り込み様式の例です。10%と8%が混ざったレシートは税区分ごとに行を分けます。お試し導入では、御社の様式に列を合わせます。',
+  yayoi: '弥生会計の［仕訳日記帳］→［ファイル］→［インポート］（弥生会計 オンラインは［高度なメニュー］→［弥生データのインポート］）で取り込みます。マネーフォワード クラウド会計は［各種設定］→［他社ソフトデータの移行］→［弥生会計］から取り込めます。登録番号の無いレシートは、日付で経過措置の割合（2026年10月1日から「区分70%」）を付けます。「区分70%」は弥生会計 27 以降で取り込めます（24〜26 では取り込めません）。取り込む前にバックアップを取り、同じファイルを2回取り込まないでください。科目や税区分の対応づけの画面が出たら、いったん取り消して、ご相談ください。',
+  freee: 'freee の［取引］→［取引の一覧・登録］→［…］→［取引データのインポート］で取り込みます。ダウンロードしたファイルは Excel で開かずに、そのまま取り込んでください（開いて保存すると文字コードが変わります）。10%と8%が混ざるレシートは、2件の支出になります。登録番号の無いレシートは、日付で経過措置の税区分（2026年10月1日から「控70」）にします。貸方が「普通預金」「未払金」のときは、未決済の取引として入ります。',
 };
+const ACCOUNTING = ['yayoi', 'freee']; // 会計ソフトに取り込む形式（出すのは確定した行だけ）
 // 写真ごとの読み取りの状態（色だけにせず、必ず言葉も出す）
 const READ_LABELS = { pending: '待ち', reading: '読み取り中', done: '済', error: '読めず' };
 
@@ -302,6 +306,7 @@ function refresh(opts = {}) {
   const yellow = checks.filter((c, i) => worstLevel(c.flags) === 'yellow' && !rows[i].error).length;
   $('summary').textContent = `${rows.length}枚：要確認（赤）${red}枚／注意（黄）${yellow}枚`;
   renderStats(red, yellow, opts.quiet);
+  renderExcluded(checks);
 }
 
 // 大きな数字。入れ物は1回だけ作り、数字だけ入れ替える（入力のたびに作り直すと、出てくる動きが毎回走ってしまう）
@@ -415,17 +420,73 @@ $('zoom').addEventListener('click', () => $('zoom').close());
 const currentStyle = () => document.querySelector('input[name=style]:checked').value;
 function onStyle() {
   const s = currentStyle();
+  const acct = ACCOUNTING.includes(s);
   $('credit-label').hidden = s === 'standard';
-  $('style-note').textContent = STYLE_NOTES[s];
+  $('method-label').hidden = s !== 'yayoi';
+  $('style-note').textContent = STYLE_NOTES[s] + (acct && !VERIFIED[s] ? '（この形式は、まだ実際のソフトで取り込みを確かめていません）' : '');
+  $('export').textContent = acct ? '取り込み用のファイルをダウンロード' : 'Excelをダウンロード';
   replay($('style-note'), 'swap');
   $('made').hidden = true; // 前の様式で作ったときの知らせは、様式を変えたら消す
+  renderExcluded();
+}
+
+/**
+ * 会計ソフトの形式で出さない行・確かめてほしい行を、ダウンロードの前から出しておく（出さない理由も）
+ * @param checks 無ければ、ここで確かめ直す
+ */
+function renderExcluded(checks = checkReceipts(rows)) {
+  const box = $('excluded');
+  const s = currentStyle();
+  if (!ACCOUNTING.includes(s) || !rows.length) { box.hidden = true; return; }
+  const { ok, skipped } = selectRows(rows, checks);
+  const notes = caveats(ok);
+  const list = (items, text) => h('ul', {}, items.map((x) => h('li', {}, `No.${x.no} ${x.payee}：${text(x)}`)));
+  clear(box).append(...[
+    h('p', {}, `出す行：${ok.length}枚${skipped.length ? `／出さない行：${skipped.length}枚（勘定科目が未確定・要確認（赤）・読めなかったレシートは出しません）` : ''}`),
+    skipped.length ? list(skipped, (x) => x.reason) : null,
+    notes.length ? h('p', {}, '出しますが、確かめてほしい行：') : null,
+    notes.length ? list(notes, (x) => x.note) : null,
+  ].filter(Boolean));
+  box.hidden = false;
 }
 document.querySelectorAll('input[name=style]').forEach((el) => el.addEventListener('change', onStyle));
+// 「取り込み未確認」の札は、accounting-formats.js の VERIFIED に合わせる（試用版で取り込めたら、そこを true にするだけ）
+document.querySelectorAll('.unverified[data-format]').forEach((el) => { el.hidden = Boolean(VERIFIED[el.dataset.format]); });
 onStyle();
 
+$('method').addEventListener('change', () => { $('made').hidden = true; });
+
+/** 会計ソフトに取り込むファイル（確定した行だけ） */
+function exportAccounting(style) {
+  const { ok } = selectRows(rows, checkReceipts(rows));
+  const made = $('made');
+  if (!ok.length) {
+    clear(made).append('出せる行がありません。勘定科目を確かめて「確定」に印を付けてください。');
+    made.hidden = false;
+    return;
+  }
+  const credit = $('credit').value;
+  let blob; let filename; let extra = '';
+  if (style === 'yayoi') {
+    const { bytes, unmappable } = yayoiFile(yayoiRows(ok, { method: $('method').value, credit }));
+    blob = new Blob([bytes], { type: 'text/csv;charset=shift_jis' });
+    filename = `弥生インポート_${stamp()}.csv`;
+    if (unmappable.length) extra = `（Shift_JIS にできない文字「${unmappable.join(' ')}」は「?」にしました）`;
+  } else {
+    blob = freeeFile(freeeRows(ok, { credit }));
+    filename = `freee取引インポート_${stamp()}.csv`;
+  }
+  downloadBlob(blob, filename);
+  setStep(4);
+  clear(made).append(`取り込み用のファイルを作りました（${ok.length}枚）：`, h('span', { class: 'fn' }, filename), extra);
+  made.hidden = false;
+  replay(made, 'in');
+}
+
 $('export').addEventListener('click', async () => {
-  if (!window.ExcelJS) { alert('Excelの部品を読み込めませんでした。再読み込みしてお試しください。'); return; }
   const style = currentStyle();
+  if (ACCOUNTING.includes(style)) { exportAccounting(style); return; }
+  if (!window.ExcelJS) { alert('Excelの部品を読み込めませんでした。再読み込みしてお試しください。'); return; }
   const wb = buildReceiptWorkbook(window.ExcelJS, rows, checkReceipts(rows), { style, creditAccount: $('credit').value });
   const buf = await wb.xlsx.writeBuffer();
   const name = { standard: '明細', journal: '仕訳', office: '事務所様式' }[style];
