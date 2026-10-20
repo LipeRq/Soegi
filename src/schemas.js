@@ -138,7 +138,8 @@ export function validateReceipt(raw) {
     const c = toStr(raw.confidence[k]);
     conf[k] = LEVELS.includes(c) ? c : '低';
   }
-  const account = toStr(raw.account);
+  // 科目は候補の一覧と照らす（全角かっこの「車両費（燃料）」が、文字をそろえたあとも一致するように）
+  const account = ACCOUNTS.find((a) => a.normalize('NFKC') === toStr(raw.account).normalize('NFKC')) ?? '';
   const inv = toStr(raw.invoice_no).toUpperCase().replace(/[-\s]/g, '');
   return {
     is_receipt: raw.is_receipt,
@@ -151,9 +152,9 @@ export function validateReceipt(raw) {
     invoice_no: inv,
     payment_method: toStr(raw.payment_method),
     summary: toStr(raw.summary).slice(0, 60),
-    account: ACCOUNTS.includes(account) ? account : '',
+    account,
     account_reason: toStr(raw.account_reason).slice(0, 120),
-    confidence: ACCOUNTS.includes(account) ? conf : { ...conf, account: '低' },
+    confidence: account ? conf : { ...conf, account: '低' },
   };
 }
 

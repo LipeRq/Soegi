@@ -35,7 +35,7 @@ test('出す行：確定していて赤の無い行だけ。出さない行は�
     row({ confirmed: false }),
     row({ account: '', confirmed: false }),
     row({ invoiceNo: 'T123' }), // 登録番号の形が違う → 赤
-    row({ error: '読み取れませんでした', confirmed: true }),
+    row({ error: '読み取れませんでした', confirmed: true, date: '', payee: '', total: null, amount10: null }), // 読めず＝空の欄が赤
     row({ invoiceNo: '', date: '2026-09-20' }),
   ];
   const { ok, skipped } = selectRows(rows, checkReceipts(rows, today));
@@ -46,7 +46,16 @@ test('出す行：確定していて赤の無い行だけ。出さない行は�
   assert.match(skipped[0].reason, /未確定/);
   assert.match(skipped[1].reason, /選ばれていません/);
   assert.match(skipped[2].reason, /赤/);
-  assert.match(skipped[3].reason, /読み取れません/);
+  assert.match(skipped[3].reason, /赤/);
+  // 読めなかった行でも、人が埋めて「確定」すれば出す
+  const fixed = [row({ error: '読み取れませんでした', confirmed: true })];
+  assert.equal(selectRows(fixed, checkReceipts(fixed, today)).ok.length, 1);
+  // 0円以下の合計・内訳は出さない
+  const neg = [row({ total: 0, amount10: 0 }), row({ payee: '値引きの店', total: 900, amount10: 1000, amount8: -100 })];
+  const n = selectRows(neg, checkReceipts(neg, today));
+  assert.equal(n.ok.length, 0);
+  assert.match(n.skipped[0].reason, /0円以下/);
+  assert.match(n.skipped[1].reason, /内訳に0円以下/);
 });
 
 test('CSV の値：引用符と、式にしない印', () => {
@@ -146,6 +155,8 @@ test('取り込みの文字：改行・引用符・先頭の記号', () => {
   assert.equal(importText('a,b\n"c"'), 'a、b c');
   assert.equal(importText('=HYPERLINK("x")'), 'HYPERLINK(x)');
   assert.equal(importText('-値引き'), '－値引き');
+  assert.equal(importText('= =SUM(A1)'), 'SUM(A1)'); // 記号と空白が続いても取る
+  assert.equal(importText('- =1+1'), '－1+1');
   assert.equal(importText('あいうえお', 3), 'あいう');
 });
 
@@ -156,7 +167,15 @@ test('確かめてほしい行：登録番号なしの交通費と、1万円未�
   assert.equal(notes.length, 2);
   assert.match(notes[0].note, /運賃/);
   assert.match(notes[1].note, /少額特例/);
-  // 重複の疑い
+  // 重複の疑い：出す行どうしで2枚以上のときだけ。片方の「確定」を外すと消える
   const dup = [row(), row()];
-  assert.equal(caveats(selectRows(dup, checkReceipts(dup, today)).ok).filter((n) => /2枚以上/.test(n.note)).length, 2);
+  assert.equal(caveats(selectRows(dup, checkReceipts(dup, today)).ok).filter((n) => /ほかにも出す行/.test(n.note)).length, 2);
+  const dup2 = [row(), row({ confirmed: false })];
+  assert.equal(caveats(selectRows(dup2, checkReceipts(dup2, today)).ok).filter((n) => /ほかにも出す行/.test(n.note)).length, 0);
+  // 直し方は、ソフトごとの税区分の名前で
+  assert.match(caveats(ok, { format: 'freee' })[1].note, /課対仕入10%/);
+  assert.match(caveats(ok, { format: 'yayoi' })[1].note, /末尾を「適格」/);
+  // 弥生（Shift_JIS）にできない文字は、ダウンロードの前に知らせる
+  const emoji = [row({ summary: 'ケーキ🍰' })];
+  assert.match(caveats(selectRows(emoji, checkReceipts(emoji, today)).ok, { format: 'yayoi' })[0].note, /Shift_JIS にできない文字（🍰）/);
 });

@@ -6,7 +6,7 @@ import {
 import { toJpeg } from './image.js';
 import { checkReceipts, levelOf, worstLevel } from './receipt-check.js';
 import { buildReceiptWorkbook } from './receipt-xlsx.js';
-import { selectRows, caveats, yayoiRows, yayoiFile, freeeRows, freeeFile, VERIFIED } from './accounting-formats.js';
+import { selectRows, caveats, taxParts, yayoiRows, yayoiFile, freeeRows, freeeFile, VERIFIED } from './accounting-formats.js';
 import { mountEstimate } from './estimate-ui.js';
 import { defaultValues } from './estimate.js';
 import { reduced, countUp, stagger, replay, flash, onVisible } from './motion.js';
@@ -20,10 +20,24 @@ const STYLE_NOTES = {
   standard: '1枚1行の明細に、科目別の集計と「要確認」の行だけのシートが付きます。',
   journal: '会計ソフトに取り込みやすい、日付・借方・貸方・金額・摘要の5列です。',
   office: '架空の会計事務所の取り込み様式の例です。10%と8%が混ざったレシートは税区分ごとに行を分けます。お試し導入では、御社の様式に列を合わせます。',
-  yayoi: '弥生会計の［仕訳日記帳］→［ファイル］→［インポート］（弥生会計 オンラインは［高度なメニュー］→［弥生データのインポート］）で取り込みます。マネーフォワード クラウド会計は［各種設定］→［他社ソフトデータの移行］→［弥生会計］から取り込めます。登録番号の無いレシートは、日付で経過措置の割合（2026年10月1日から「区分70%」）を付けます。「区分70%」は弥生会計 27 以降で取り込めます（24〜26 では取り込めません）。取り込む前にバックアップを取り、同じファイルを2回取り込まないでください。科目や税区分の対応づけの画面が出たら、いったん取り消して、ご相談ください。',
-  freee: 'freee の［取引］→［取引の一覧・登録］→［…］→［取引データのインポート］で取り込みます。ダウンロードしたファイルは Excel で開かずに、そのまま取り込んでください（開いて保存すると文字コードが変わります）。10%と8%が混ざるレシートは、2件の支出になります。登録番号の無いレシートは、日付で経過措置の税区分（2026年10月1日から「控70」）にします。貸方が「普通預金」「未払金」のときは、未決済の取引として入ります。',
+  yayoi: '弥生会計の［仕訳日記帳］→［ファイル］→［インポート］（弥生会計 オンラインは［高度なメニュー］→［弥生データのインポート］）で取り込む形式です。マネーフォワード クラウド会計の［各種設定］→［他社ソフトデータの移行］→［弥生会計］でも使う形式です。',
+  freee: 'freee の［取引］→［取引の一覧・登録］→［…］→［取引データのインポート］で取り込む形式です。10%と8%が混ざるレシートは、2件の支出になります。貸方が「普通預金」「未払金」のときは、未決済の取引として入ります。',
 };
 const ACCOUNTING = ['yayoi', 'freee']; // 会計ソフトに取り込む形式（出すのは確定した行だけ）
+/** 会計ソフトの形式の注意（安全の表示なので、動かさずに、説明より先に出す） */
+const CAUTIONS = {
+  yayoi: [
+    'まだ実際のソフトで取り込みを確かめていません（取り込み未確認）。',
+    '取り込む前に、会計ソフトでバックアップを取ってください。同じファイルを2回取り込まないでください（経費が2倍になります）。',
+    '科目や税区分の対応づけの画面が出たら、いったん取り消して、ご相談ください。',
+    '登録番号の無いレシートは、日付で経過措置の割合（2026年10月1日から「区分70%」）を付けます。「区分70%」は弥生会計 27 以降で使えます（24〜26 では使えません）。',
+  ],
+  freee: [
+    'まだ実際のソフトで取り込みを確かめていません（取り込み未確認）。',
+    'ダウンロードしたファイルは Excel で開かずに、そのまま取り込んでください（開いて保存すると文字コードが変わります）。同じファイルを2回取り込まないでください。',
+    '登録番号の無いレシートは、日付で経過措置の税区分（2026年10月1日から「控70」）にします。',
+  ],
+};
 // 写真ごとの読み取りの状態（色だけにせず、必ず言葉も出す）
 const READ_LABELS = { pending: '待ち', reading: '読み取り中', done: '済', error: '読めず' };
 
@@ -129,6 +143,7 @@ function applyResult(row, d) {
     date: d.date, payee: d.payee, total: d.total, amount10: d.amount_10, amount8: d.amount_8, tax: d.tax_amount,
     invoiceNo: d.invoice_no, payment: d.payment_method, summary: d.summary, account: d.account, reason: d.account_reason,
     conf: d.confidence,
+    confirmed: false, // 読み直すと科目がAIの候補に戻るので、「確定」も外す
   });
 }
 
@@ -246,7 +261,7 @@ function renderRows(opts = {}) {
     const account = h('select', { 'aria-label': '勘定科目', onchange: (e) => { row.account = e.target.value; row.conf.account = '高'; row.confirmed = Boolean(row.account); refresh(); } },
       h('option', { value: '' }, '（選んでください）'),
       ACCOUNTS.map((a) => h('option', { value: a, selected: a === row.account }, a)));
-    const confirm = h('label', { class: 'inline confirm' },
+    const confirm = h('label', { class: 'inline acct-confirm' },
       h('input', { type: 'checkbox', checked: row.confirmed, onchange: (e) => { row.confirmed = e.target.checked && Boolean(row.account); refresh(); } }),
       '確定');
     body.append(h('tr', { dataset: { id: row.id } },
@@ -281,7 +296,7 @@ function refresh(opts = {}) {
   [...$('rows').children].forEach((tr, i) => {
     const row = rows[i]; const c = checks[i];
     // 「確定」：科目が無ければ付けられない
-    const cb = tr.querySelector('label.confirm input');
+    const cb = tr.querySelector('label.acct-confirm input');
     if (!row.account) row.confirmed = false;
     cb.checked = row.confirmed; cb.disabled = !row.account;
     for (const td of tr.querySelectorAll('td[data-f]')) {
@@ -423,8 +438,14 @@ function onStyle() {
   const acct = ACCOUNTING.includes(s);
   $('credit-label').hidden = s === 'standard';
   $('method-label').hidden = s !== 'yayoi';
-  $('style-note').textContent = STYLE_NOTES[s] + (acct && !VERIFIED[s] ? '（この形式は、まだ実際のソフトで取り込みを確かめていません）' : '');
-  $('export').textContent = acct ? '取り込み用のファイルをダウンロード' : 'Excelをダウンロード';
+  // 注意（安全の表示）は動かさずに出す。動くのは様式の説明だけ
+  const cautions = $('style-cautions');
+  const list = acct ? CAUTIONS[s].filter((c, i) => i > 0 || !VERIFIED[s]) : [];
+  clear(cautions).append(...list.map((c) => h('li', {}, c)));
+  cautions.hidden = !list.length;
+  $('style-note').textContent = STYLE_NOTES[s];
+  // スマホで言葉の途中で折れないよう、まとまりごとに分けて入れる
+  clear($('export')).append(...(acct ? ['取り込み用のファイルを', 'ダウンロード'] : ['Excelを', 'ダウンロード']).map((t) => h('span', {}, t)));
   replay($('style-note'), 'swap');
   $('made').hidden = true; // 前の様式で作ったときの知らせは、様式を変えたら消す
   renderExcluded();
@@ -439,15 +460,29 @@ function renderExcluded(checks = checkReceipts(rows)) {
   const s = currentStyle();
   if (!ACCOUNTING.includes(s) || !rows.length) { box.hidden = true; return; }
   const { ok, skipped } = selectRows(rows, checks);
-  const notes = caveats(ok);
+  const notes = caveats(ok, { format: s });
+  const lines = ok.reduce((t, x) => t + taxParts(x.r).length, 0);
   const list = (items, text) => h('ul', {}, items.map((x) => h('li', {}, `No.${x.no} ${x.payee}：${text(x)}`)));
+  const unconfirmed = rows.findIndex((r, i) => r.account && !r.confirmed && skipped.some((x) => x.no === i + 1));
   clear(box).append(...[
-    h('p', {}, `出す行：${ok.length}枚${skipped.length ? `／出さない行：${skipped.length}枚（勘定科目が未確定・要確認（赤）・読めなかったレシートは出しません）` : ''}`),
+    h('p', {}, `出すレシート：${ok.length}枚（ファイルでは${lines}行。10%と8%が混ざるレシートは2行）${skipped.length ? `／出さないレシート：${skipped.length}枚` : ''}`),
+    skipped.length ? h('p', {}, '出さないレシート（勘定科目が未確定・要確認（赤）があるレシートは出しません）：') : null,
     skipped.length ? list(skipped, (x) => x.reason) : null,
-    notes.length ? h('p', {}, '出しますが、確かめてほしい行：') : null,
+    unconfirmed >= 0 ? h('button', { type: 'button', class: 'small', onclick: () => goConfirm(unconfirmed) }, '表の「確定」へ移る') : null,
+    notes.length ? h('p', {}, '出しますが、確かめてほしいレシート：') : null,
     notes.length ? list(notes, (x) => x.note) : null,
   ].filter(Boolean));
+  // 全部出せて確かめることも無いときは、注意の黄ではなく、ふつうの面にする
+  box.className = `notice mt12 ${skipped.length || notes.length ? 'warn' : 'plain'}`;
   box.hidden = false;
+}
+
+/** 「確定」の欄へ移る（表を横に送らないと見えないことがあるため） */
+function goConfirm(i) {
+  const cb = $('rows').children[i]?.querySelector('label.acct-confirm input');
+  if (!cb) return;
+  cb.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center', inline: 'center' });
+  cb.focus({ preventScroll: true });
 }
 document.querySelectorAll('input[name=style]').forEach((el) => el.addEventListener('change', onStyle));
 // 「取り込み未確認」の札は、accounting-formats.js の VERIFIED に合わせる（試用版で取り込めたら、そこを true にするだけ）
@@ -461,8 +496,12 @@ function exportAccounting(style) {
   const { ok } = selectRows(rows, checkReceipts(rows));
   const made = $('made');
   if (!ok.length) {
-    clear(made).append('出せる行がありません。勘定科目を確かめて「確定」に印を付けてください。');
-    made.hidden = false;
+    // 作れなかったことは、緑の「作りました」の札では出さない。下の一覧（理由つき）を見てもらう
+    made.hidden = true;
+    renderExcluded();
+    const box = $('excluded');
+    box.prepend(h('p', {}, h('b', {}, '出せるレシートがありません。下の理由を直してから、もう一度押してください。')));
+    box.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'nearest' });
     return;
   }
   const credit = $('credit').value;
@@ -471,7 +510,7 @@ function exportAccounting(style) {
     const { bytes, unmappable } = yayoiFile(yayoiRows(ok, { method: $('method').value, credit }));
     blob = new Blob([bytes], { type: 'text/csv;charset=shift_jis' });
     filename = `弥生インポート_${stamp()}.csv`;
-    if (unmappable.length) extra = `（Shift_JIS にできない文字「${unmappable.join(' ')}」は「?」にしました）`;
+    if (unmappable.length) extra = `。Shift_JIS にできない文字「${unmappable.join(' ')}」は「?」にしました（下の一覧の行を直してください）`;
   } else {
     blob = freeeFile(freeeRows(ok, { credit }));
     filename = `freee取引インポート_${stamp()}.csv`;

@@ -4,7 +4,7 @@
 // - 登録番号（T＋13桁）が無いレシートは、取引日でインボイスの経過措置の割合（80%・70%・50%・30%）を決める（プログラムが決める）
 // 調べた日：2026-10-18（弥生・freee・マネーフォワードの公式ヘルプの検索結果。本文はこの環境から開けなかった）。設計 v0.4 4章
 import { worstLevel, INVOICE_RE, isValidDate } from './receipt-check.js';
-import { encodeSjis } from './sjis.js';
+import { encodeSjis, sjisUnmappable } from './sjis.js';
 
 /**
  * 登録番号の無い相手からの仕入れの控除の割合（経過措置）。令和8年度の税制改正のあと（2026-10-18 に調べた値）。
@@ -31,11 +31,12 @@ const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
 
 /**
  * 税率ごとの行に分ける。内訳（10%対象・8%対象）が合計と合えばその金額、無ければ合計を1行（8%だけ書いてあれば8%）。
- * 内訳が合わないレシートは赤なので、ここには来ない
+ * 内訳が合わないレシートは赤なので、出す行には来ない
  * @returns {{rate:10|8, amount:number}[]}
  */
 export function taxParts(r) {
-  const has10 = isNum(r.amount10) && r.amount10 > 0; const has8 = isNum(r.amount8) && r.amount8 > 0;
+  // 0円でない内訳はすべて行にする（マイナスも落とさない。0円以下の行があれば selectRows が出さない）
+  const has10 = isNum(r.amount10) && r.amount10 !== 0; const has8 = isNum(r.amount8) && r.amount8 !== 0;
   if ((has10 || has8) && (r.amount10 || 0) + (r.amount8 || 0) === r.total) {
     return [has10 && { rate: 10, amount: r.amount10 }, has8 && { rate: 8, amount: r.amount8 }].filter(Boolean);
   }
@@ -49,19 +50,26 @@ export function taxParts(r) {
  */
 export function selectRows(rows, checks) {
   const ok = []; const skipped = [];
+  // 読み取れなかった行でも、人が欄を埋めて赤が無くなり「確定」すれば出す（読めなかったことは、空の欄の赤で分かる）
   rows.forEach((r, i) => {
     const no = i + 1;
-    const why = r.error ? '読み取れませんでした'
-      : worstLevel(checks[i].flags) === 'red' ? '要確認（赤）があります'
-        : !r.account ? '勘定科目が選ばれていません'
-          : !r.confirmed ? '勘定科目が未確定です（「確定」に印を付けてください）'
-            : !isValidDate(r.date) || !isNum(r.total) ? '日付か合計が空です' : '';
+    const why = worstLevel(checks[i].flags) === 'red' ? '要確認（赤）があります'
+      : !r.account ? '勘定科目が選ばれていません'
+        : !r.confirmed ? '勘定科目が未確定です（表の勘定科目の欄の「確定」に印を付けてください）'
+          : !isValidDate(r.date) || !isNum(r.total) ? '日付か合計が空です'
+            : r.total <= 0 ? '合計が0円以下です（返品・値引きは、会計ソフトで手で入れてください）'
+              : taxParts(r).some((p) => p.amount <= 0) ? '税率ごとの内訳に0円以下があります（値引きなど。会計ソフトで手で入れてください）' : '';
     if (why) { skipped.push({ no, payee: r.payee || '（支払先なし）', reason: why }); return; }
     const registered = INVOICE_RE.test(String(r.invoiceNo ?? '').trim());
     const rate = deductionRate(r.date, registered);
     if (rate === 0) { skipped.push({ no, payee: r.payee, reason: '経過措置の期間の外です（登録番号なし・2031年10月以降）。税理士に確かめてください' }); return; }
-    ok.push({ r, no, registered, rate, duplicate: Boolean(checks[i].duplicate) });
+    ok.push({ r, no, registered, rate });
   });
+  // 重複の疑いは、出す行どうしで数える（片方の「確定」を外せば、知らせは消える）
+  const key = ({ r }) => `${r.date}|${String(r.payee ?? '').trim()}|${r.total}`;
+  const count = new Map();
+  for (const x of ok) count.set(key(x), (count.get(key(x)) ?? 0) + 1);
+  for (const x of ok) x.duplicate = count.get(key(x)) > 1;
   return { ok, skipped };
 }
 
@@ -126,7 +134,9 @@ export const accountName = (a) => ACCOUNT_NAME[a] ?? String(a ?? '').trim();
  */
 export function importText(v, max = 0) {
   let s = String(v ?? '').replace(/[\r\n\t]+/g, ' ').replace(/,/g, '、').replace(/["“”]/g, '').replace(/\s+/g, ' ').trim();
-  s = s.replace(/^[=+@]+/, '').replace(/^-/, '－').trim();
+  // 「= =」「- =」のように、記号と空白が続いても、先頭から全部取る
+  s = s.replace(/^[=+@\s]+/, '');
+  if (s.startsWith('-')) s = `－${s.slice(1).replace(/^[=+@\-\s]+/, '')}`;
   return max ? [...s].slice(0, max).join('') : s;
 }
 const slashDate = (iso) => iso.replace(/-/g, '/');
@@ -141,14 +151,22 @@ function taxAmount(part, parts, r) {
  * 人に確かめてほしい行（出すけれど、税区分を変えることがある）。プログラムは会社の条件を知らないので、決めずに知らせる
  * @returns {{no:number, payee:string, note:string}[]}
  */
-export function caveats(ok) {
+export function caveats(ok, { format = '' } = {}) {
   const out = [];
+  // 全額控除にするときの直し方（ソフトごとの税区分の名前）
+  const full = format === 'freee' ? '取り込んだあと、税区分を「課対仕入10%」（8%は「課対仕入8%（軽）」）に直してください'
+    : '取り込んだあと、税区分の末尾を「適格」に直してください';
   for (const { r, no, registered, duplicate } of ok) {
-    // 重複の疑い（黄）は出すが、2回取り込むと経費が2倍になるので知らせる
-    if (duplicate) out.push({ no, payee: r.payee, note: '同じ日・支払先・金額のレシートが2枚以上あります。同じレシートなら、片方の「確定」を外してください' });
+    // 重複の疑いは出すが、2回取り込むと経費が2倍になるので知らせる（出す行どうしで2枚以上あるときだけ）
+    if (duplicate) out.push({ no, payee: r.payee, note: '同じ日・支払先・金額のレシートが、ほかにも出す行にあります。同じレシートなら、片方の「確定」を外してください' });
+    if (format === 'yayoi') {
+      const bad = [...new Set(sjisUnmappable([r.payee, r.summary, r.account].join('')))];
+      if (bad.length) out.push({ no, payee: r.payee, note: `Shift_JIS にできない文字（${bad.join(' ')}）は「?」になります。品目・支払先を直してください` });
+    }
     if (registered) continue;
-    if (r.account === '旅費交通費') out.push({ no, payee: r.payee, note: '登録番号がありません。電車・バスの運賃（3万円未満）なら、全額を控除できます（適格の税区分）' });
-    else if (r.total < 10000 && r.date <= '2029-09-30') out.push({ no, payee: r.payee, note: '登録番号がありません。1万円未満は、少額特例を使える事業者なら全額を控除できます（適格の税区分）' });
+    const small = r.total < 10000 && r.date <= '2029-09-30';
+    if (r.account === '旅費交通費') out.push({ no, payee: r.payee, note: `登録番号がありません。電車・バスの運賃（3万円未満）${small ? 'や、少額特例を使える事業者の1万円未満の仕入れ' : ''}なら全額を控除できます。その場合は、${full}` });
+    else if (small) out.push({ no, payee: r.payee, note: `登録番号がありません。少額特例を使える事業者（売上1億円以下など）なら、1万円未満は全額を控除できます。その場合は、${full}` });
   }
   return out;
 }

@@ -67,7 +67,7 @@
         <span><i class="r"></i>要確認（赤）：数字や番号が合わない・空</span>
         <span><i class="y"></i>注意（黄）：読み取りに自信がない・日付が不自然・重複の疑い</span>
       </div>
-      <p class="small-note">黄色は「AIを鵜呑みにしない」ための目印です。AIが自信のない箇所を自分で申告し、プログラムが合計や登録番号の形を確かめています。</p>
+      <p class="small-note">黄色は「AIを鵜呑みにしない」ための目印です。AIが自信のない箇所を自分で申告し、プログラムが合計や登録番号の形を確かめています。会計ソフトに取り込むファイルには、勘定科目の欄の「確定」に印を付けたレシートだけを出します。</p>
     </div>
     <p class="small-note scroll-hint">表は横に送れます。右に「品目」「勘定科目（候補）」があります。「確かめる点」は、いつも右端に出ています。</p>
     <div class="tablewrap">
@@ -129,7 +129,7 @@
       <div class="opts opts-2" id="acct-opts" role="radiogroup" aria-label="会計ソフトの形式">
         <label class="opt">
           <input type="radio" name="style" value="yayoi">
-          <span class="opt-name"><b>弥生会計の形式</b><small>（弥生インポート形式。マネーフォワード クラウド会計でも取り込めます）</small><span class="badge yellow unverified" data-format="yayoi">取り込み未確認</span></span>
+          <span class="opt-name"><b>弥生会計の形式</b><small>（弥生インポート形式。マネーフォワード クラウド会計でも使う形式）</small><span class="badge yellow unverified" data-format="yayoi">取り込み未確認</span></span>
           <span class="ms" aria-hidden="true">
             <span class="ms-row ms-head c-yay"><i>識別</i><i>取引日付</i><i>借方勘定科目</i><i>借方税区分</i><i>…</i></span>
             <span class="ms-row c-yay"><i>2000</i><i></i><i></i><i class="t">課対仕入込10%適格</i><i></i></span>
@@ -148,7 +148,10 @@
           </span>
         </label>
       </div>
+      <ul class="notice warn" id="style-cautions" hidden></ul>
       <p class="small-note" id="style-note"></p>
+      <!-- 会計ソフトの形式で出さないレシート・確かめてほしいレシート。ダウンロードのボタンより先に出しておく -->
+      <div class="notice warn mt12" id="excluded" hidden></div>
       <div class="row mt10 exportbar">
         <label id="credit-label" hidden>貸方科目の既定
           <select id="credit"><option>現金</option><option>普通預金</option><option>未払金</option><option>事業主借</option></select>
@@ -159,8 +162,7 @@
         <button type="button" class="primary btn-xl" id="export">Excelをダウンロード</button>
         <p class="made" id="made" role="status" hidden></p>
       </div>
-      <!-- 会計ソフトの形式で出さなかった行（未確定・要確認）。ダウンロードの前から出しておく -->
-      <div class="notice warn mt12" id="excluded" hidden></div>
+
       <p class="notice plain mt12">電子帳簿保存法のスキャナ保存の要件を満たす仕組みではありません。原本の保存は今までどおりお願いします。</p>
     </section>
 

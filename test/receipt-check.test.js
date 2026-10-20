@@ -85,6 +85,13 @@ test('validateReceipt：形が崩れていたら例外（再試行の合図）',
   assert.throws(() => validateReceipt({ ...goodReceipt, total: 'たくさん' }), /schema/);
 });
 
+test('validateReceipt：全角かっこの科目（車両費（燃料））も候補の一覧と一致する', () => {
+  const base2 = { is_receipt: true, date: '2026-10-01', payee: 'あおぞらGS', total: 6200, amount_10: 6200, amount_8: null, tax_amount: 564, invoice_no: '', payment_method: '現金', summary: '給油', account_reason: '', confidence: { date: '高', payee: '高', total: '高', tax: '高', invoice_no: '高', account: '高' } };
+  assert.equal(validateReceipt({ ...base2, account: '車両費（燃料）' }).account, '車両費（燃料）');
+  assert.equal(validateReceipt({ ...base2, account: '車両費(燃料)' }).account, '車両費（燃料）');
+  assert.equal(validateReceipt({ ...base2, account: '知らない科目' }).account, '');
+});
+
 test('validateTimecard', () => {
   const v = validateTimecard({ employee_name: ' 青木 一郎 ', entries: [{ date: '2026-09-01', start: '9:00', end: '18時00分', break_min: '60' }] });
   assert.deepEqual(v.entries[0], {

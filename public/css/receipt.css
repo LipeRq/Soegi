@@ -96,9 +96,10 @@ h2 small { display: inline-block; font-family: var(--sans); font-size: 14px; fon
 #tbl .badge.ok.fresh { animation: pop var(--t) var(--ease) both; }
 #tbl button.small { min-height: 44px; min-width: 56px; white-space: nowrap; }
 /* 勘定科目の「確定」（会計ソフトの形式で出すのは、確定した行だけ） */
-#tbl label.confirm { min-height: 44px; font-size: 14px; color: var(--ink); cursor: pointer; }
-#tbl label.confirm input { width: 22px; height: 22px; min-height: 0; margin: 0; padding: 0; border: 0; background: none; accent-color: var(--accent); }
-#tbl label.confirm:has(input:disabled) { color: var(--ink-3); cursor: default; }
+#tbl label.acct-confirm { min-height: 44px; font-size: 14px; color: var(--ink); cursor: pointer; }
+#tbl label.acct-confirm input { width: 22px; height: 22px; min-height: 0; margin: 0; padding: 0; border: 0; background: none; accent-color: var(--accent); }
+#tbl label.acct-confirm input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: none; }
+#tbl label.acct-confirm:has(input:disabled) { color: var(--ink-3); cursor: default; }
 #rows tr.in { animation: rise var(--t-slow) var(--ease) both; }
 .thumb-sm:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
@@ -145,6 +146,15 @@ h2 small { display: inline-block; font-family: var(--sans); font-size: 14px; fon
 .opts-h:first-of-type { margin-top: 4px; }
 .opts.opts-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .opt .unverified { display: inline-block; margin-top: 4px; }
+/* 見本の表の税区分（いちばん見せたい所）は、切らずに折り返す */
+.ms-row.c-yay > i.t, .ms-row.c-fre > i.t { white-space: normal; overflow: visible; text-overflow: clip; word-break: break-all; line-height: 1.3; }
+#style-cautions { margin: 12px 0 0; padding: 8px 14px 8px 34px; }
+#style-cautions::before { display: none; } /* 点は、項目ごとの印で出す */
+#style-cautions li { margin: 2px 0; }
+#style-cautions li::marker { color: var(--warn-ink); }
+#excluded > button { margin: 4px 0 6px; min-height: 44px; }
+/* ボタンの言葉は、まとまり（「取り込み用のファイルを」「ダウンロード」）の間でだけ折り返す */
+#export span { display: inline-block; white-space: nowrap; }
 #excluded ul { margin: 4px 0 0; padding-left: 1.2em; }
 .ms-row > i { padding: 3px 4px; min-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-right: 1px solid var(--line-2); }
 .ms-row > i:last-child { border-right: 0; }
