@@ -30,19 +30,27 @@
 /* 写真：選んだ写真の一覧（外せる） */
 .pfiles { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .pfiles:empty { display: none; }
-.pfiles li { display: inline-flex; align-items: center; gap: 4px; padding: 0 0 0 12px; background: var(--sunk); border-radius: var(--r-pill); font-size: 14px; }
+.pfiles li { display: inline-flex; align-items: center; gap: 6px; padding: 0 0 0 12px; background: var(--sunk); border-radius: var(--r-pill); font-size: 14px; }
+.pfiles li button { min-width: 44px; }
+/* 読み取りの状態：写真ごとに言葉で出す（待ち／読み取り中／済／読めず） */
+.pfiles .pst { font-size: 13px; font-weight: 700; padding: 0 8px; border-radius: var(--r-pill); background: var(--sunk-2); color: var(--ink-2); }
+.pfiles li[data-state=reading] .pst { background: var(--accent-soft); color: var(--accent-ink); }
+.pfiles li[data-state=done] .pst { background: var(--leaf-soft); color: var(--leaf); }
+.pfiles li[data-state=error] .pst { background: var(--red-bg); color: var(--danger); }
+#ptext { font-size: 14px; color: var(--ink-2); }
 
 #photobox { margin-top: 10px; }
 #photobox .legend { margin: 0 0 8px; }
 /* 直す前 → 直した後（同じ計算エンジン） */
-.photodiff:empty { display: none; }
+.photodiff .notice { margin: 0 0 8px; }
 .photodiff { margin: 0 0 12px; padding: 10px 14px; background: var(--sunk); border-radius: var(--r); }
 .photodiff .small-note { margin: 0 0 6px; }
 .photodiff table.diff { width: 100%; border-collapse: collapse; background: none; font-size: 14px; }
 .photodiff th, .photodiff td { border: 0; border-bottom: 1px solid var(--line-2); padding: 6px 8px; text-align: left; background: none; }
 .photodiff td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.photodiff tr.changed td { background: var(--warn-bg); }
-.photodiff .chg { margin-left: 8px; font-size: 13px; color: var(--warn-ink); }
+/* 変わった人：注意の黄ではなく、知らせの色（色の意味をずらさない） */
+.photodiff tr.changed td { background: var(--accent-soft); }
+.photodiff .chg:not(:empty) { margin-left: 8px; font-size: 13px; color: var(--accent-ink); }
 .photodiff tr.flash { animation: flash 1.2s ease-out; }
 
 #phototable th, #phototable td { border-width: 0 0 1px; padding: 6px; vertical-align: top; }
@@ -61,6 +69,13 @@
 #phototable small.calc { display: block; margin-top: 2px; font-size: 12px; color: var(--ink-3); white-space: nowrap; }
 #phototable small.calc:empty { display: none; }
 #phototable td.rowflag { min-width: 220px; }
+#phototable .flag { font-size: 14px; } /* 確かめる点の文は、読ませる文なので14px */
+@media (min-width: 761px) {
+  /* 表を横に送っても「確かめる点」が見えるよう、右に貼り付ける（経理の表と同じ） */
+  #phototable .rowflag { position: sticky; right: 0; z-index: 1; background: var(--tile); border-left: 2px solid var(--line); }
+  #phototable th.rowflag { background: var(--sunk); }
+  #photobox .tablewrap { scroll-padding-right: 240px; }
+}
 #phototable td:last-child { width: 1%; }
 #phototable td:last-child button { white-space: nowrap; min-height: 44px; }
 #photobox > label.inline { margin: 0 0 6px; }
@@ -81,7 +96,7 @@
   .photodiff tr { padding: 6px 0; border-bottom: 1px solid var(--line-2); }
   .photodiff td { border: 0; padding: 2px 4px; }
   .photodiff td:first-child { font-weight: 700; }
-  .photodiff td:not(:first-child)::before { content: attr(data-label) "　"; color: var(--ink-3); font-size: 13px; font-family: var(--sans); }
+  .photodiff td:not(:first-child)::before { content: attr(data-label) "　"; display: block; color: var(--ink-3); font-size: 13px; font-family: var(--sans); }
 }
 
 /* ---- 設定と「計算する」：白い面にしない。ボタンだけを大きくする ------------------------- */
