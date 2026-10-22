@@ -314,3 +314,32 @@ test('結果の Excel：一覧・人ごと・色を付けたシフト表・使�
   await back.xlsx.load(buf);
   assert.equal(back.worksheets.length, 4);
 });
+
+test('レビューで直したこと：年月の読み取り・31日の列・氏名の無い行・集計の行・準夜', () => {
+  // 題名の「2026年11月」を先に。「作成」の日付は年月とみない
+  assert.equal(detectPeriod([['2026年11月勤務表（作成 2026/10/20）'], ['氏名', '1', '2']]), '2026-11');
+  assert.equal(detectPeriod([['作成日 2026/10/20'], ['2026年11月 勤務表'], ['氏名', '1', '2']]), '2026-11');
+  assert.equal(detectPeriod([['作成日 2026/10/20'], ['氏名', '1', '2']]), null);
+  // 31日の列があるのに30日の月：知らせる
+  const hdr = ['氏名', ...Array.from({ length: 31 }, (_, i) => String(i + 1))];
+  const r1 = readShiftTable([hdr, ['A', ...Array(31).fill('日')]], PERIOD);
+  assert.match(r1.errors[0], /31日の列がありますが、2026年11月は30日までです/);
+  assert.equal(r1.grid.people[0].cells.length, 30);
+  // 氏名が空で記号がある行は知らせる。「合計」「人数」の行・「曜 日」の行は人にしない。「職員」の列より「氏名」の列
+  const h2 = ['職員', '氏名', ...Array.from({ length: 30 }, (_, i) => String(i + 1))];
+  const r2 = readShiftTable([h2, ['1', 'A', ...Array(30).fill('日')], ['2', '', ...Array(30).fill('早')], ['', '合計', ...Array(30).fill('2人')], ['', '曜 日', ...Array(30).fill('月')], ['', '人数', ...Array(30).fill('-')]], PERIOD);
+  assert.deepEqual(r2.grid.people.map((p) => p.name), ['A']);
+  assert.ok(r2.notes.some((n) => /氏名が空で、記号が入っている行を読み飛ばしました（3行目）/.test(n)));
+  assert.ok(r2.notes.some((n) => /合計・人数/.test(n)));
+  // 0時台に終わる準夜の翌日の休みは出さない（朝まで続く夜勤は出す）
+  const symbols = [...DEFAULT_SYMBOLS, { code: '準', name: '準夜', start: '16:30', end: '01:00', kind: 'work' }];
+  const noNeeds = { weekday: {}, holiday: {} };
+  const g = { period: PERIOD, people: [{ name: 'A', cells: Array(N).fill('休') }] };
+  g.people[0].cells[4] = '準';
+  assert.ok(!kinds(run(g, { symbols, needs: noNeeds, rules: { minHolidays: 0 } })).includes('nightoff'));
+  g.people[0].cells[4] = '夜';
+  assert.ok(kinds(run(g, { symbols, needs: noNeeds, rules: { minHolidays: 0 } })).includes('nightoff'));
+  // 準夜のあとの「明」は、前の日に夜勤が無いとは言わない
+  g.people[0].cells[4] = '準'; g.people[0].cells[5] = '明';
+  assert.ok(!kinds(run(g, { symbols, needs: noNeeds, rules: { minHolidays: 0 } })).includes('orphan'));
+});

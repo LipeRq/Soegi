@@ -64,6 +64,7 @@ export const JP_HOLIDAYS = [
   '2027-07-19', '2027-08-11', '2027-09-20', '2027-09-23', '2027-10-11', '2027-11-03', '2027-11-23',
 ];
 
+const NIGHT_END = 4 * 60; // 翌朝4時より後まで続く勤務を「夜勤」とみる（夜勤の次の日が休日だと黄）
 const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
 const pad = (n) => String(n).padStart(2, '0');
 /** "7:00"・"07:00" → 分。終わりの "24:00" も読む */
@@ -250,12 +251,14 @@ export function checkShift(grid, settings = {}) {
       if (x.unknown) out.unknowns += 1;
       const kind = x.sym?.kind;
       // 夜勤（0時をまたぐ勤務）の次の日。前の月の最後の日は表に無いので、1日は確かめない
-      const afterNight = di > 0 && sh[di - 1].end != null && sh[di - 1].end > di * 1440;
+      // 夜勤の次の日（朝4時より後まで続く勤務）。0時台に終わる準夜などは、翌日をほぼ丸1日休めるので出さない
+      const afterNight = di > 0 && sh[di - 1].end != null && sh[di - 1].end > di * 1440 + NIGHT_END;
+      const overMidnight = di > 0 && sh[di - 1].end != null && sh[di - 1].end > di * 1440;
       if (kind === 'off' && afterNight) {
         flagCell(pi, day, 'yellow', 'nightoff', '夜勤の次');
         add({ level: 'yellow', kind: 'nightoff', person: p.name, pi, day, text: `${p.name}さん ${dayLabel(days[di])}：夜勤の次の日が「${normCode(x.sym.code)}」です（夜勤が朝まで続くので、丸1日の休みになりません。「明」にするか、確かめてください）` });
       }
-      if (kind === 'after' && di > 0 && !afterNight) {
+      if (kind === 'after' && di > 0 && !overMidnight) {
         flagCell(pi, day, 'yellow', 'orphan', '前に夜勤なし');
         add({ level: 'yellow', kind: 'orphan', person: p.name, pi, day, text: `${p.name}さん ${dayLabel(days[di])}：夜勤明けですが、前の日に夜勤がありません` });
       }
@@ -331,13 +334,14 @@ export const worstOf = (flags = []) => (flags.some((f) => f.level === 'red') ? '
 
 // ---- 表（CSV・Excel）から読む -------------------------------------------------------------
 
+const NAME_HEAD_EXACT = /^(氏名|名前)$/;
 const NAME_HEAD = /^(氏名|名前|職員名?|スタッフ名?|従業員名?)$/;
 const NAME_HEAD_LOOSE = /氏名|名前/;
 const clean = (v) => String(v ?? '').normalize('NFKC').replace(/\s+/g, '');
 
 /** 見出しの行と、氏名の列 */
 function findHeader(rows) {
-  for (const re of [NAME_HEAD, NAME_HEAD_LOOSE]) {
+  for (const re of [NAME_HEAD_EXACT, NAME_HEAD, NAME_HEAD_LOOSE]) {
     for (let r = 0; r < Math.min(rows.length, 20); r++) {
       const c = rows[r].findIndex((v) => !(v instanceof Date) && re.test(clean(v)));
       if (c >= 0) return { head: r, nameCol: c };
@@ -352,16 +356,19 @@ export const hasShiftHeader = (rows) => findHeader(rows) != null;
 /** 表の見出し・題名から、対象の年月を探す（2026/11/1・Excel の日付・「2026年11月」）。無ければ null */
 export function detectPeriod(rows) {
   const f = findHeader(rows);
-  const scan = rows.slice(0, (f?.head ?? 4) + 1);
-  for (const row of scan) {
-    for (const v of row) {
-      if (v instanceof Date && !Number.isNaN(v.getTime())) return `${v.getUTCFullYear()}-${pad(v.getUTCMonth() + 1)}`;
-      const t = clean(v);
-      let r = t.match(/(20\d{2})[-/.](\d{1,2})[-/.]\d{1,2}/);
-      if (r && +r[2] >= 1 && +r[2] <= 12) return `${r[1]}-${pad(+r[2])}`;
-      r = t.match(/(20\d{2})年(\d{1,2})月/);
-      if (r && +r[2] >= 1 && +r[2] <= 12) return `${r[1]}-${pad(+r[2])}`;
-    }
+  const cells = rows.slice(0, (f?.head ?? 4) + 1).flat();
+  const ok = (m) => +m >= 1 && +m <= 12;
+  // 題名の「2026年11月」を先に。次に Excel の日付・「2026/11/1」（「作成日 2026/10/20」などは年月とみない）
+  for (const v of cells) {
+    const r = clean(v).match(/(20\d{2})年(\d{1,2})月/);
+    if (r && ok(r[2])) return `${r[1]}-${pad(+r[2])}`;
+  }
+  for (const v of cells) {
+    if (v instanceof Date && !Number.isNaN(v.getTime())) return `${v.getUTCFullYear()}-${pad(v.getUTCMonth() + 1)}`;
+    const t = clean(v);
+    if (/作成|印刷|更新|出力|提出|発行|記入/.test(t)) continue;
+    const r = t.match(/(20\d{2})[-/.](\d{1,2})[-/.]\d{1,2}/);
+    if (r && ok(r[2])) return `${r[1]}-${pad(+r[2])}`;
   }
   return null;
 }
@@ -383,13 +390,14 @@ export function readShiftTable(rows, period) {
   if (!f) return { grid: empty, errors: ['見出しの行（「氏名」の列）が見つかりません'], notes };
   const header = rows[f.head];
   const dayCol = new Map();
+  const extraDays = []; // この月に無い日（31日の列など）
   header.forEach((c, i) => {
     if (i === f.nameCol) return;
     let d = null;
     if (c instanceof Date) { if (c.getUTCFullYear() === y && c.getUTCMonth() + 1 === m) d = c.getUTCDate(); } else {
       const t = clean(c);
       let r;
-      if ((r = t.match(/^(\d{1,2})日?(\(.\))?$/))) d = +r[1];
+      if ((r = t.match(/^(\d{1,2})日?(\(.\))?$/))) { d = +r[1]; if (d > N && d <= 31) extraDays.push(d); }
       else if ((r = t.match(/^(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})日?(\(.\))?$/))) d = +r[1] === y && +r[2] === m ? +r[3] : null;
       else if ((r = t.match(/^(\d{1,2})[/.月](\d{1,2})日?(\(.\))?$/))) d = +r[1] === m ? +r[2] : null;
     }
@@ -398,18 +406,23 @@ export function readShiftTable(rows, period) {
   if (dayCol.size === 0) return { grid: empty, errors: [`${y}年${m}月の日付の列が見つかりません（見出しの行に 1〜${N} か日付を入れてください）`], notes };
   const missing = Array.from({ length: N }, (_, i) => i + 1).filter((d) => !dayCol.has(d));
   if (missing.length) errors.push(`日付の列が無い日があります：${missing.join('・')}日（空として扱います）`);
+  if (extraDays.length) errors.push(`表に${[...new Set(extraDays)].join('・')}日の列がありますが、${y}年${m}月は${N}日までです（その列は読んでいません。対象の年月は合っていますか）`);
   const people = [];
-  const skippedTotals = []; const skippedEmpty = [];
+  const skippedTotals = []; const skippedEmpty = []; const skippedNoName = [];
+  const rowNo = (r) => rows.indexOf(r) + 1;
   for (const r of rows.slice(f.head + 1)) {
     const name = String(r[f.nameCol] ?? '').normalize('NFKC').replace(/\s+/g, ' ').trim();
-    if (!name || /^曜日?$/.test(name)) continue;
     const cells = Array.from({ length: N }, (_, i) => (dayCol.has(i + 1) ? String(r[dayCol.get(i + 1)] ?? '').normalize('NFKC').trim() : ''));
     const filled = cells.filter(Boolean);
+    if (!name) { if (filled.length) skippedNoName.push(`${rowNo(r)}`); continue; }
+    if (/^曜/.test(clean(name))) continue; // 曜日の行
     if (!filled.length) { skippedEmpty.push(name); continue; }
-    if (filled.every((v) => /^\d+(\.\d+)?$/.test(v))) { skippedTotals.push(name); continue; }
+    // 集計の行：数だけ・数と「-」だけの行、氏名が「合計」「○の人数」などの行
+    if (filled.every((v) => /^[\d.\-－ー]+$/.test(v)) || /^(合計|総計|小計|計|人数|.*の人数|.*人数計)$/.test(clean(name))) { skippedTotals.push(name); continue; }
     people.push({ name, cells });
   }
-  if (skippedTotals.length) notes.push(`数だけの行は、人数の集計の行とみて読み飛ばしました：${skippedTotals.join('・')}`);
+  if (skippedTotals.length) notes.push(`人数の集計の行（数だけの行・「合計」「○の人数」の行）は読み飛ばしました：${skippedTotals.join('・')}`);
+  if (skippedNoName.length) notes.push(`氏名が空で、記号が入っている行を読み飛ばしました（${skippedNoName.join('・')}行目）。氏名を入れて読み込み直してください`);
   if (skippedEmpty.length) notes.push(`記号が1つも無い行を読み飛ばしました：${skippedEmpty.join('・')}`);
   if (people.length > MAX_PEOPLE) { notes.push(`${people.length}人のうち、上から${MAX_PEOPLE}人を読みました`); people.length = MAX_PEOPLE; }
   if (!people.length) errors.push('氏名と記号の入った行がありません');
