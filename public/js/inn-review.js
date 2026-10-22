@@ -140,11 +140,13 @@ async function setupFree(cfg) {
   if (cfg.innFreePerDay) $('rv-free-per-day').textContent = String(cfg.innFreePerDay);
   if (cfg.innReviewMax) { $('rv-free-max').textContent = String(cfg.innReviewMax); $('rv-free-text').maxLength = cfg.innReviewMax; }
   if (!cfg.turnstileSiteKey) { $('rv-free-body').hidden = true; $('rv-free-off').hidden = false; return; }
-  // 開くまで置かない（隠れたままだと、ウィジェットの大きさが決まらないことがある）
-  $('rv-free').addEventListener('toggle', async () => {
+  // 開くまで置かない（隠れたままだと、ウィジェットの大きさが決まらないことがある）。設定を読む前に開かれていたら、いま置く
+  const place = async () => {
     if (!$('rv-free').open || turnstile) return;
     try { turnstile = await mountTurnstile('#turnstile-rv', cfg.turnstileSiteKey); } catch { $('rv-free-note').textContent = 'ロボット対策の部品を読み込めませんでした。再読み込みしてお試しください'; }
-  });
+  };
+  $('rv-free').addEventListener('toggle', place);
+  place();
 }
 
 $('rv-free-go').addEventListener('click', () => {

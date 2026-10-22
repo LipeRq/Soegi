@@ -283,6 +283,7 @@ function setTab(which, focus = false) {
     $(`tab-${k}`).tabIndex = k === which ? 0 : -1;
     $(`pane-${k}`).hidden = k !== which;
   }
+  setStep(1); // 3段階の表示は2つのタブで共有。切り替えたら、はじめに戻す
   $('step1-label').textContent = which === 'review' ? '口コミを選ぶ' : '問い合わせを選ぶ';
   if (focus) $(`tab-${which}`).focus();
   history.replaceState(null, '', which === 'review' ? '#review' : location.pathname);
@@ -292,6 +293,7 @@ $('tab-review').addEventListener('click', () => setTab('review'));
 for (const k of ['inquiry', 'review']) {
   $(`tab-${k}`).addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); setTab(k === 'inquiry' ? 'review' : 'inquiry', true); }
+    if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); setTab(e.key === 'Home' ? 'inquiry' : 'review', true); }
   });
 }
 $('tab-review').tabIndex = -1;
