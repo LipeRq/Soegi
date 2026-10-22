@@ -45,6 +45,23 @@ export const RECORDS = {
       ['確認・直しにかかった分（1週間）', `SUMIF(${c[0]},"確認",${c[2]})+SUMIF(${c[0]},"直し",${c[2]})`, '分'],
     ],
   },
+  shift: {
+    perDay: 3,
+    hint: 'シフト表づくりは月に1回の作業です。この1週間に無ければ、前の月のシフト表を確かめた・組み直した分を書いてください。',
+    cols: [
+      { header: '作業', width: 12, type: 'list', list: ['作る', '確かめる', '組み直す'] },
+      { header: 'シフト表（部署）', width: 16, type: 'text' },
+      { header: 'かかった分', width: 11, type: 'num', sum: true },
+      { header: '見つけた問題（件）', width: 15, type: 'num', sum: true },
+      { header: 'メモ', width: 26, type: 'text' },
+    ],
+    summary: (c) => [
+      ['確かめたシフト表の数', `COUNTIF(${c[0]},"確かめる")`, '表', 'count'],
+      ['確かめる・組み直すにかかった分', `SUMIF(${c[0]},"確かめる",${c[2]})+SUMIF(${c[0]},"組み直す",${c[2]})`, '分'],
+      ['1つのシフト表あたりの分', `IFERROR(ROUND((SUMIF(${c[0]},"確かめる",${c[2]})+SUMIF(${c[0]},"組み直す",${c[2]}))/COUNTIF(${c[0]},"確かめる"),1),"")`, '分', 'before'],
+      ['見つけた問題の件数', `SUM(${c[3]})`, '件'],
+    ],
+  },
   order: {
     perDay: 8,
     cols: [

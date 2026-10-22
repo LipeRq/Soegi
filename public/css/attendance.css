@@ -99,18 +99,7 @@
   .photodiff td:not(:first-child)::before { content: attr(data-label) "　"; display: block; color: var(--ink-3); font-size: 13px; font-family: var(--sans); }
 }
 
-/* ---- 設定と「計算する」：白い面にしない。ボタンだけを大きくする ------------------------- */
-.setup { padding: 0 20px; margin: 16px 0 6px; }
-.setup h2 { font-size: 15px; color: var(--ink-2); margin: 0; }
-.setup summary { width: fit-content; max-width: 100%; gap: 10px; font-size: 14px; color: var(--ink-2); border-radius: var(--r-sm); list-style: none; }
-.setup summary::-webkit-details-marker { display: none; }
-/* 開く・閉じるの印（開くと下を向く） */
-.setup summary::before { content: ""; flex: none; width: 8px; height: 8px; margin: 0 2px 0 4px; border: solid var(--ink-2); border-width: 0 2px 2px 0; transform: rotate(-45deg); transition: transform var(--t) var(--ease); }
-.setup details[open] > summary::before { transform: rotate(45deg); }
-.setup summary:hover { color: var(--ink); }
-.setup .panel { margin-top: 4px; background: var(--tile); border-radius: var(--r); padding: 4px 16px 10px; box-shadow: var(--shadow); animation: rise var(--t) var(--ease) both; }
-.setup .panel input, .setup .panel select { width: 100%; }
-.setup .panel .small-note { margin: 10px 0 0; }
+/* ---- 設定と「計算する」：設定の面（.setup）は style.css の共通の部品。ボタンだけを大きくする ---- */
 #calc { padding: 12px 44px; font-family: var(--display); letter-spacing: .06em; }
 /* 押せるようになったら、ボタンのまわりに輪を3回だけ出して「次はここ」と知らせる */
 #calc:enabled { animation: ring 1.6s ease-out 3; }

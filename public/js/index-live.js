@@ -109,6 +109,30 @@ function orders() {
   });
 }
 
+/** 労務：シフト表を左の日から確かめていき、赤・黄のマスに言葉が出る（下の一文は、最後に見つけた問題） */
+function shifts() {
+  const box = $('live-sf');
+  const rows = Array.from(box.querySelectorAll('tbody tr')).map((tr) => Array.from(tr.querySelectorAll('td')));
+  const flagged = rows.flat().filter((td) => td.dataset.note);
+  loop(box, 4400, async () => {
+    flagged.forEach((td) => td.classList.add('off'));
+    for (let c = 0; c < rows[0].length; c += 1) {
+      rows.forEach((r) => r[c].classList.add('scan'));
+      await sleep(650);
+      rows.forEach((r) => {
+        const td = r[c];
+        td.classList.remove('scan');
+        if (!td.classList.contains('off')) return;
+        td.classList.remove('off');
+        $('sf-note').textContent = td.dataset.note;
+        $('sf-chip').className = `chip ${td.classList.contains('r') ? 'r' : 'y'}`;
+        $('sf-chip').textContent = td.classList.contains('r') ? '要確認' : '注意';
+      });
+    }
+    await sleep(3800);
+  });
+}
+
 function overtime() {
   const box = $('live-ot');
   loop(box, 6000, async () => { replay(box); await sleep(6500); });
@@ -187,5 +211,5 @@ function bot() {
 
 export function startLive() {
   if (reduced()) return;
-  receipts(); overtime(); orders(); knowledge(); foreign(); inn(); bot();
+  receipts(); overtime(); orders(); shifts(); knowledge(); foreign(); inn(); bot();
 }

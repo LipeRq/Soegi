@@ -24,6 +24,7 @@
     <nav class="jump" aria-label="デモへ移動">
       <a class="btn" href="/receipt.html" data-lock>経理：レシート → Excel</a>
       <a class="btn" href="/attendance.html" data-lock>労務：残業の集計</a>
+      <a class="btn" href="/shift.html" data-lock>労務：シフト表のチェック</a>
       <a class="btn" href="/order.html" data-lock>受注：注文書 → 受注データ</a>
       <a class="btn" href="/knowledge.html" data-lock>社内ナレッジ検索</a>
       <a class="btn" href="/knowledge.html#foreign" data-lock>外国人スタッフ向け</a>
@@ -89,7 +90,7 @@
           </div>
           <span class="go">試す</span>
         </a>
-        <a class="tile w6" href="/order.html" data-lock>
+        <a class="tile w4" href="/order.html" data-lock>
           <h3 class="vt-order">受注：FAX・紙の注文書 → 受注データ</h3>
           <p>取引先ごとに違う様式のまま読み、商品マスタと照らし合わせて受注一覧に</p>
           <div class="live rc od" id="live-od" aria-hidden="true">
@@ -113,6 +114,23 @@
               <div class="prog"><i id="od-prog"></i></div>
               <div class="pl"><span>照らし合わせ</span><span><b id="od-cnt">4</b> / 4 行</span></div>
             </div>
+          </div>
+          <span class="go">試す</span>
+        </a>
+        <a class="tile w2" href="/shift.html" data-lock>
+          <h3 class="vt-shift">労務：シフト表のチェック</h3>
+          <p>人が足りない時間帯・連勤・希望休とのぶつかりを、すぐに見つける</p>
+          <div class="live sf" id="live-sf" aria-hidden="true">
+            <table class="mini sg">
+              <thead><tr><th></th><th>18<small>水</small></th><th>19<small>木</small></th><th>20<small>金</small></th><th>21<small>土</small></th><th>22<small>日</small></th></tr></thead>
+              <tbody>
+                <tr><th>佐藤</th><td>明</td><td>休</td><td>休</td><td>早</td><td>早</td></tr>
+                <tr><th>加藤</th><td>遅</td><td class="y" data-note="加藤さん 19日：遅番の次の日に早番（間9時間）">早<i>間9時間</i></td><td>夜</td><td>明</td><td>休</td></tr>
+                <tr><th>渡辺</th><td>日</td><td>休</td><td class="r" data-note="渡辺さん 20日：希望休の日に遅番">遅<i>希望休</i></td><td>遅</td><td>夜</td></tr>
+                <tr><th>小林</th><td>早</td><td>日</td><td>日</td><td>遅</td><td class="y" data-note="小林さん：17日〜23日の7連勤（上限5日）">遅<i>6連勤</i></td></tr>
+              </tbody>
+            </table>
+            <p class="sfnote"><span class="chip y" id="sf-chip">注意</span> <span id="sf-note">小林さん：17日〜23日の7連勤（上限5日）</span></p>
           </div>
           <span class="go">試す</span>
         </a>

@@ -52,6 +52,16 @@ export const DEMOS = {
     hours: (v) => (v.count * v.perPerson - v.after) / 60,
     measures: ['集計にかかった時間', '45時間を超えそうだった人数と、月中に気づけた回数'],
   },
+  shift: {
+    name: '労務：シフト表のチェック', menu: 'manual', industry: 'care',
+    inputs: [
+      { key: 'count', label: '毎月、確かめるシフト表の数（部署・ユニット）', unit: '表', def: 3, min: 0, max: 1000, step: 1 },
+      { key: 'before', label: '1つのシフト表を目で確かめる時間', unit: '分', def: 120, min: 0, max: 1440, step: 10 },
+      { key: 'after', label: '導入後の1つの時間（直すところを見るだけ）', unit: '分', def: 20, min: 0, max: 1440, step: 5 },
+    ],
+    hours: (v) => (v.count * (v.before - v.after)) / 60,
+    measures: ['1つのシフト表を確かめる時間', '見つかった不足・連勤・ぶつかりの件数', 'シフトを出したあとの組み直しの回数'],
+  },
   order: {
     name: '受注：FAX・紙の注文書 → 受注データ', menu: 'manual', industry: 'food',
     inputs: [

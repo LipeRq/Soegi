@@ -170,12 +170,7 @@ h2 small { display: inline-block; font-family: var(--sans); font-size: 14px; fon
 #style-note { margin: 12px 0 0; font-size: 14px; color: var(--ink-2); }
 #style-note.swap { animation: rise var(--t) var(--ease) both; }
 .exportbar { align-items: flex-end; margin-top: 14px; }
-/* 作り終えた知らせ：緑の印と、できたファイルの名前 */
-.made { position: relative; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0 8px; align-self: center; margin: 0; padding: 6px 16px 6px 40px; background: var(--leaf-soft); border-radius: var(--r-pill); font-weight: 700; overflow-wrap: anywhere; }
-.made::before { content: ""; position: absolute; left: 8px; top: 50%; width: 24px; height: 24px; margin-top: -12px; border-radius: 50%; background: var(--leaf); }
-.made::after { content: ""; position: absolute; left: 15px; top: 50%; width: 10px; height: 5px; margin-top: -5px; border-left: 2.5px solid var(--tile); border-bottom: 2.5px solid var(--tile); transform: rotate(-45deg); }
-.made .fn { font-family: var(--mono); font-weight: 500; }
-.made.in { animation: pop var(--t) var(--ease) both; }
+/* 作り終えた知らせ（.made）は style.css の共通の部品 */
 
 /* 御社の場合：別の面にして、Excel の操作と混ざらないようにする */
 .yours h3 { margin: 0 0 12px; font-size: clamp(19px, 2.4vw, 22px); }
@@ -207,5 +202,4 @@ h2 small { display: inline-block; font-family: var(--sans); font-size: 14px; fon
   .opt:not(:has(input:checked)) .ms { display: none; }
   .opt:has(input:checked) { transform: none; }
   .exportbar #export { flex: 1 1 100%; }
-  .made { border-radius: var(--r-md); }
 }

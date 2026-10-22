@@ -62,6 +62,7 @@ a { color: var(--accent); text-underline-offset: 3px; }
 .vt-inn { view-transition-name: vt-inn; }
 .vt-chatbot { view-transition-name: vt-chatbot; }
 .vt-order { view-transition-name: vt-order; }
+.vt-shift { view-transition-name: vt-shift; }
 
 /* ---- 動きの部品（/js/motion.js と組で使う） ------------------------------------------ */
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
@@ -154,7 +155,7 @@ button.link { border: 0; background: none; color: var(--accent); padding: 4px 6p
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .row.gap-lg { gap: 20px; }
 .mt8 { margin-top: 8px; } .mt10 { margin-top: 10px; } .mt12 { margin-top: 12px; } .mt14 { margin-top: 14px; }
-input[type=text], input[type=password], input[type=number], input[type=month], select, textarea {
+input[type=text], input[type=password], input[type=number], input[type=month], input[type=time], select, textarea {
   font: inherit; padding: 8px 12px; min-height: 44px; border: 1.5px solid var(--field); border-radius: var(--r-sm); background: #fff; color: var(--ink); max-width: 100%;
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
@@ -254,6 +255,12 @@ footer.site .wrap { padding-bottom: 0; }
 .tabs button:hover { background: rgba(255, 255, 255, .6); }
 .tabs button[aria-selected=true] { background: var(--accent-soft); color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--accent); font-weight: 700; }
 section.card .tabs { background: var(--sunk); }
+/* ---- 画面の切り替え（労務：打刻の集計／シフト表のチェック）：タブと同じ押し込み式。いまの画面は aria-current ---- */
+.switch { display: inline-flex; gap: 4px; padding: 4px; margin: 10px 0 0; flex-wrap: wrap; background: var(--sunk-2); border-radius: var(--r); max-width: 100%; }
+.switch a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 6px 18px; border-radius: var(--r-sm); color: var(--ink-2); text-decoration: none; font-size: 14px; transition: background var(--t-fast), color var(--t-fast); }
+.switch a:hover { background: rgba(255, 255, 255, .6); color: var(--ink); }
+.switch a[aria-current=page] { background: var(--accent-soft); color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--accent); font-weight: 700; }
+@media (max-width: 560px) { .switch { display: flex; } .switch a { flex: 1 1 0; padding: 6px 8px; } }
 .settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 10px; }
 .mapgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 10px 0; }
 details summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
@@ -434,6 +441,26 @@ ul.errs { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
 .sample[aria-pressed=true] .sample-name::before { content: "✓ 入れました"; display: block; font-size: 12px; color: var(--accent-ink); }
 .sample-all { grid-column: 1 / -1; justify-self: start; min-height: 44px; padding: 4px 6px; }
 @media (max-width: 760px) { .samples { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- 設定（労務：打刻の集計・シフト表のチェック）：白い面にしない。開くと白い面 ---------- */
+.setup { padding: 0 20px; margin: 16px 0 6px; }
+.setup h2 { font-size: 15px; color: var(--ink-2); margin: 0; }
+.setup summary { width: fit-content; max-width: 100%; gap: 10px; font-size: 14px; color: var(--ink-2); border-radius: var(--r-sm); list-style: none; }
+.setup summary::-webkit-details-marker { display: none; }
+/* 開く・閉じるの印（開くと下を向く） */
+.setup summary::before { content: ""; flex: none; width: 8px; height: 8px; margin: 0 2px 0 4px; border: solid var(--ink-2); border-width: 0 2px 2px 0; transform: rotate(-45deg); transition: transform var(--t) var(--ease); }
+.setup details[open] > summary::before { transform: rotate(45deg); }
+.setup summary:hover { color: var(--ink); }
+.setup .panel { margin-top: 4px; background: var(--tile); border-radius: var(--r); padding: 4px 16px 10px; box-shadow: var(--shadow); animation: rise var(--t) var(--ease) both; }
+.setup .panel input, .setup .panel select { width: 100%; }
+.setup .panel .small-note { margin: 10px 0 0; }
+/* ---- 作り終えた知らせ（経理・受注・シフト）：緑の印と、できたファイルの名前 ---- */
+.made { position: relative; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0 8px; align-self: center; margin: 0; padding: 6px 16px 6px 40px; background: var(--leaf-soft); border-radius: var(--r-pill); font-weight: 700; overflow-wrap: anywhere; }
+.made::before { content: ""; position: absolute; left: 8px; top: 50%; width: 24px; height: 24px; margin-top: -12px; border-radius: 50%; background: var(--leaf); }
+.made::after { content: ""; position: absolute; left: 15px; top: 50%; width: 10px; height: 5px; margin-top: -5px; border-left: 2.5px solid var(--tile); border-bottom: 2.5px solid var(--tile); transform: rotate(-45deg); }
+.made .fn { font-family: var(--mono); font-weight: 500; }
+.made.in { animation: pop var(--t) var(--ease) both; }
+@media (max-width: 760px) { .made { border-radius: var(--r-md); } }
 
 /* iPhone の Safari は、16px 未満の入力欄を押すと画面が拡大される。スマホの幅では 16px にする（高さは 44px のまま） */
 @media (max-width: 760px) {

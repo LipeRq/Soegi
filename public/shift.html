@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/shift.css">
+<link rel="stylesheet" href="/css/estimate.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>シフト表のチェック｜ソエギ デモ</title>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">労務：シフト表のチェック</span>
+  <nav><a href="/">デモの選択へ</a></nav>
+</div></header>
+<main class="wrap">
+  <!-- 労務の2つの画面の切り替え（打刻の集計／シフト表のチェック） -->
+  <nav class="switch" aria-label="労務のデモ">
+    <a href="/attendance.html">打刻の集計</a>
+    <a href="/shift.html" aria-current="page">シフト表のチェック</a>
+  </nav>
+  <h1 class="vt-shift">シフト表のチェック</h1>
+  <p class="lead">作ったシフト表を読み込むと、人が足りない時間帯・連勤・月の休日の数・希望休とのぶつかりを、すぐに見つけます。判定はすべてプログラムで行い、AIは使いません。</p>
+
+  <nav class="steps" aria-label="進み具合"><ol>
+    <li aria-current="step"><span class="n">1</span>読み<wbr>込む</li>
+    <li><span class="n">2</span>確かめる</li>
+    <li><span class="n">3</span>Excelに<wbr>する</li>
+  </ol></nav>
+
+  <section class="card load" id="step1">
+    <h2><b class="no">1</b>　シフト表を読み込む</h2>
+    <p class="small-note company">架空の介護施設「グループホーム ひなた（架空）」の10人×2026年11月の見本で試せます。人も施設も架空です。</p>
+    <div class="row">
+      <button type="button" id="sample">見本（架空の10人）を使う</button>
+      <label class="btn" for="file">Excel・CSVを選ぶ</label>
+      <input type="file" id="file" class="vh" accept=".xlsx,.csv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv">
+      <a href="/samples/shift/shift-sample-2026-11.xlsx" download>見本のExcelをダウンロード</a>
+    </div>
+    <p class="small-note">行＝人、列＝日の表です（上のほうに「氏名」と日付の見出しの行）。Excel（.xlsx）と CSV（UTF-8・Shift_JIS）を読めます。ファイルは画面の中だけで読み、送信しません。</p>
+    <div class="loaded" id="loaded" hidden>
+      <p id="loadinfo" class="okline" role="status"></p>
+      <ul class="notes" id="loadnotes"></ul>
+    </div>
+    <p class="err" id="loaderr" role="alert"></p>
+
+    <div class="pick">
+      <label>対象の年月<input type="month" id="period"></label>
+      <label class="hopes">希望休（任意）：1行に「氏名,日付」
+        <textarea id="hopes" rows="4" placeholder="例）佐藤 花子,11/9" spellcheck="false"></textarea>
+      </label>
+    </div>
+    <p class="small-note" id="hopemsg" role="status"></p>
+  </section>
+
+  <!-- 設定は「変えなくてよいもの」なので白い面にしない。目が行くのは「チェックする」だけにする -->
+  <section class="setup">
+    <h2>設定（そのままでも進めます）</h2>
+    <details id="d-symbols">
+      <summary>記号の表（早・日・遅・夜・明・休・公・有）</summary>
+      <div class="panel">
+        <div class="tablewrap">
+          <table class="stack symtable" id="symtable">
+            <thead><tr><th>記号</th><th>名前</th><th>始まり</th><th>終わり</th><th>種類</th><th></th></tr></thead>
+            <tbody id="symrows"></tbody>
+          </table>
+        </div>
+        <div class="row mt8"><button type="button" id="addsym" class="small">＋ 記号を足す</button></div>
+        <ul class="errs" id="symerrs"></ul>
+        <p class="small-note">「勤務」の記号は、始まりから終わりまで人数に数えます（終わりが始まりより早ければ翌朝まで）。夜勤明けは休日に数えず、連勤も切れません。</p>
+      </div>
+    </details>
+    <details id="d-needs">
+      <summary>時間帯ごとの必要な人数（平日・土日祝）</summary>
+      <div class="panel">
+        <div class="tablewrap"><table id="needs" class="needs"></table></div>
+        <p class="small-note">1時間ごとに、その1時間ずっといる人を数えます。時間帯の中で1時間でも足りなければ「足りない」と出します。</p>
+      </div>
+    </details>
+    <details id="d-rules">
+      <summary>連勤の上限・月の休日数・勤務と勤務の間・祝日</summary>
+      <div class="panel">
+        <div class="settings">
+          <label>連勤の上限（日）<input type="number" id="r-streak" value="5" min="1" max="31" step="1" inputmode="numeric"></label>
+          <label>月の休日数の下限（日）<input type="number" id="r-holidays" value="9" min="0" max="31" step="1" inputmode="numeric"></label>
+          <label>勤務と勤務の間（時間・参考）<input type="number" id="r-rest" value="11" min="0" max="24" step="0.5" inputmode="decimal"></label>
+          <label>この月の祝日（日にち）<input type="text" id="r-hol" placeholder="例）3・23"></label>
+        </div>
+        <p class="small-note">祝日は、土日と同じ「土日祝」の人数を使います。年月を選ぶと、その月の祝日が入ります（最新は内閣府の「国民の祝日」で確かめてください）。勤務と勤務の間は参考の表示です。</p>
+      </div>
+    </details>
+    <div class="row mt12">
+      <button type="button" class="primary btn-xl" id="check" disabled>チェックする</button>
+      <span id="check-hint" class="small-note"></span>
+    </div>
+  </section>
+
+  <section class="result" id="result" hidden>
+    <h2><b class="no">2</b>　確かめる<small>（表のマスを直すと、その場で確かめ直します）</small></h2>
+    <div class="stats" id="stats"></div>
+    <!-- 安全の表示：一覧より先に、動かさずに出す -->
+    <p class="notice">目安の表示です。勤務と勤務の間（11時間）は参考です。法的な判断は社会保険労務士にご相談ください。</p>
+    <p class="sr" id="live" aria-live="polite"></p>
+
+    <section class="card" id="problems-card">
+      <h3>見つかった問題<small>（押すと、表のその場所へ）</small></h3>
+      <div class="legend" aria-label="色の意味">
+        <span><i class="r"></i>要確認（赤）：人が足りない・希望休の日に勤務・表にない記号</span>
+        <span><i class="y"></i>注意（黄）：連勤・月の休日数・勤務の間（参考）・夜勤明け・空の欄</span>
+      </div>
+      <ol class="problems" id="problems"></ol>
+    </section>
+
+    <section class="card" id="grid-card">
+      <h3>シフト表<small>（色＋言葉。マスを押すと記号を選び直せます）</small></h3>
+      <p class="symlegend small-note" id="symlegend"></p>
+      <div class="tablewrap gridwrap" id="gridwrap"><table class="shiftgrid" id="grid"></table></div>
+      <p class="small-note">下の4行は、時間帯ごとの「いちばん少ない時の人数」です。前の月・次の月の勤務は表に無いので、月の初めの連勤や、1日の夜勤明けは確かめていません。</p>
+    </section>
+
+    <section class="card" id="people-card">
+      <h3>人ごと</h3>
+      <div class="tablewrap"><table class="people" id="people"></table></div>
+    </section>
+  </section>
+
+  <section class="card" id="step3" hidden>
+    <h2><b class="no">3</b>　Excelにする</h2>
+    <p class="small-note">「一覧」「人ごと」「色を付けたシフト表」「使った設定」の4枚のシートが入ります。色のマスには、何を確かめるかのメモが付きます。</p>
+    <button type="button" class="primary btn-xl" id="export">Excelをダウンロード</button>
+    <p class="made" id="made" role="status" hidden></p>
+  </section>
+
+  <section class="card" id="estimate" hidden></section>
+</main>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<script src="/vendor/exceljs.min.js"></script>
+<script type="module" src="/js/shift.js"></script>
+</body>
+</html>
