@@ -5,6 +5,8 @@ import { api, h, clear, setStep } from './common.js';
 import { FAQ_LANGS, faqToHtml } from './faq-html.js';
 import { reduced, typeText, thinking, stagger, replay, shake } from './motion.js';
 import { mountEstimate } from './estimate-ui.js';
+import { mountTurnstile } from './turnstile.js';
+import { setupReview } from './inn-review.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -12,8 +14,7 @@ const LANG_LABEL = { zh: '繁体字中国語', en: '英語', ko: '韓国語', ja
 let innName = '';
 let faqItems = [];
 let faqLang = 'ja';
-let turnstileToken = '';
-let turnstileWidget = null;
+let turnstile = null; // { token(), reset() }
 let runSeq = 0; // 続けて押されたら、後から押した問い合わせの結果だけを出す
 let stopTyping = () => {}; // 返信を1文字ずつ出す見せ方を、途中でやめる
 
@@ -129,7 +130,7 @@ async function run(body, inquiryText, inquiryLang = '') {
     setPhase(e.message, 'error');
   } finally {
     stopClock();
-    if (body.text) resetTurnstile();
+    if (body.text) turnstile?.reset();
   }
 }
 
@@ -209,33 +210,22 @@ $('copy-reply').addEventListener('click', async () => {
 
 // ---- 自由入力（Turnstile） -----------------------------------------------------------------
 
-function resetTurnstile() {
-  turnstileToken = '';
-  if (window.turnstile && turnstileWidget != null) window.turnstile.reset(turnstileWidget);
-}
-
 async function setupFree() {
   let cfg = {};
   try { cfg = await (await fetch('/api/public-config')).json(); } catch { /* 設定を取れなければ自由入力は出さない */ }
+  setupReview(cfg);
   if (cfg.innFreePerDay) $('free-per-day').textContent = String(cfg.innFreePerDay);
   if (cfg.innFreeMax) $('free-max').textContent = String(cfg.innFreeMax);
   if (!cfg.turnstileSiteKey) { $('free-body').hidden = true; $('free-off').hidden = false; return; }
-  window.onTurnstileLoad = () => {
-    turnstileWidget = window.turnstile.render('#turnstile', {
-      sitekey: cfg.turnstileSiteKey, language: 'ja',
-      callback: (t) => { turnstileToken = t; },
-      'expired-callback': () => { turnstileToken = ''; },
-    });
-  };
-  document.head.append(h('script', { src: 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit', async: true, defer: true }));
+  try { turnstile = await mountTurnstile('#turnstile', cfg.turnstileSiteKey); } catch { $('free-note').textContent = 'ロボット対策の部品を読み込めませんでした。再読み込みしてお試しください'; }
 }
 
 $('free-go').addEventListener('click', () => {
   const text = $('free-text').value.trim();
   if (!text) { $('free-note').textContent = '問い合わせの文を入れてください'; shake($('free-text')); return; }
-  if (!turnstileToken) { $('free-note').textContent = '「ロボットではありません」の確認を待っています'; return; }
+  if (!turnstile?.token()) { $('free-note').textContent = '「ロボットではありません」の確認を待っています'; return; }
   document.querySelectorAll('#examples button').forEach((b) => b.setAttribute('aria-pressed', 'false'));
-  run({ text, turnstileToken }, text);
+  run({ text, turnstileToken: turnstile.token() }, text);
 });
 
 // ---- よくある質問 ------------------------------------------------------------------------
@@ -286,8 +276,29 @@ $('faq-copy').addEventListener('click', async () => {
   copyDone($('faq-copy'), ok, 'サイトに貼るHTMLをコピー');
 });
 
+// ---- 切り替え（問い合わせ／口コミ返信） ------------------------------------------------------
+function setTab(which, focus = false) {
+  for (const k of ['inquiry', 'review']) {
+    $(`tab-${k}`).setAttribute('aria-selected', String(k === which));
+    $(`tab-${k}`).tabIndex = k === which ? 0 : -1;
+    $(`pane-${k}`).hidden = k !== which;
+  }
+  $('step1-label').textContent = which === 'review' ? '口コミを選ぶ' : '問い合わせを選ぶ';
+  if (focus) $(`tab-${which}`).focus();
+  history.replaceState(null, '', which === 'review' ? '#review' : location.pathname);
+}
+$('tab-inquiry').addEventListener('click', () => setTab('inquiry'));
+$('tab-review').addEventListener('click', () => setTab('review'));
+for (const k of ['inquiry', 'review']) {
+  $(`tab-${k}`).addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); setTab(k === 'inquiry' ? 'review' : 'inquiry', true); }
+  });
+}
+$('tab-review').tabIndex = -1;
+
 load();
 setupFree();
+if (location.hash === '#review') setTab('review');
 setStep(1);
 
 // 御社の場合（試算）と持ち帰り1枚

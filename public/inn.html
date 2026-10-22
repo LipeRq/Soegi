@@ -24,12 +24,17 @@
   <div class="heads">
     <p class="notice warn draft"><b>下書きです。</b>送る前に必ずスタッフが確認します。</p>
   </div>
+  <div class="tabs" role="tablist" aria-label="宿のデモ">
+    <button type="button" role="tab" id="tab-inquiry" aria-selected="true" aria-controls="pane-inquiry">問い合わせ</button>
+    <button type="button" role="tab" id="tab-review" aria-selected="false" aria-controls="pane-review">口コミ返信</button>
+  </div>
   <nav class="steps" aria-label="進み具合"><ol>
-    <li aria-current="step"><span class="n">1</span>問い合わせを<wbr>選ぶ</li>
+    <li aria-current="step"><span class="n">1</span><span id="step1-label">問い合わせを<wbr>選ぶ</span></li>
     <li><span class="n">2</span>下書きを<wbr>確かめる</li>
     <li><span class="n">3</span>スタッフが<wbr>送る</li>
   </ol></nav>
 
+  <div id="pane-inquiry" role="tabpanel" aria-labelledby="tab-inquiry">
   <!-- 1：例文のタイルは、白い面で囲まずに地の上へ直に並べる（ここが最初に押す所） -->
   <section class="pick" aria-labelledby="pick-h">
     <h2 id="pick-h"><b class="no">1</b>　問い合わせを選ぶ</h2>
@@ -89,6 +94,53 @@
       <div class="row mt12"><button type="button" class="small" id="faq-copy">サイトに貼るHTMLをコピー</button></div>
     </div>
   </section>
+  </div>
+
+  <!-- 口コミ返信：同じ3段階・同じ「下書きです」。星1〜2は「必ず責任者が確認」を先頭に固定で出す -->
+  <div id="pane-review" role="tabpanel" aria-labelledby="tab-review" hidden>
+    <section class="pick" aria-labelledby="rv-pick-h">
+      <h2 id="rv-pick-h"><b class="no">1</b>　口コミを選ぶ</h2>
+      <p class="small-note">架空の宿への、架空の口コミです。星の数と言語がちがう3つを用意しました。</p>
+      <div class="examples" id="rv-examples"></div>
+      <details class="more" id="rv-free">
+        <summary><span>自分で口コミの文を入れてみる（1日<span id="rv-free-per-day">5</span>回まで・<span id="rv-free-max">1000</span>文字まで）</span></summary>
+        <div class="more-body">
+          <div id="rv-free-body">
+            <div class="starpick" role="group" aria-label="口コミの星の数" id="rv-stars"></div>
+            <textarea id="rv-free-text" maxlength="1000" placeholder="例：The room was clean, but the bath was not hot enough." aria-label="口コミの文"></textarea>
+            <div id="turnstile-rv" class="mt8"></div>
+            <div class="row mt8">
+              <button type="button" class="primary" id="rv-free-go">返信の下書きを作る</button>
+              <span class="small-note" id="rv-free-note" role="status"></span>
+            </div>
+          </div>
+          <p class="small-note" id="rv-free-off" hidden>自由入力は準備中です。用意した例でお試しください。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="card result" id="rv-result" hidden>
+      <h2><b class="no">2</b>　返信の下書きを確かめる</h2>
+      <div class="phaseline"><p class="phase" id="rv-phase" aria-live="polite"></p></div>
+      <!-- 安全の表示：結果より先に、動かさずに出す。星1〜2の固定の文は、いちばん上 -->
+      <p class="notice warn draft must" id="rv-must" hidden></p>
+      <p class="notice warn draft"><b>下書きです。</b>送る前に必ず責任者が確認します。</p>
+      <div id="rv-warn"></div>
+      <div class="stats" id="rv-stats"></div>
+      <div class="quad" id="rv-quad">
+        <div class="box origin"><h3>お客さまの口コミ（原文）<span class="stars" id="rv-origin-stars"></span></h3><p id="rv-origin"></p></div>
+        <div class="box ja1"><h3>① 口コミの日本語訳（スタッフ用）</h3><p id="rv-review-ja"></p></div>
+        <div class="box reply"><h3 id="rv-reply-h">② 返信の下書き</h3>
+          <p id="rv-reply"></p>
+          <div class="copyrow"><button type="button" class="small" id="rv-copy">下書きをコピー</button></div>
+        </div>
+        <div class="box ja2"><h3>③ 返信の日本語訳（中身を確かめるため）</h3><p id="rv-reply-ja"></p></div>
+        <div class="box points"><h3>④ 口コミの指摘</h3><ul id="rv-points"></ul></div>
+        <div class="box check" id="rv-checkbox"><h3>⑤ 要確認（送る前に確かめる点）</h3><ul id="rv-check"></ul><p class="rule-note" id="rv-rule-note" hidden>「決まりで必ず表示」の点は、AIが見落としても、プログラムが必ず出します。</p></div>
+      </div>
+      <p class="small-note" id="rv-used"></p>
+    </section>
+  </div>
   <section class="card" id="estimate"></section>
 </main>
 <footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>

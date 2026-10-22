@@ -276,6 +276,60 @@ export function validateInnReply(raw) {
   };
 }
 
+// ---- 口コミ返信（宿） --------------------------------------------------------------------
+
+export const POINT_KINDS = ['praise', 'complaint', 'request'];
+
+export const INN_REVIEW_TOOL = {
+  name: 'submit_inn_review',
+  description: '宿への口コミに対する、返信の下書きを提出する',
+  schema: {
+    type: 'object',
+    properties: {
+      language: { type: 'string', description: '口コミの言語（例：zh-TW, en, ko, ja）' },
+      review_ja: { type: 'string', description: '口コミの日本語訳（スタッフ用）' },
+      reply: { type: 'string', description: '口コミと同じ言語の、丁寧な返信の下書き。反論・言い訳をしない。お客さまの名前・スタッフの名前を書かない' },
+      reply_ja: { type: 'string', description: '返信の下書きの日本語訳（スタッフが中身を確かめるため）' },
+      points: {
+        type: 'array',
+        description: '口コミの指摘の一覧',
+        items: {
+          type: 'object',
+          properties: { kind: { type: 'string', enum: POINT_KINDS, description: 'praise＝ほめ、complaint＝不満、request＝要望' }, text: { type: 'string', description: '日本語で1行' } },
+          required: ['kind', 'text'],
+        },
+      },
+      needs_check: {
+        type: 'array',
+        description: '送る前にスタッフが確かめる点（事実の確認が要ること、宿だけで決められないこと）',
+        items: { type: 'object', properties: { point: { type: 'string' }, reason: { type: 'string' } }, required: ['point', 'reason'] },
+      },
+      used_info_ids: { type: 'array', items: { type: 'string' }, description: '返信に使った宿の情報の id' },
+    },
+    required: ['language', 'review_ja', 'reply', 'reply_ja', 'points', 'needs_check', 'used_info_ids'],
+  },
+};
+
+export function validateInnReview(raw) {
+  if (!isObj(raw)) fail('object');
+  const reply = str(raw.reply); const replyJa = str(raw.reply_ja);
+  if (!reply || !replyJa) fail('reply');
+  return {
+    language: str(raw.language, 20),
+    review_ja: str(raw.review_ja, 3000),
+    reply, reply_ja: replyJa,
+    points: arr(raw.points ?? [], 'points', 12).map((p) => {
+      if (!isObj(p)) fail('point');
+      return { kind: POINT_KINDS.includes(p.kind) ? p.kind : 'complaint', text: str(p.text, 200) };
+    }).filter((p) => p.text),
+    needs_check: arr(raw.needs_check ?? [], 'needs_check', 10).map((n) => {
+      if (!isObj(n)) fail('needs_check');
+      return { point: str(n.point, 120), reason: str(n.reason, 200) };
+    }).filter((n) => n.point),
+    used_info_ids: arr(raw.used_info_ids ?? [], 'used_info_ids', 30).map((x) => str(x, 40)),
+  };
+}
+
 const FAQ_LANGS = ['ja', 'zh', 'en', 'ko'];
 
 export const INN_FAQ_TOOL = {

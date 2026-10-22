@@ -2,14 +2,14 @@
 // 何も保存しない（自由入力の1日の回数だけ、IPのハッシュで翌日まで数える）。ログにも本文を出さない。
 //
 //   パスワードが必要（demo.withsoegi.jp の中のデモ）：/api/verify /api/receipt /api/timecard /api/order /api/knowledge
-//   公開（サイトから使うデモ）：/api/public-config /api/inn-reply /api/inn-faq /api/site-chat
+//   公開（サイトから使うデモ）：/api/public-config /api/inn-reply /api/inn-review /api/inn-faq /api/site-chat
 
 import { AIError } from './ai.js';
 import { json, err, readJson, HttpError } from './http.js';
 import { allowPerMinute, checkPass, clientIp, corsHeaders } from './guard.js';
 import { receipt, timecard, order } from './demos/office.js';
 import { knowledge } from './demos/knowledge.js';
-import { innReply, innFaq, FREE_MAX, FREE_PER_DAY } from './demos/inn.js';
+import { innReply, innFaq, innReview, FREE_MAX, FREE_PER_DAY, REVIEW_FREE_MAX } from './demos/inn.js';
 import { siteChat, CHAT_MAX } from './demos/sitechat.js';
 
 const MB = 1024 * 1024;
@@ -23,6 +23,7 @@ const PRIVATE = {
 };
 const PUBLIC = {
   '/api/inn-reply': { max: 16384, run: (env, body, ip) => innReply(env, body, ip) },
+  '/api/inn-review': { max: 16384, run: (env, body, ip) => innReview(env, body, ip) },
   '/api/inn-faq': { max: 1024, run: (env) => innFaq(env) },
   '/api/site-chat': { max: 16384, run: (env, body, ip) => siteChat(env, body, ip), cors: true },
 };
@@ -41,7 +42,7 @@ export default {
       return json({
         ok: true,
         turnstileSiteKey: env.TURNSTILE_SITEKEY || '',
-        innFreeMax: FREE_MAX, innFreePerDay: FREE_PER_DAY, chatMax: CHAT_MAX,
+        innFreeMax: FREE_MAX, innFreePerDay: FREE_PER_DAY, innReviewMax: REVIEW_FREE_MAX, chatMax: CHAT_MAX,
       });
     }
     if (!route) return err(404, 'not found');

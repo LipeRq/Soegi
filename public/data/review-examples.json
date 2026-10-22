@@ -1,0 +1,5 @@
+[
+  { "id": "zh-bath", "lang": "繁体字中国語（台湾）", "stars": 2, "label": "お風呂がぬるい・チェックインが遅い", "text": "房間很乾淨，服務人員也很親切。但是大浴場的水溫偏溫，泡了也不暖。另外我們下午4點就到了，卻等到快5點才辦好入住，有點失望。" },
+  { "id": "en-juhyo", "lang": "英語", "stars": 5, "label": "樹氷の案内に感謝・スタッフの名前入り", "text": "Thank you so much for a wonderful stay! Ms. Tanaka explained the snow monsters (juhyo) so patiently, and the dinner with local vegetables was delicious. We hope to come back next winter." },
+  { "id": "ja-dinner", "lang": "日本語", "stars": 3, "label": "夕食の量が少なく感じた", "text": "お部屋からの眺めは最高で、お風呂も気持ちよかったです。ただ、夕食は美味しかったものの、量が少なく感じました。もう少しボリュームがあると嬉しいです。" }
+]

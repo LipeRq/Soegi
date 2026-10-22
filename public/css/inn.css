@@ -187,3 +187,35 @@ main > .pricing { margin: 16px 0 0; padding: 12px 4px 0; background: none; borde
   .faq-lang button { padding: 6px 8px; }
 }
 @media (min-width: 420px) and (max-width: 760px) { .faq-lang { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* ---- 口コミ返信（タブ）：問い合わせと同じ部品を使い、足りない所だけ足す ------------------------ */
+.tabs { margin-top: 6px; }
+.ex-stars { font-family: var(--mono); font-size: 14px; letter-spacing: .08em; color: var(--warn-ink); white-space: nowrap; }
+.stars { font-family: var(--mono); font-size: 14px; font-weight: 400; letter-spacing: .08em; color: var(--warn-ink); margin-left: 6px; white-space: nowrap; }
+.quad .origin .stars { color: var(--accent-ink); }
+/* 星を選ぶ札（押した星までを濃くする。数字も添えて、色だけで伝えない） */
+.starpick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.star { min-width: 56px; min-height: 48px; padding: 4px 10px; flex-direction: column; gap: 0; font-size: 20px; line-height: 1.1; color: var(--ink-3); border-color: var(--line); }
+.star small { font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.star.on { color: var(--warn-ink); background: var(--warn-bg); border-color: var(--warn-line); }
+.star[aria-pressed=true] { box-shadow: 0 0 0 2px var(--accent); }
+/* 星1〜2の固定の文：「下書きです」と同じ強さで、いちばん上に */
+.notice.draft.must { border-color: var(--danger); background: var(--danger-soft); color: var(--ink); }
+.notice.draft.must::before { background: var(--danger); color: var(--tile); }
+#rv-warn .notice { margin: 0 0 12px; border: 1.5px solid var(--warn-line); }
+.result[data-state=error] :is(.quad, .stats, .notice.draft, #rv-used) { display: none; }
+@media (min-width: 561px) { .result #rv-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 761px) { .result #rv-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.quad .points ul { list-style: none; margin: 0; padding: 0; }
+.quad .points li { padding: 6px 0; border-top: 1px dashed var(--line); font-size: 15px; }
+.quad .points li:first-child { border-top: 0; }
+.quad .points .badge { margin-right: 4px; }
+@media (min-width: 761px) {
+  .result #rv-quad { grid-template-areas: "o a" "b c" "p p" "d d"; }
+  .quad .points { grid-area: p; }
+}
+@media (min-width: 1040px) {
+  .result #rv-quad { grid-template-areas: "o a d" "b c d" "p p d"; }
+}
+#rv-reply { min-width: 0; font-size: 16.5px; line-height: 1.8; white-space: pre-wrap; }
+@media (max-width: 560px) { .starpick .star { flex: 1 1 0; min-width: 0; } }

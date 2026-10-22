@@ -127,6 +127,43 @@ function innReply(userText) {
   };
 }
 
+const REVIEW = {
+  'zh-bath': {
+    language: 'zh-TW', review_ja: '部屋はとてもきれいで、スタッフも親切でした。ただ、大浴場のお湯がぬるく、温まりませんでした。また、午後4時に着いたのに、チェックインができたのは5時近くで、少しがっかりしました。',
+    reply: '您好，非常感謝您入住蔵王溫泉 ゆきあかり荘（仮），也謝謝您留下寶貴的意見。\n\n大浴場的水溫讓您無法暖和身體，以及辦理入住時讓您久等，我們深感抱歉。我們會向相關人員確認當時的狀況，並作為今後改善的參考。\n\n我們也很高興您覺得客房整潔、服務親切。衷心期待您再次光臨。\nゆきあかり荘（仮） 全體員工',
+    reply_ja: 'ご宿泊いただき、また貴重なご意見をありがとうございます。\n\n大浴場のお湯の温度で温まっていただけなかったこと、チェックインでお待たせしたことを、申し訳なく思います。当時の状況を担当者に確認し、今後の参考にいたします。\n\n客室の清潔さと接客をお喜びいただけたことも、うれしく思います。またのお越しを心よりお待ちしております。\nゆきあかり荘（仮） スタッフ一同',
+    points: [{ kind: 'praise', text: '客室がきれい・スタッフが親切' }, { kind: 'complaint', text: '大浴場のお湯がぬるかった' }, { kind: 'complaint', text: '16時に着いたのに、チェックインが17時近くになった（待ち時間）' }],
+    needs_check: [{ point: '大浴場の温度の記録', reason: 'その日の湯温を確かめて、事実かどうかを責任者が判断します' }, { point: 'チェックインが遅れた事情', reason: '当日の受付の状況を確認してから、お詫びの言い方を決めます' }],
+    used_info_ids: ['checkin', 'bath'],
+  },
+  'en-juhyo': {
+    language: 'en', review_ja: '素晴らしい滞在をありがとうございました。田中さんが樹氷について丁寧に説明してくれ、地元の野菜を使った夕食もおいしかったです。来年の冬もまた来たいです。',
+    reply: 'Thank you very much for your kind words, and for choosing to stay with us.\n\nWe are delighted that you enjoyed the explanation about the snow monsters (juhyo) and our dinner with local vegetables. We will share your message with the whole team.\n\nWe look forward to welcoming you again next winter.\nThe staff of Yukiakari-so',
+    reply_ja: 'あたたかいお言葉と、当館をお選びいただいたことに、心から感謝いたします。\n\n樹氷のご案内と、地元の野菜を使った夕食をお楽しみいただけたことを、うれしく思います。お言葉はスタッフ全員に伝えます。\n\n来年の冬も、お越しをお待ちしております。\nゆきあかり荘（仮） スタッフ一同',
+    points: [{ kind: 'praise', text: 'スタッフが樹氷を丁寧に説明してくれた（「田中」さん）' }, { kind: 'praise', text: '地元の野菜を使った夕食がおいしかった' }, { kind: 'request', text: '来年の冬にまた来たい' }],
+    needs_check: [],
+    used_info_ids: ['juhyo', 'dinner'],
+  },
+  'ja-dinner': {
+    language: 'ja', review_ja: 'お部屋からの眺めは最高で、お風呂も気持ちよかったです。ただ、夕食は美味しかったものの、量が少なく感じました。もう少しボリュームがあると嬉しいです。',
+    reply: 'このたびは、ゆきあかり荘（仮）にご宿泊いただき、また口コミをお寄せいただき、ありがとうございます。\n\nお部屋からの眺めとお風呂をお喜びいただけて、うれしく思います。一方で、夕食の量を少なく感じられたとのこと、申し訳ございません。いただいたご意見は、調理担当と共有し、今後の参考にいたします。\n\nまたのお越しを、スタッフ一同お待ちしております。\nゆきあかり荘（仮） スタッフ一同',
+    reply_ja: 'このたびは、ゆきあかり荘（仮）にご宿泊いただき、また口コミをお寄せいただき、ありがとうございます。\n\nお部屋からの眺めとお風呂をお喜びいただけて、うれしく思います。一方で、夕食の量を少なく感じられたとのこと、申し訳ございません。いただいたご意見は、調理担当と共有し、今後の参考にいたします。\n\nまたのお越しを、スタッフ一同お待ちしております。\nゆきあかり荘（仮） スタッフ一同',
+    points: [{ kind: 'praise', text: '部屋からの眺めが最高・お風呂が気持ちよかった' }, { kind: 'praise', text: '夕食は美味しかった' }, { kind: 'complaint', text: '夕食の量が少なく感じた' }, { kind: 'request', text: 'もう少しボリュームがあると嬉しい' }],
+    needs_check: [{ point: '夕食の量の見直し', reason: '量を変えるかどうかは、調理担当と責任者が決めます（下書きでは約束していません）' }],
+    used_info_ids: ['dinner'],
+  },
+};
+
+function innReview(userText) {
+  if (/雞蛋|水溫|大浴場|辦好入住/.test(userText)) return REVIEW['zh-bath'];
+  if (/snow monsters|juhyo/i.test(userText)) return REVIEW['en-juhyo'];
+  if (/量が少なく/.test(userText)) return REVIEW["ja-dinner"];
+  return {
+    language: 'ja', review_ja: '（モック）自由入力の口コミ', reply: '（モック）口コミをお寄せいただき、ありがとうございます。',
+    reply_ja: '（モック）口コミをお寄せいただき、ありがとうございます。', points: [{ kind: 'complaint', text: '（モック）' }], needs_check: [], used_info_ids: [],
+  };
+}
+
 function innFaq() {
   return {
     items: [
@@ -173,6 +210,7 @@ export function mockResponse({ tool, userText, sample }) {
     case 'submit_order': return order(sample);
     case 'submit_answer': return knowledge(userText);
     case 'submit_inn_reply': return innReply(userText);
+    case 'submit_inn_review': return innReview(userText);
     case 'submit_inn_faq': return innFaq();
     case 'submit_site_answer': return siteAnswer(userText);
     default: throw new Error(`mock: ${tool.name}`);
