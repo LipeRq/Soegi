@@ -37,11 +37,43 @@ test('人名らしいもの：さん・様・Mr.・Ms.・小姐・씨・님 →�
   assert.deepEqual(findNames('田中さんが親切でした'), ['田中']);
   assert.deepEqual(findNames('Ms. Tanaka was kind. Mr Smith too.'), ['Tanaka', 'Smith']);
   assert.deepEqual(findNames('王小姐很親切'), ['王']);
-  assert.deepEqual(findNames('김 씨가 친절했어요. 박님도요'), ['김', '박']);
+  assert.deepEqual(findNames('김철수 씨가 친절했어요. 박영희님도요'), ['김철수', '박영희']);
   assert.deepEqual(findNames('お客様のご意見。皆様ありがとう。ご家族様'), []);
   const r = fin('', 5, { review_ja: '田中さんの説明が丁寧でした' });
   assert.ok(points(r).includes('返信に名前を書かない'));
   assert.match(r.needsCheck.find((n) => n.point === '返信に名前を書かない').reason, /田中/);
+});
+
+test('レビューで直したこと：名前の切り出し・呼びかけの除外・英字の名前・大文字小文字・単語の途中', () => {
+  assert.deepEqual(findNames('フロントの田中さんに感謝。親切な佐藤さんも'), ['田中', '佐藤']);
+  assert.deepEqual(findNames('スタッフの皆様ありがとう。神様、店長さん、運転手さん、宿泊者様、担当者様、奥様'), []);
+  assert.deepEqual(findNames('タナカさんが親切'), ['タナカ']);
+  assert.deepEqual(findNames('Mr.Smith, MR. SMITH, Mr. O\'Brien, Mr. Müller, Mr. José, Sato-san'), ['Smith', 'SMITH', "O'Brien", 'Müller', 'José', 'Sato']);
+  assert.deepEqual(findNames('날씨가 좋았어요. 선생님 감사합니다. 사장님. 손님. 마음씨 좋은 솜씨'), []);
+  assert.deepEqual(findNames('這位先生很親切。櫃檯小姐很親切。老先生'), []);
+  assert.deepEqual(findNames('感謝王小姐的協助'), ['謝王']);
+  // 返信に入っているか：大文字小文字を区別しない。単語の途中は数えない。中国語は「王小姐」も
+  const w = (review, reply) => fin('', 5, { review_ja: review, reply, reply_ja: 'ありがとうございます。' }).warnings.filter((x) => /人名/.test(x)).length;
+  assert.equal(w('Ms. Tanaka was kind', 'Dear TANAKA, thanks'), 1);
+  assert.equal(w('Mr. Li was kind', 'We are little sorry, Lighting'), 0);
+  assert.equal(w('Ms. An was kind', 'Another thank you'), 0);
+  assert.equal(w('感謝王小姐的協助', '感謝您，王小姐會很開心'), 1);
+});
+
+test('レビューで直したこと：返金・補償の抜けと誤検出、返信側の見張り、反論・料金の語', () => {
+  for (const t of ['宿泊代を返してください', '全額返してほしい', '請退錢', '请退钱', '要求赔偿', '돈을 돌려주세요', 'Ｒｅｆｕｎｄ please', 'I want my money returned', 'Please give us a free night']) {
+    assert.ok(points(fin(t, 3)).includes('返金・補償は宿が決める'), t);
+  }
+  for (const t of ['宿泊料が安くて返事も早い', '宿泊料もお得で無料の送迎もありがたい']) assert.ok(!points(fin(t, 5)).includes('返金・補償は宿が決める'), t);
+  assert.ok(fin('部屋が寒かった', 3, { reply_ja: '宿泊料を全額返金いたします。' }).warnings.some((x) => /返金・補償に関わる言葉/.test(x)));
+  for (const t of ['そのようなことはございません。', '事実とは異なります。', '当館に非はありません。', '規約により対応できません。', 'お客様の過失です。']) assert.ok(fin('x', 3, { reply_ja: t }).warnings.some((x) => /反論・言い訳・断定/.test(x)), t);
+  for (const t of ['誤解を招いてしまい申し訳ございません。', '当館では、至らない点があり、申し訳ございません。', 'やむを得ず対応が遅れましたことをお詫びします']) assert.ok(!fin('x', 3, { reply_ja: t }).warnings.some((x) => /反論・言い訳・断定/.test(x)), t);
+  for (const t of ['1万円です', '500元', 'TWD 500', 'booking.com で予約', 'info@yukiakari.jp', '€50']) assert.ok(fin('x', 3, { reply_ja: t }).warnings.some((x) => /URLや料金/.test(x)), t);
+  assert.deepEqual(fin('x', 3, { reply_ja: '12月1日からのご宿泊をお待ちしております。' }).warnings, []);
+});
+
+test('星は整数の 1〜5 の数だけ（文字列・真偽値・配列は受けない）', async () => {
+  for (const stars of ['3', true, [3], 0x3 + 0.5, 6]) await assert.rejects(innReview(MOCK, { text: 'x', stars }, '1.2.3.4'), (e) => e.status === 400, String(stars));
 });
 
 test('口コミの人名が下書きにも入っていれば警告する', () => {

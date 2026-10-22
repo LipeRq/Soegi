@@ -121,7 +121,7 @@ async function draftReview(env, text, stars) {
 }
 
 const parseStars = (x) => {
-  const n = Number(x);
+  const n = typeof x === 'number' ? x : NaN;
   if (!Number.isInteger(n) || n < 1 || n > 5) throw new HttpError(400, '星の数（1〜5）を選んでください');
   return n;
 };
