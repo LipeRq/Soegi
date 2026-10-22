@@ -3,6 +3,8 @@
 import { COLORS, fill, styleHeader } from './xlsx-common.js';
 import { BANDS, KIND_LABEL, PROBLEM_KINDS, normCode, worstOf } from './shift-check.js';
 
+/** 読み込んだ氏名・記号が、Excel で式として動かないように（先頭が = + - @ のとき ' を付ける。他の出力と同じ） */
+const T = (v) => (typeof v === 'string' && /^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
 const LEVEL_FILL = { red: COLORS.red, yellow: COLORS.yellow };
 const LEVEL_TEXT = { red: '要確認', yellow: '注意' };
 export const SHIFT_NOTE = 'デモ用の架空データです。シフト表は画面の中だけで読み、送信・保存しません（AIは使いません）。';
@@ -50,7 +52,7 @@ export function buildShiftWorkbook(ExcelJS, { grid, result, settings, title = ''
   list.columns = [{ header: '判定', width: 9 }, { header: '種類', width: 18 }, { header: '日', width: 6 }, { header: '氏名', width: 14 }, { header: '内容', width: 80 }];
   styleHeader(list.getRow(1));
   for (const p of problems) {
-    const row = list.addRow([LEVEL_TEXT[p.level], PROBLEM_KINDS[p.kind] ?? p.kind, p.day ?? null, p.person ?? '', p.text]);
+    const row = list.addRow([LEVEL_TEXT[p.level], PROBLEM_KINDS[p.kind] ?? p.kind, p.day ?? null, T(p.person ?? ''), T(p.text)]);
     row.getCell(1).fill = fill(LEVEL_FILL[p.level]);
     row.getCell(5).alignment = { wrapText: true, vertical: 'top' };
   }
@@ -71,7 +73,7 @@ export function buildShiftWorkbook(ExcelJS, { grid, result, settings, title = ''
   styleHeader(per.getRow(1));
   const rules = settings.rules;
   for (const x of people) {
-    const row = per.addRow([x.name, x.workDays, x.holidays, x.leaves, x.afters, x.nights, x.maxStreak, x.streakRuns, x.conflicts, x.intervals, x.blanks + x.unknowns]);
+    const row = per.addRow([T(x.name), x.workDays, x.holidays, x.leaves, x.afters, x.nights, x.maxStreak, x.streakRuns, x.conflicts, x.intervals, x.blanks + x.unknowns]);
     if (x.holidays < rules.minHolidays) row.getCell(3).fill = fill(COLORS.yellow);
     if (x.maxStreak > rules.maxStreak) { row.getCell(7).fill = fill(COLORS.yellow); row.getCell(8).fill = fill(COLORS.yellow); }
     if (x.conflicts) row.getCell(9).fill = fill(COLORS.red);
@@ -88,7 +90,7 @@ export function buildShiftWorkbook(ExcelJS, { grid, result, settings, title = ''
   });
   sh.getColumn(1).width = 16;
   days.forEach((_, i) => { sh.getColumn(i + 2).width = 5; });
-  sh.getCell('A1').value = `${ym(grid.period)} シフト表のチェック${title ? `　${title}` : ''}（色のマスにはメモがあります）`;
+  sh.getCell('A1').value = T(`${ym(grid.period)} シフト表のチェック${title ? `　${title}` : ''}（色のマスにはメモがあります）`);
   sh.getCell('A1').font = { bold: true, size: 13 };
   const head = sh.getRow(2); const week = sh.getRow(3);
   head.getCell(1).value = '氏名'; week.getCell(1).value = '曜日';
@@ -104,7 +106,7 @@ export function buildShiftWorkbook(ExcelJS, { grid, result, settings, title = ''
   });
   for (const r of [head, week]) r.eachCell((c) => { c.font = { bold: true }; c.border = border; });
   grid.people.forEach((p, pi) => {
-    const row = sh.addRow([p.name, ...days.map((_, i) => normCode(p.cells[i]))]);
+    const row = sh.addRow([T(p.name), ...days.map((_, i) => T(normCode(p.cells[i])))]);
     days.forEach((d, i) => {
       const c = row.getCell(i + 2);
       c.alignment = { horizontal: 'center' };
@@ -137,7 +139,7 @@ export function buildShiftWorkbook(ExcelJS, { grid, result, settings, title = ''
   const h1 = (t) => { const r = st.addRow([t]); r.font = { bold: true }; };
   h1('記号の表');
   styleHeader(st.addRow(['記号', '名前', '始まり', '終わり', '種類']));
-  for (const s of settings.symbols) st.addRow([normCode(s.code), s.name, s.kind === 'work' ? s.start : '', s.kind === 'work' ? s.end : '', KIND_LABEL[s.kind] ?? s.kind]);
+  for (const s of settings.symbols) st.addRow([T(normCode(s.code)), T(s.name), s.kind === 'work' ? s.start : '', s.kind === 'work' ? s.end : '', KIND_LABEL[s.kind] ?? s.kind]);
   st.addRow([]);
   h1('必要な人数');
   styleHeader(st.addRow(['', ...BANDS.map((b) => `${b.label}（${b.from}〜${b.to > 24 ? `翌${b.to - 24}` : b.to}時）`)]));
@@ -151,7 +153,7 @@ export function buildShiftWorkbook(ExcelJS, { grid, result, settings, title = ''
   st.addRow(['祝日（この月）', days.filter((d) => d.isHoliday).map((d) => `${d.day}日`).join('・') || 'なし']);
   st.addRow([]);
   h1('希望休');
-  if (settings.hopes?.length) for (const x of settings.hopes) st.addRow([x.name, `${x.day}日`]);
+  if (settings.hopes?.length) for (const x of settings.hopes) st.addRow([T(x.name), `${x.day}日`]);
   else st.addRow(['（なし）']);
   st.addRow([]);
   st.addRow([SHIFT_NOTE]);

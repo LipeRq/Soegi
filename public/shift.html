@@ -66,7 +66,7 @@
       <div class="panel">
         <div class="tablewrap">
           <table class="stack symtable" id="symtable">
-            <thead><tr><th>記号</th><th>名前</th><th>始まり</th><th>終わり</th><th>種類</th><th></th></tr></thead>
+            <thead><tr><th>記号</th><th>名前</th><th>始まり</th><th>終わり</th><th>種類</th><th><span class="sr">操作</span></th></tr></thead>
             <tbody id="symrows"></tbody>
           </table>
         </div>
@@ -101,7 +101,7 @@
   </section>
 
   <section class="result" id="result" hidden>
-    <h2><b class="no">2</b>　確かめる<small>（表のマスを直すと、その場で確かめ直します）</small></h2>
+    <h2 id="result-h" tabindex="-1"><b class="no">2</b>　確かめる<small>（表のマスを直すと、その場で確かめ直します）</small></h2>
     <div class="stats" id="stats"></div>
     <!-- 安全の表示：一覧より先に、動かさずに出す -->
     <p class="notice">目安の表示です。勤務と勤務の間（11時間）は参考です。法的な判断は社会保険労務士にご相談ください。</p>
@@ -109,11 +109,12 @@
 
     <section class="card" id="problems-card">
       <h3>見つかった問題<small>（押すと、表のその場所へ）</small></h3>
-      <div class="legend" aria-label="色の意味">
+      <div class="legend" role="group" aria-label="色の意味">
         <span><i class="r"></i>要確認（赤）：人が足りない・希望休の日に勤務・表にない記号</span>
         <span><i class="y"></i>注意（黄）：連勤・月の休日数・勤務の間（参考）・夜勤明け・空の欄</span>
       </div>
       <ol class="problems" id="problems"></ol>
+      <a class="skip" href="#step3">シフト表を飛ばして、3 Excelにするへ</a>
     </section>
 
     <section class="card" id="grid-card">

@@ -356,19 +356,22 @@ export const hasShiftHeader = (rows) => findHeader(rows) != null;
 /** 表の見出し・題名から、対象の年月を探す（2026/11/1・Excel の日付・「2026年11月」）。無ければ null */
 export function detectPeriod(rows) {
   const f = findHeader(rows);
-  const cells = rows.slice(0, (f?.head ?? 4) + 1).flat();
+  const top = rows.slice(0, (f?.head ?? 4) + 1);
   const ok = (m) => +m >= 1 && +m <= 12;
-  // 題名の「2026年11月」を先に。次に Excel の日付・「2026/11/1」（「作成日 2026/10/20」などは年月とみない）
-  for (const v of cells) {
+  // 題名の「2026年11月」を先に
+  for (const v of top.flat()) {
     const r = clean(v).match(/(20\d{2})年(\d{1,2})月/);
     if (r && ok(r[2])) return `${r[1]}-${pad(+r[2])}`;
   }
-  for (const v of cells) {
-    if (v instanceof Date && !Number.isNaN(v.getTime())) return `${v.getUTCFullYear()}-${pad(v.getUTCMonth() + 1)}`;
-    const t = clean(v);
-    if (/作成|印刷|更新|出力|提出|発行|記入/.test(t)) continue;
-    const r = t.match(/(20\d{2})[-/.](\d{1,2})[-/.]\d{1,2}/);
-    if (r && ok(r[2])) return `${r[1]}-${pad(+r[2])}`;
+  // 次に、見出しの行の日付（Excel の日付・「2026/11/1」）。そのあと上の行（「作成」「印刷」などの行の日付は年月とみない）
+  const rowsInOrder = f ? [top[f.head], ...top.slice(0, f.head)] : top;
+  for (const row of rowsInOrder) {
+    if (row !== top[f?.head] && row.some((v) => /作成|印刷|更新|出力|提出|発行|記入/.test(clean(v)))) continue;
+    for (const v of row) {
+      if (v instanceof Date && !Number.isNaN(v.getTime())) return `${v.getUTCFullYear()}-${pad(v.getUTCMonth() + 1)}`;
+      const r = clean(v).match(/(20\d{2})[-/.](\d{1,2})[-/.]\d{1,2}/);
+      if (r && ok(r[2])) return `${r[1]}-${pad(+r[2])}`;
+    }
   }
   return null;
 }

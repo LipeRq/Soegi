@@ -34,12 +34,15 @@ let symbols = structuredClone(DEFAULT_SYMBOLS);
 let result = null;
 let lastSettings = null;
 let elapsedMs = 0;
+let sampleHopes = ''; // 見本の希望休（あとで自分のファイルを読むとき、見本の希望休を残さない）
 let built = null; // 表を作ったときの grid と記号（違えば作り直す）
 
 // ---- 対象の年月・祝日 ---------------------------------------------------------------
 
 const next = new Date(); next.setDate(1); next.setMonth(next.getMonth() + 1);
 $('period').value = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}`;
+let periodOk = $('period').value; // 空にされたら、直前の年月に戻す（空のまま確かめると、日付つきの希望休と祝日が黙って落ちる）
+const setPeriod = (v) => { $('period').value = v; periodOk = v; };
 
 /** その月の祝日を「3・23」の形で入れる */
 function fillHolidays() {
@@ -118,7 +121,7 @@ function renderSymLegend() {
 (function renderNeeds() {
   const t = $('needs');
   const to = (b) => (b.to > 24 ? `翌${b.to - 24}` : b.to);
-  t.append(h('thead', {}, h('tr', {}, h('th', {}, ''), BANDS.map((b) => h('th', {}, `${b.label}（${b.from}〜${to(b)}時）`)))));
+  t.append(h('thead', {}, h('tr', {}, h('th', {}, h('span', { class: 'sr' }, '平日・土日祝')), BANDS.map((b) => h('th', {}, `${b.label}（${b.from}〜${to(b)}時）`)))));
   const body = h('tbody');
   for (const [type, name] of [['weekday', '平日'], ['holiday', '土日祝']]) {
     body.append(h('tr', {}, h('th', { scope: 'row' }, name), BANDS.map((b) => h('td', {}, h('input', {
@@ -132,7 +135,9 @@ function renderSymLegend() {
 function readSettings() {
   const num = (id, def, min, max) => {
     const raw = $(id).value; const n = Number(raw);
-    return raw !== '' && Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : def;
+    const v = raw !== '' && Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : def;
+    if ($(id).value !== String(v)) $(id).value = String(v); // 範囲の外・空の値は、使った値を欄にも入れる
+    return v;
   };
   const needs = {};
   for (const type of ['weekday', 'holiday']) needs[type] = Object.fromEntries(BANDS.map((b) => [b.key, Math.round(num(`need-${type}-${b.key}`, DEFAULT_NEEDS[type][b.key], 0, 50))]));
@@ -218,7 +223,7 @@ function loadRows(rows, name, extra = []) {
   const p = detectPeriod(rows);
   const msgs = [...extra];
   if (p && p !== $('period').value) {
-    $('period').value = p; fillHolidays(); showHopes();
+    setPeriod(p); fillHolidays(); showHopes();
     msgs.unshift(`表に合わせて、対象の年月を${ym(p)}にしました`);
   } else if (!p) msgs.unshift(`表に年月が見つからないので、${ym($('period').value)}として読みました（違うときは「対象の年月」を選んでください）`);
   parseRows(msgs);
@@ -234,9 +239,10 @@ $('sample').addEventListener('click', async () => {
     const x = await fetch(`/samples/shift/${meta.xlsx}`);
     if (!x.ok) throw new Error();
     const { rows } = await xlsxRows(await x.arrayBuffer());
-    $('hopes').value = meta.hopes;
+    const own = $('hopes').value.trim() && $('hopes').value.trim() !== sampleHopes.trim();
+    $('hopes').value = meta.hopes; sampleHopes = meta.hopes;
     title = meta.facility;
-    loadRows(rows, `見本（${meta.facility}）`);
+    loadRows(rows, `見本（${meta.facility}）`, own ? ['希望休の欄を、見本の希望休に入れ替えました'] : []);
     showHopes();
   } catch (e) {
     $('loaderr').textContent = e?.message || '見本を読み込めませんでした。再読み込みしてお試しください';
@@ -254,14 +260,19 @@ $('file').addEventListener('change', async (e) => {
     if (/\.xlsx$/i.test(name) || f.type === XLSX_MIME) ({ rows, sheet } = await xlsxRows(buf));
     else rows = parseCsv(decodeCsvBytes(buf));
     title = name.replace(/\.[^.]+$/, '');
-    loadRows(rows, name, sheet ? [`シート「${sheet}」を読みました`] : []);
+    const extra = sheet ? [`シート「${sheet}」を読みました`] : [];
+    if (sampleHopes && $('hopes').value.trim() === sampleHopes.trim()) { $('hopes').value = ''; sampleHopes = ''; extra.push('見本の希望休は消しました'); }
+    loadRows(rows, name, extra);
   } catch (ex) {
-    $('loaderr').textContent = `${f.name}：${ex?.message || '読み込めませんでした'}`;
+    // 古い結果は残さない（見本の結果のまま、別のファイルの失敗が混ざらないように）
+    rawRows = null; grid = null; $('loaded').hidden = true; resetResult(); updateCheckState();
+    $('loaderr').textContent = `${f.name}：${/[ぁ-んァ-ン一-龥]/.test(ex?.message ?? '') ? ex.message : '読み込めないファイルです（Excel（.xlsx）か CSV のファイルを選んでください）'}`;
   }
 });
 
 $('period').addEventListener('change', () => {
-  if (!$('period').value) return;
+  if (!$('period').value) { $('period').value = periodOk; return; }
+  periodOk = $('period').value;
   fillHolidays();
   showHopes();
   if (rawRows) parseRows(edited ? ['対象の年月を変えたので、表を読み直しました（直したマスは元に戻りました）'] : []);
@@ -287,17 +298,25 @@ $('check').addEventListener('click', () => {
   $('result').hidden = false; $('step3').hidden = false; $('estimate').hidden = false; $('made').hidden = true;
   setStep(2);
   renderAll(true);
+  announce();
   $('result').scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
 });
 
+/** 読み上げ：件数を伝える（同じ文が続いても読み直されるよう、いったん空にする） */
+function announce(prefix = 'チェックしました。') {
+  const red = result.problems.filter((p) => p.level === 'red').length;
+  const live = $('live');
+  live.textContent = '';
+  setTimeout(() => { live.textContent = `${prefix}要確認${red}件、注意${result.problems.length - red}件`; }, 60);
+}
+
 /** 直したとき・設定を変えたとき：表は作り直さず、色と言葉と一覧だけを書き換える */
-function recheck({ announce = false } = {}) {
+function recheck({ announce: say = false } = {}) {
   runCheck();
   renderAll(false);
   $('made').hidden = true; // 前に作った Excel は、いまの表と違う
-  if (announce) {
-    const red = result.problems.filter((p) => p.level === 'red').length;
-    $('live').textContent = `確かめ直しました。要確認${red}件、注意${result.problems.length - red}件`;
+  if (say) {
+    announce('確かめ直しました。');
   }
 }
 
@@ -338,7 +357,7 @@ function renderProblems(first) {
       h('span', { class: `badge ${p.level}` }, LEVEL_TEXT[p.level]),
       h('span', { class: 'pk' }, PROBLEM_KINDS[p.kind] ?? p.kind),
       h('span', { class: 'pt' }, p.text),
-      h('button', { type: 'button', class: 'small', onclick: () => goTo(p) }, go)));
+      h('button', { type: 'button', class: 'small', 'aria-label': `${go}：${p.text}`, onclick: () => goTo(p) }, go)));
   });
   if (first) stagger(list);
 }
@@ -349,6 +368,7 @@ const toTxt = (b) => (b.to > 24 ? `翌${b.to - 24}` : String(b.to));
 
 function buildGrid() {
   const t = clear($('grid'));
+  t.append(h('caption', { class: 'sr' }, `${ym(grid.period)}のシフト表（行は人、列は日。マスを選んで記号を直せます。色の付いたマスは、読み上げに理由が付きます）`));
   const days = result.days;
   const codes = symbols.map((s) => normCode(s.code)).filter(Boolean);
   t.append(h('thead', {}, h('tr', {},
@@ -363,7 +383,7 @@ function buildGrid() {
         const cur = normCode(p.cells[di]);
         const opts = [...new Set([...codes, ...(cur && !codes.includes(cur) ? [cur] : [])])];
         const sel = h('select', {
-          'aria-label': `${p.name}さん ${dayLabel(d)}`,
+          'aria-label': `${p.name}さん ${dayLabel(d)}`, dataset: { base: `${p.name}さん ${dayLabel(d)}` },
           onchange: (e) => {
             p.cells[di] = e.target.value; edited = true;
             recheck({ announce: true });
@@ -392,7 +412,10 @@ function paintGrid() {
     const flags = result.cellFlags.get(`${td.dataset.pi}|${td.dataset.day}`) ?? [];
     const lv = worstOf(flags);
     td.classList.toggle('red', lv === 'red'); td.classList.toggle('yellow', lv === 'yellow');
-    td.querySelector('.cf').textContent = flags.map((f) => f.text).join('・');
+    const note = flags.map((f) => f.text).join('・');
+    td.querySelector('.cf').textContent = note;
+    const sel = td.querySelector('select');
+    sel.setAttribute('aria-label', note ? `${sel.dataset.base}（${LEVEL_TEXT[lv]}：${note}）` : sel.dataset.base);
   }
   for (const td of t.querySelectorAll('td.bc')) {
     const bc = result.bandCount.get(`${td.dataset.day}|${td.dataset.band}`);
@@ -450,6 +473,8 @@ function renderPeople() {
 
 $('export').addEventListener('click', async () => {
   if (!window.ExcelJS) { alert('Excelの部品を読み込めませんでした。再読み込みしてお試しください。'); return; }
+  // 希望休を打った直後でも、いまの欄の値で確かめ直してから作る
+  clearTimeout(hopeTimer); showHopes(); runCheck(); renderAll(false);
   const wb = buildShiftWorkbook(window.ExcelJS, { grid, result, settings: lastSettings, title });
   const buf = await wb.xlsx.writeBuffer();
   const filename = `シフト表のチェック_${grid.period.replace('-', '')}_${stamp()}.xlsx`;
