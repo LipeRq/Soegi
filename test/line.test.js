@@ -138,3 +138,63 @@ test('/line/webhook：署名が違えば401、合えば200を先に返し、返�
     assert.equal((await post(empty, sign(empty))).status, 200);
   } finally { globalThis.fetch = realFetch; }
 });
+
+test('レビューで直したこと：署名はバイト列のまま・古い通知と重複は捨てる・URL は伏せる・絵文字を割らない・下書きの印は先頭', async () => {
+  // 不正な UTF-8 を含む本文：バイト列に対する署名だけが通る（文字にしたあとの署名では通らない）
+  const bytes = Buffer.concat([Buffer.from('{"events":[],"x":"'), Buffer.from([0xff, 0xfe, 0x80]), Buffer.from('"}')]);
+  const sigBytes = createHmac('sha256', SECRET).update(bytes).digest('base64');
+  assert.equal(await verifyLineSignature(SECRET, bytes, sigBytes), true);
+  const sigText = createHmac('sha256', SECRET).update(bytes.toString('utf8')).digest('base64');
+  assert.equal(await verifyLineSignature(SECRET, bytes, sigText), false);
+  // 古い通知・重複
+  const old = { type: 'message', replyToken: 'old', timestamp: Date.now() - 11 * 60 * 1000, source: { type: 'user', userId: 'U9' }, message: { type: 'text', text: 'x' } };
+  assert.deepEqual(readEvents({ events: [old, { ...old, replyToken: 'new', timestamp: Date.now() }] }).map((e) => e.replyToken), ['new']);
+  const sent = []; const waits = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)); return new Response('{}', { status: 200 }); };
+  const ctx = { waitUntil: (p) => waits.push(p) };
+  const post = (body, headers = {}) => worker.fetch(new Request('https://x.test/line/webhook', { method: 'POST', headers: { 'x-line-signature': sign(body), ...headers }, body }), ENV, ctx);
+  try {
+    const ev = { ...userEvent('料金はいくら？', 'Udup'), webhookEventId: 'evt-dup-1', timestamp: Date.now() };
+    const body = JSON.stringify({ events: [ev] });
+    for (let i = 0; i < 3; i += 1) assert.equal((await post(body)).status, 200);
+    await Promise.all(waits);
+    assert.equal(sent.length, 1); // 同じ通知は、1回だけ
+    // 大きすぎる本文は、読む前に断る
+    assert.equal((await post(`{"events":[],"pad":"${'a'.repeat(70000)}"}`)).status, 413);
+    assert.equal((await post('{}', { 'content-length': '99999999' })).status, 413);
+  } finally { globalThis.fetch = realFetch; }
+  // URL は、ソエギのサイトのもの以外は出さない
+  const m = siteAnswerMessages({ answer: '詳しくは https://evil.example/login や https://withsoegi.jp/#price をどうぞ。', found: true, links: [], consult: null });
+  assert.doesNotMatch(m[0].text, /evil/);
+  assert.match(m[0].text, /（リンクは省略）/);
+  assert.match(m[0].text, /https:\/\/withsoegi\.jp\/#price/);
+  // 絵文字の途中で切らない。宿の下書きの印は先頭
+  const t = textMessage(`${'あ'.repeat(4998)}😀😀😀`).text;
+  assert.equal(Array.from(t).length, TEXT_MAX);
+  assert.ok(t.endsWith('😀…')); // 絵文字を半分に割らない
+  const d = innDraftMessages({ reply: 'あ'.repeat(4900), needsCheck: [] })[0].text;
+  assert.ok(d.startsWith('【デモ】これは、宿のスタッフが確認してから送る「下書き」です。'));
+});
+
+test('レビューで直したこと：同時に届いた回数は順に数える・切り替えの連打は止める・全体の上限', async () => {
+  // 1リクエストに5件（19回使い切った人）：AI を呼ぶのは1回だけ
+  let ai = 0;
+  const realFetch = globalThis.fetch;
+  const counting = { ...ENV, AI_PROVIDER: 'mock' };
+  const u = 'Useq';
+  for (let i = 0; i < 19; i += 1) await respond(counting, { kind: 'text', replyToken: 'r', userId: u, text: `質問${i}` });
+  const { processEvents } = await import('../src/demos/line.js');
+  const out = [];
+  globalThis.fetch = async (url, init) => { out.push(JSON.parse(init.body).messages[0].text); ai += 1; return new Response('{}', { status: 200 }); };
+  try {
+    await processEvents(counting, Array.from({ length: 5 }, (_, i) => ({ kind: 'text', replyToken: `t${i}`, userId: u, text: `追加${i}`, eventId: '' })));
+  } finally { globalThis.fetch = realFetch; }
+  assert.equal(ai, 5);
+  assert.equal(out.filter((t) => /本日の質問は20回まで/.test(t)).length, 4); // 20回目だけ答え、あとの4つは上限
+  // 切り替えは別の上限（100回）
+  const w = 'Uswitch';
+  let last;
+  for (let i = 0; i < 101; i += 1) last = await respond(counting, { kind: 'text', replyToken: 'r', userId: w, text: i % 2 ? '宿のデモ' : 'ソエギの案内' });
+  assert.match(last[0].text, /本日の質問は20回まで/);
+});
