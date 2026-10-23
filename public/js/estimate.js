@@ -82,6 +82,16 @@ export const DEMOS = {
     hours: (v) => (v.count * (v.before - v.after)) / 60,
     measures: ['1本あたりの時間', '聞き返しになった項目の数', '安全に関わる内容を、その日のうちに共有できた回数'],
   },
+  monthly: {
+    name: '数字：売上CSV → 月次レポート1枚', menu: 'manual', industry: 'food',
+    inputs: [
+      { key: 'count', label: '毎月つくる報告の数（部署・事業ごと）', unit: '本', def: 3, min: 0, max: 1000, step: 1 },
+      { key: 'before', label: '1本の数字を集めて、表・グラフにする時間', unit: '分', def: 180, min: 0, max: 1440, step: 10 },
+      { key: 'after', label: '導入後の1本の時間（確かめて、印刷するだけ）', unit: '分', def: 20, min: 0, max: 1440, step: 5 },
+    ],
+    hours: (v) => (v.count * (v.before - v.after)) / 60,
+    measures: ['1本あたりの時間', '数字の食い違いに気づいた回数', '毎月の会議に、この1枚を使えた月数'],
+  },
   knowledge: {
     name: '社内ナレッジ検索', menu: 'knowledge', industry: 'food',
     inputs: [

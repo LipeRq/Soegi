@@ -26,6 +26,7 @@
       <a class="btn" href="/attendance.html" data-lock>労務：残業の集計</a>
       <a class="btn" href="/shift.html" data-lock>労務：シフト表のチェック</a>
       <a class="btn" href="/report.html" data-lock>日報：音声 → 報告書</a>
+      <a class="btn" href="/monthly.html" data-lock>数字：売上CSV → 月次1枚</a>
       <a class="btn" href="/order.html" data-lock>受注：注文書 → 受注データ</a>
       <a class="btn" href="/knowledge.html" data-lock>社内ナレッジ検索</a>
       <a class="btn" href="/knowledge.html#foreign" data-lock>外国人スタッフ向け</a>
@@ -235,6 +236,33 @@
             <div class="b a"><span id="bot-a">お試し導入は、1業務・1ヶ月で5万円（税抜）です。</span>
               <span class="cite link" id="bot-l">料金</span>
             </div>
+          </div>
+          <span class="go">試す</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="wall" aria-labelledby="w4">
+      <header class="wallhead reveal">
+        <span class="tag">④ 数字の壁</span>
+        <h2 id="w4">毎月、数字を集めて資料にする</h2>
+        <p>売上の表から、合計・前年との比べ・上位・伸びと落ちまで。計算はプログラム、AIは短いコメントだけです。</p>
+      </header>
+      <div class="bento">
+        <a class="tile w6" href="/monthly.html" data-lock>
+          <h3 class="vt-monthly">数字：売上CSV → 月次レポート1枚</h3>
+          <p>CSVを入れると、A4・1枚の月次報告ができる。比べる前年は、必ず並べて見せる</p>
+          <div class="live rc od mo" id="live-mo" aria-hidden="true">
+            <div class="said"><b>2026年9月の売上（架空）</b><span><strong>127.2万円</strong>　前年同月比 －16.9% ▼ 減</span></div>
+            <div class="sheet"><table class="mini">
+              <thead><tr><th>顧客</th><th class="n">今月</th><th class="n">前年同月との差</th></tr></thead>
+              <tbody>
+                <tr><td>やまびこスーパー（仮）</td><td class="n">49.8万円</td><td class="n">－6,140円</td></tr>
+                <tr><td>温泉旅館みずき（仮）</td><td class="n">40.7万円</td><td class="n up">▲ ＋22万円</td></tr>
+                <tr><td>月山ストア（仮）</td><td class="n">0円</td><td class="n down">▼ －30.6万円</td></tr>
+              </tbody>
+            </table>
+            <p class="rpnote"><span class="chip y">注意</span> 月山ストア（仮）は、前年同月にあった取引がありません</p></div>
           </div>
           <span class="go">試す</span>
         </a>

@@ -64,6 +64,7 @@ a { color: var(--accent); text-underline-offset: 3px; }
 .vt-order { view-transition-name: vt-order; }
 .vt-shift { view-transition-name: vt-shift; }
 .vt-report { view-transition-name: vt-report; }
+.vt-monthly { view-transition-name: vt-monthly; }
 
 /* ---- 動きの部品（/js/motion.js と組で使う） ------------------------------------------ */
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }

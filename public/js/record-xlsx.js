@@ -63,6 +63,23 @@ export const RECORDS = {
       ['提出が翌日以降だった本数', `COUNTIF(${c[4]},"はい")`, '本'],
     ],
   },
+  monthly: {
+    perDay: 3,
+    hint: '月次の報告づくりは月に1回の作業です。この1週間に無ければ、前の月の報告づくりにかかった分を1行に書いてください。',
+    cols: [
+      { header: '報告の名前（部署・事業）', width: 20, type: 'text', count: true },
+      { header: '作業', width: 14, type: 'list', list: ['数字を集める', '表・グラフにする', '確かめる', '直す'] },
+      { header: 'かかった分', width: 11, type: 'num', sum: true },
+      { header: '食い違い・直し', width: 13, type: 'list', list: YESNO },
+      { header: 'メモ', width: 26, type: 'text' },
+    ],
+    summary: (c) => [
+      ['作った報告の数', `COUNTA(${c[0]})`, '本', 'count'],
+      ['集める・表にする・確かめる・直すにかかった分', `SUM(${c[2]})`, '分'],
+      ['1本あたりの分', `IFERROR(ROUND(SUM(${c[2]})/COUNTA(${c[0]}),1),"")`, '分', 'before'],
+      ['数字の食い違い・直しがあった回数', `COUNTIF(${c[3]},"はい")`, '回'],
+    ],
+  },
   shift: {
     perDay: 3,
     hint: 'シフト表づくりは月に1回の作業です。この1週間に無ければ、前の月のシフト表を確かめた・組み直した分を書いてください。',

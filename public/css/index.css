@@ -137,11 +137,15 @@
 .otnote { margin: 8px 0 0; font-size: 12.5px; }
 
 /* 日報：話した言葉から項目が埋まり、話に無い項目は聞き返しになる */
-.rp .said { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: var(--accent-soft); color: var(--accent-ink); border-radius: var(--r); font-size: 13px; line-height: 1.7; }
-.rp .said b { font-size: 11.5px; letter-spacing: .04em; }
+.rp .said, .mo .said { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: var(--accent-soft); color: var(--accent-ink); border-radius: var(--r); font-size: 13px; line-height: 1.7; }
+.rp .said b, .mo .said b { font-size: 11.5px; letter-spacing: .04em; }
 .rp td:first-child { color: var(--ink-3); width: 4em; white-space: nowrap; font-size: 12px; }
 .rp td.ask { color: var(--warn-ink); font-weight: 700; }
 .rpnote { margin: 8px 0 0; font-size: 12.5px; }
+.mo strong { font-family: var(--mono); font-size: 18px; font-weight: 500; }
+.mo td.up { color: var(--leaf); } .mo td.down { color: var(--danger); font-weight: 700; }
+
+@media (max-width: 559px) { .rc.mo .mini th:nth-child(3), .rc.mo .mini td:nth-child(3) { display: table-cell; } .rc.mo .mini th:nth-child(2), .rc.mo .mini td:nth-child(2) { display: none; } }
 
 
 /* 会話の見本 */

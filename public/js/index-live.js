@@ -147,6 +147,20 @@ function reports() {
   });
 }
 
+/** 月次：顧客の行が1つずつ現れる（伸びた所・落ちた所を、色と記号と言葉で） */
+function monthlies() {
+  const box = $('live-mo');
+  const rows = Array.from(box.querySelectorAll('tbody tr'));
+  loop(box, 5000, async () => {
+    rows.forEach((r) => r.classList.add('off'));
+    for (const r of rows) {
+      await sleep(800);
+      r.classList.remove('off');
+    }
+    await sleep(3800);
+  });
+}
+
 function overtime() {
   const box = $('live-ot');
   loop(box, 6000, async () => { replay(box); await sleep(6500); });
@@ -225,5 +239,5 @@ function bot() {
 
 export function startLive() {
   if (reduced()) return;
-  receipts(); overtime(); orders(); shifts(); reports(); knowledge(); foreign(); inn(); bot();
+  receipts(); overtime(); orders(); shifts(); reports(); monthlies(); knowledge(); foreign(); inn(); bot();
 }
