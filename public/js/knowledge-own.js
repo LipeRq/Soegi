@@ -24,6 +24,14 @@ function overMessage() {
   return `資料の文字が多すぎます（合わせて${n(total())}文字。上限は${n(limits.maxChars)}文字）。${files.map((f) => `「${f.name}」${n(f.text.length)}文字`).join('、')}。資料を外すか、減らしてください（切って送ることはしません）。`;
 }
 
+/** 資料の構成が変わったら、前の答えと根拠は消す（前の資料への答えを、いまの資料の答えと取り違えないように） */
+function resetConversation() {
+  seq += 1;
+  clear($('own-log'));
+  clear($('own-ev')); $('own-ev').hidden = true;
+  clear($('own-examples')); $('own-examples').hidden = true;
+}
+
 function sync() {
   const consent = $('own-consent').checked;
   const full = files.length >= limits.maxDocs;
@@ -39,7 +47,7 @@ function sync() {
     f.note ? h('span', { class: 'nt' }, f.note) : null,
     h('button', {
       type: 'button', class: 'small', 'aria-label': `${f.name}を外す`, disabled: asking,
-      onclick: () => { files.splice(i, 1); sync(); (($('own-files').querySelectorAll('button')[Math.min(i, files.length - 1)]) ?? $('own-file-btn')).focus(); },
+      onclick: () => { files.splice(i, 1); resetConversation(); $('own-err').textContent = ''; sync(); (($('own-files').querySelectorAll('button')[Math.min(i, files.length - 1)]) ?? $('own-file-btn')).focus(); },
     }, '外す'))));
   if (reading) list.append(h('li', { class: 'reading' }, '文字を取り出しています…'));
   // 文字数の目盛り（上限を超えたら、理由を言葉で。色だけに頼らない）
@@ -59,18 +67,27 @@ function sync() {
   else $('own-q').placeholder = '資料について質問（例：この資料の返品の条件は？）';
 }
 
+/** 同じ名前が入っているときは「（2）」を付ける（一覧・引用・「外す」で区別できるように） */
+function uniqueName(name) {
+  if (!files.some((x) => x.name === name)) return name;
+  const m = name.match(/^(.*?)(\.[^.]+)?$/);
+  for (let k = 2; ; k += 1) { const c = `${m[1]}（${k}）${m[2] ?? ''}`; if (!files.some((x) => x.name === c)) return c; }
+}
+
 async function addFiles(picked) {
   const room = limits.maxDocs - files.length;
   const errs = [];
-  if (picked.length > room) errs.push(`資料は${limits.maxDocs}つまでです（${picked.length - room}つは入れていません）`);
+  if (picked.length > room) errs.push(`資料は${limits.maxDocs}つまでです（入れていません：${picked.slice(room).map((f) => f.name).join('、')}）`);
   reading += Math.min(picked.length, room);
   sync();
   for (const f of picked.slice(0, room)) {
+    if (!$('own-consent').checked) { reading -= 1; continue; } // 読み取り中に同意を外したら、そのあとの資料は入れない
     try {
       if (f.size > MAX_FILE_BYTES) throw new Error('10MBを超えています');
       const { text, note } = await extractText(f);
       if (files.some((x) => x.name === f.name && x.text === text)) throw new Error('同じ資料がすでに入っています');
-      files.push({ name: f.name, text, note });
+      if (!$('own-consent').checked) throw new Error('確認のチェックが外れたため、入れませんでした');
+      files.push({ name: uniqueName(f.name), text, note });
     } catch (e) { errs.push(`${f.name}：${e.message}`); }
     reading -= 1;
     sync();
@@ -104,12 +121,12 @@ async function addSample() {
 const part = (label, text, cls = '') => h('div', { class: `part ${cls}` }, h('span', { class: 'lbl' }, label), h('p', {}, text));
 
 /** 根拠を開く：引用の前後だけを出して、引用に印を付ける（資料が長くても、画面が長くならない） */
-function showEvidence(a, c, chip) {
-  const doc = files[c.docIndex];
+function showEvidence(snap, c, chip) {
+  const doc = snap[c.docIndex];
   const box = clear($('own-ev'));
   $('own-ev').hidden = false;
   document.querySelectorAll('#own-log .cites button').forEach((b) => b.setAttribute('aria-pressed', String(b === chip)));
-  if (!doc) { box.append(h('p', { class: 'small-note' }, 'この資料は、外したため表示できません')); return; }
+  if (!doc || !files.includes(doc)) { box.append(h('p', { class: 'small-note' }, 'この資料は、外したため表示できません')); return; }
   let i = c.start >= 0 && doc.text.slice(c.start, c.end) === c.quote ? c.start : doc.text.indexOf(c.quote);
   const body = h('p', { class: 'evtext' });
   if (i < 0) body.append(c.quote);
@@ -123,7 +140,7 @@ function showEvidence(a, c, chip) {
   flash(box);
 }
 
-function renderAnswer(a, sec) {
+function renderAnswer(a, sec, snap) {
   const msg = h('div', { class: `msg bot${a.found ? '' : ' none'}` });
   if (a.requireConfirm) {
     msg.append(h('div', { class: 'part confirm' }, h('span', { class: 'lbl' }, '要確認'), h('p', {}, a.confirmText), a.confirmEasy ? h('p', {}, a.confirmEasy) : null));
@@ -142,7 +159,7 @@ function renderAnswer(a, sec) {
   let chips = [];
   if (a.citations.length) {
     chips = a.citations.map((c) => {
-      const b = h('button', { type: 'button', 'aria-pressed': 'false', onclick: () => showEvidence(a, c, b) },
+      const b = h('button', { type: 'button', 'aria-pressed': 'false', onclick: () => showEvidence(snap, c, b) },
         h('span', { class: 'ct' }, `${c.docName}：${c.quote.length > 40 ? `${c.quote.slice(0, 40)}…` : c.quote}`));
       return b;
     });
@@ -167,16 +184,19 @@ async function ask(question) {
   log.append(asked, waiting);
   waiting.scrollIntoView({ block: 'nearest', behavior: scrollHow() });
   const t0 = performance.now();
+  const snap = files.slice(); // この答えが指す資料（あとで外されても、取り違えない）
   try {
-    const a = await api('/api/knowledge-own', { docs: files.map((f) => ({ name: f.name, text: f.text })), question: q });
+    const a = await api('/api/knowledge-own', { docs: snap.map((f) => ({ name: f.name, text: f.text })), question: q });
     if (mine !== seq) return;
-    const view = renderAnswer(a, (performance.now() - t0) / 1000);
+    const view = renderAnswer(a, (performance.now() - t0) / 1000, snap);
     waiting.replaceWith(view.msg);
     view.msg.scrollIntoView({ block: 'nearest', behavior: scrollHow() });
     // 根拠が無い答えのとき、前の答えの根拠を残さない
-    if (a.citations[0]) showEvidence(a, a.citations[0], view.chips[0]); else $('own-ev').hidden = true;
+    if (a.citations[0]) showEvidence(snap, a.citations[0], view.chips[0]); else $('own-ev').hidden = true;
   } catch (e) {
     waiting.replaceWith(h('div', { class: 'msg bot' }, h('p', { class: 'err' }, e.message)));
+    $('own-ev').hidden = true;
+    if (!$('own-q').value) $('own-q').value = q; // 入れた質問は消さない
   } finally {
     asking = false;
     sync();

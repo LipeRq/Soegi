@@ -295,7 +295,7 @@ for (const ex of EXAMPLES) {
   roles.append(h('button', { type: 'button', class: fromForeign && ex.lang ? 'pick' : null, onclick: () => ask(ex.q, ex.role) },
     h('small', {}, h('b', {}, who), gloss ? h('span', {}, gloss) : null), h('span', { class: 'q', lang: ex.lang ?? null }, ex.q)));
 }
-roles.append(h('button', { type: 'button', class: 'to-admin', onclick: () => setTab('admin') },
+roles.append(h('button', { type: 'button', class: 'to-admin', onclick: () => setTab('admin', true) },
   h('small', {}, h('b', {}, '社長')), h('span', { class: 'q' }, '管理画面を開く（よく聞かれた質問）')));
 stagger(roles);
 
@@ -363,17 +363,19 @@ function renderAdmin() {
   else clear($('session-report')).append(h('tbody', {}, h('tr', {}, h('td', { class: 'empty' }, 'まだ質問がありません。「質問する」で試してください。'))));
 }
 
-function setTab(which) {
+let userPicked = false; // 利用者が自分で札を選んだら、あとから #own で勝手に切り替えない
+function setTab(which, byUser = false) {
+  if (byUser) userPicked = true;
   for (const k of ['ask', 'admin', 'own']) {
     $(`tab-${k}`).setAttribute('aria-selected', String(which === k));
     $(`pane-${k}`).hidden = which !== k;
   }
   if (which === 'admin') renderAdmin();
 }
-$('tab-ask').addEventListener('click', () => setTab('ask'));
-$('tab-admin').addEventListener('click', () => setTab('admin'));
-$('tab-own').addEventListener('click', () => setTab('own'));
-setupOwn(() => { if (location.hash === '#own') setTab('own'); }); // Claude のキーがあるときだけ、3つ目の札が出る
+$('tab-ask').addEventListener('click', () => setTab('ask', true));
+$('tab-admin').addEventListener('click', () => setTab('admin', true));
+$('tab-own').addEventListener('click', () => setTab('own', true));
+setupOwn(() => { if (location.hash === '#own' && !userPicked) setTab('own'); }); // Claude のキーがあるときだけ、3つ目の札が出る
 
 loadDocs();
 if (fromForeign) {

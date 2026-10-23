@@ -1,7 +1,6 @@
 // 「御社の資料で試す」：ファイルを、画面の中で文字にする（サーバーには文字だけを送る。ファイルそのものは送らない）。
 //   PDF … pdf.js（文字の層だけ。スキャンした画像だけの PDF は読めない）／Word（.docx）… JSZip で本文の XML／
 //   Excel（.xlsx）… ExcelJS（「シート名・行番号・値」の形）／テキスト（.txt .csv .md）… そのまま（UTF-8 か Shift_JIS）
-import { decodeCsvBytes } from './csv.js';
 
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
 export const ACCEPT = '.pdf,.docx,.xlsx,.txt,.csv,.md,application/pdf,text/plain,text/csv,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -25,7 +24,7 @@ export function docxXmlToText(xml) {
   // 表の行（w:tr）は、セル（w:tc）の段落をタブでつなぐ。それ以外の段落は1行
   const para = (p) => {
     let t = '';
-    for (const m of p.matchAll(/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>|<w:tab\s*\/>|<w:br\s*\/>|<w:cr\s*\/>/g)) {
+    for (const m of p.matchAll(/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>|<w:tab(?:\s[^>]*)?\/>|<w:br(?:\s[^>]*)?\/>|<w:cr(?:\s[^>]*)?\/>/g)) {
       if (m[1] != null) t += unescapeXml(m[1]); else t += m[0].startsWith('<w:tab') ? '\t' : '\n';
     }
     return t;
@@ -62,15 +61,48 @@ export function sheetToText(name, rows) {
  * 前の行が「ほぼ最大の長さ」で、文の終わり（。など）でなく、前後が日本語の文字のときだけつなぐ（見出しなど短い行はつながない）
  */
 export function joinWrappedLines(lines) {
-  const max = Math.max(0, ...lines.map((l) => l.length));
-  const cjk = /[\u3040-\u30ff\u4e00-\u9fff、，]/;
+  // 折り返しの幅の目安：行の長さの上位1割（英文などの長い行1本に引きずられない）
+  const sorted = lines.map((l) => l.length).sort((x, y) => x - y);
+  const max = sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.9))] : 0;
+  const body = /[\u3041-\u309f\u30a1-\u30fa\u4e00-\u9fff]/;
   const out = [];
   for (const line of lines) {
     const prev = out.at(-1);
-    if (prev != null && prev.length >= max * 0.8 && max >= 20 && !/[。．.!?！？：:]$/.test(prev) && cjk.test(prev.at(-1)) && /^[\u3040-\u30ff\u4e00-\u9fff]/.test(line)) out[out.length - 1] = prev + line;
+    // 次の行が見出し・箇条書き・条文（第〜条）・番号で始まるときは、つながない
+    if (prev != null && max >= 28 && prev.length >= max * 0.8 && !/[。．.!?！？：:]$/.test(prev) && /[\u3040-\u30ff\u4e00-\u9fff、，]$/.test(prev) && body.test(line[0] ?? '') && !/^第/.test(line)) out[out.length - 1] = prev + line;
     else out.push(line);
   }
   return out;
+}
+
+/**
+ * テキストファイルの文字コードを判別して読む（UTF-8・UTF-16（BOM付き）・Shift_JIS・EUC-JP）。
+ * 日本語として読めない（文字化けしている）ときは、化けた文字を送らず、断る
+ */
+export function decodeTextBytes(buf) {
+  const b = new Uint8Array(buf);
+  if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder('utf-16le').decode(b.subarray(2));
+  if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder('utf-16be').decode(b.subarray(2));
+  if (b[0] === 0xef && b[1] === 0xbb && b[2] === 0xbf) return new TextDecoder('utf-8').decode(b.subarray(3));
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(b); } catch { /* 次へ */ }
+  if (b.subarray(0, 4000).includes(0)) throw new Error('文字コードを判別できませんでした（UTF-16 は BOM 付きで保存し直すか、UTF-8 でお試しください）');
+  const plausible = (t) => {
+    const chars = [...t];
+    if (!chars.length) return 0;
+    const ok = chars.filter((c) => /[\s\u0020-\u007e\u3000-\u303f\u3040-\u30ff\u4e00-\u9fff\uff00-\uff60\uffa0-\uffef\u2010-\u2200\u25a0-\u25ff]/.test(c)).length;
+    return ok / chars.length;
+  };
+  let best = null;
+  for (const enc of ['shift_jis', 'euc-jp']) {
+    let t;
+    try { t = new TextDecoder(enc).decode(b); } catch { continue; }
+    const fffd = (t.match(/\ufffd/g) ?? []).length;
+    const hira = ([...t].filter((c) => /[\u3041-\u309f]/.test(c)).length) / Math.max(1, [...t].length);
+    const score = plausible(t) - fffd / Math.max(1, t.length) * 5 + hira * 0.1; // 本物の日本語は、ひらがなが多い
+    if (!best || score > best.score) best = { t, score };
+  }
+  if (!best || best.score < 0.85) throw new Error('文字コードを判別できませんでした（文字化けしています）。UTF-8 か Shift_JIS で保存し直してください');
+  return best.t;
 }
 
 const ext = (f) => (f.name.match(/\.([a-z0-9]+)$/i)?.[1] ?? '').toLowerCase();
@@ -113,6 +145,7 @@ async function docxText(buf) {
   const zip = await window.JSZip.loadAsync(buf);
   const f = zip.file('word/document.xml');
   if (!f) throw new Error('Word（.docx）として読めませんでした');
+  if ((f._data?.uncompressedSize ?? 0) > 20 * 1024 * 1024) throw new Error('Word の中身が大きすぎます（展開すると20MBを超えます）');
   return { text: docxXmlToText(await f.async('string')), note: '' };
 }
 
@@ -120,21 +153,25 @@ async function xlsxText(buf) {
   if (!window.ExcelJS) throw new Error('Excelを読む部品を読み込めませんでした。再読み込みしてお試しください');
   const wb = new window.ExcelJS.Workbook();
   await wb.xlsx.load(buf);
-  const parts = [];
+  const parts = []; let skipped = 0;
   for (const ws of wb.worksheets) {
+    // 利用者から見えない内容（非表示のシート・行）は、外部へ送らない
+    if (ws.state && ws.state !== 'visible') { skipped += 1; continue; }
     const rows = [];
     ws.eachRow({ includeEmpty: true }, (row, n) => {
+      if (row.hidden) { skipped += 1; return; }
       const arr = [];
       row.eachCell({ includeEmpty: true }, (c, col) => {
+        if (c.isMerged && c.master && c.master !== c) { arr[col - 1] = ''; return; } // 結合セルの値は、先頭のセルだけに
         const v = c.value;
-        arr[col - 1] = v == null ? '' : v instanceof Date ? v : typeof v === 'object' ? ('result' in v ? v.result : Array.isArray(v.richText) ? v.richText.map((r) => r.text).join('') : v.text ?? '') : v;
+        arr[col - 1] = v == null ? '' : v instanceof Date ? v : typeof v === 'object' ? ('error' in v ? '' : 'result' in v ? (v.result instanceof Date ? v.result : typeof v.result === 'object' ? '' : v.result) : Array.isArray(v.richText) ? v.richText.map((r) => r.text).join('') : v.text ?? '') : v;
       });
       rows[n - 1] = arr;
     });
     const t = sheetToText(ws.name, Array.from(rows, (r) => r ?? []));
     if (t) parts.push(t);
   }
-  return { text: parts.join('\n'), note: '' };
+  return { text: parts.join('\n'), note: skipped ? '非表示のシート・行は読んでいません' : '' };
 }
 
 /**
@@ -149,7 +186,7 @@ export async function extractText(file) {
     if (e === 'pdf') r = await pdfText(buf);
     else if (e === 'docx') r = await docxText(buf);
     else if (e === 'xlsx') r = await xlsxText(buf);
-    else if (['txt', 'csv', 'md'].includes(e)) r = { text: decodeCsvBytes(buf), note: '' };
+    else if (['txt', 'csv', 'md'].includes(e)) r = { text: decodeTextBytes(buf), note: '' };
     else if (e === 'doc' || e === 'xls') throw new Error(`古い形式（.${e}）は読めません。${e === 'doc' ? 'Word の「.docx」' : 'Excel の「.xlsx」'}で保存し直してください`);
     else throw new Error('読めるのは PDF・Word（.docx）・Excel（.xlsx）・テキスト（.txt .csv .md）です');
   } catch (err) {

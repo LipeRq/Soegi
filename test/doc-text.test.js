@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import JSZip from 'jszip';
 import ExcelJS from 'exceljs';
-import { docxXmlToText, sheetToText, cleanText, joinWrappedLines } from '../public/js/doc-text.js';
+import { docxXmlToText, sheetToText, cleanText, joinWrappedLines, decodeTextBytes } from '../public/js/doc-text.js';
 import { normalizeOwnDocs, finalizeOwnAnswer } from '../src/core/own.js';
 import { mockDocAnswer } from '../src/mock.js';
 
@@ -63,4 +63,34 @@ test('PDF の折り返された行をつなぐ：見出しや文の終わりの�
   const full = '2メートル以上の高さで作業するときは、安全帯（フルハーネス）を着け、必ず2人';
   assert.deepEqual(joinWrappedLines(['■ 高所作業', full, '以上で作業します。', '■ 朝礼', '毎朝8時に朝礼をします。']), ['■ 高所作業', `${full}以上で作業します。`, '■ 朝礼', '毎朝8時に朝礼をします。']);
   assert.deepEqual(joinWrappedLines(['短い', '行です']), ['短い', '行です']);
+});
+
+test('レビューで直したこと：箇条書き・見出し・表の行をつながない、長い英文の行に引きずられない', () => {
+  const full = 'この資料は現場で働くすべての職員が、毎朝の朝礼のあとに必ず読み返すための決まりごとをまとめたものです';
+  assert.deepEqual(joinWrappedLines([full, '・事務所に入るときは、あいさつをします', full, 'ます。']), [full, '・事務所に入るときは、あいさつをします', `${full}ます。`]);
+  assert.deepEqual(joinWrappedLines([full, '第2条 休憩の決まり']), [full, '第2条 休憩の決まり']);
+  // 表の行（短い行）はつなげない
+  assert.deepEqual(joinWrappedLines(['外壁塗装 m2 3200 足場代は別', '屋根塗装 m2 2800 足場代は別', '洗面台の交換 台 98000 本体を含む']), ['外壁塗装 m2 3200 足場代は別', '屋根塗装 m2 2800 足場代は別', '洗面台の交換 台 98000 本体を含む']);
+  // 英文の長い行が1本あっても、日本語の折り返しはつながる
+  const en = 'This is a very long English sentence that is much longer than any of the Japanese lines in this page.';
+  assert.deepEqual(joinWrappedLines([en, full, 'です。', 'ABC', full, 'です。']).filter((l) => l.endsWith('です。')).length, 2);
+});
+
+test('テキストの文字コード：UTF-8・BOM・UTF-16（BOM付き）・Shift_JIS・EUC-JP。化けた文字は受け入れない', () => {
+  const text = '有給休暇は、3日前までに休暇届を出します。\n遅刻するときは電話します。';
+  const u8 = new TextEncoder().encode(text);
+  assert.equal(decodeTextBytes(u8), text);
+  assert.equal(decodeTextBytes(Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), u8])), text);
+  const u16 = Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(text, 'utf16le')]);
+  assert.equal(decodeTextBytes(u16), text);
+  const be = Buffer.from(text, 'utf16le').swap16();
+  assert.equal(decodeTextBytes(Buffer.concat([Buffer.from([0xfe, 0xff]), be])), text);
+  // Shift_JIS / EUC-JP（node の TextEncoder は UTF-8 だけなので、バイト列を直接用意する）
+  const sjis = Buffer.from([0x95, 0x69, 0x96, 0xbc, 0x2c, 0x92, 0x50, 0x89, 0xbf, 0x0a, 0x8f, 0x5c, 0x8f, 0x5c]);
+  assert.match(decodeTextBytes(sjis), /^品名,単価\n/);
+  const eucjp = Buffer.from([0xa4, 0xa2, 0xa4, 0xa4, 0xa4, 0xa6, 0xa4, 0xa8, 0xa4, 0xaa]); // あいうえお
+  assert.equal(decodeTextBytes(eucjp), 'あいうえお');
+  // BOM なしの UTF-16 や、バイナリは断る
+  assert.throws(() => decodeTextBytes(Buffer.from(text, 'utf16le')), /判別できません/);
+  assert.throws(() => decodeTextBytes(Buffer.from([0x80, 0x81, 0x82, 0xfd, 0xfe, 0xff, 0x90, 0x91, 0x92, 0x93])), /判別できません/);
 });

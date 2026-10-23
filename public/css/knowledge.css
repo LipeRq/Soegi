@@ -240,3 +240,4 @@ section.card.session .report { background: none; }
 @media (max-width: 760px) { .ownfiles li { border-radius: var(--r); padding: 6px 0 6px 12px; } .ownfiles .fn { flex-basis: 100%; } }
 
 .msg .uncited { text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+#own-err, #own-total { overflow-wrap: anywhere; }
