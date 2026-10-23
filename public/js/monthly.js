@@ -74,12 +74,14 @@ function apply(label = '') {
   $('filterrow').hidden = !months.length; $('result').hidden = !months.length; $('estimate').hidden = !months.length;
   if (!months.length) { setStep(1); return; }
   const closed = latestClosedMonth(records, today());
+  const keep = $('month').value;
   const sel = clear($('month'));
   for (const m of months) sel.append(h('option', { value: m }, ymLabel(m)));
   const first = closed ?? months[0];
   sel.value = first;
   $('monthnote').textContent = closed ? '既定は、いちばん新しい「締まった月」（今月より前）です。' : '今月のデータだけなので、その月を出しています（途中の月の数字です）。';
   ai = null;
+  if (!label && keep && months.includes(keep)) sel.value = keep; // 列の対応を直したときは、選んでいた月を保つ
   render();
   setStep(2);
 }
@@ -102,7 +104,8 @@ $('company').addEventListener('input', () => { $('s-co').textContent = $('compan
 
 // ---- 1枚 -----------------------------------------------------------------------------------
 
-const arrow = (p) => (p == null ? '' : p >= 0 ? '▲' : '▼');
+// 日本の経理では「▲」はマイナスの印なので、増減は ↑↓ と「増・減」の言葉で示す
+const arrow = (d) => (d > 0 ? '↑' : d < 0 ? '↓' : '＝');
 
 function kpi(label, value, sub, cls = '') {
   return h('div', { class: `kpi ${cls}` }, h('span', { class: 'kl' }, label), h('b', { class: 'kv' }, value), sub ? h('small', { class: 'ks' }, sub) : null);
@@ -112,8 +115,8 @@ function kpi(label, value, sub, cls = '') {
 function deltaKpi(label, rel, baseName) {
   if (!rel) return kpi(label, '—', `${baseName}のデータがありません`, 'muted');
   if (rel.pct == null) return kpi(label, '—', `${baseName}は0円以下のため、割合は出せません`, 'muted');
-  const up = rel.diff >= 0;
-  return kpi(label, pct(rel.pct), `${arrow(rel.pct)} ${up ? '増' : '減'}　${baseName} ${yenShort(rel.total)}（${up ? '＋' : '－'}${yenShort(Math.abs(rel.diff))}）`, up ? 'up' : 'down');
+  const word = rel.diff > 0 ? '増' : rel.diff < 0 ? '減' : '変わらず';
+  return kpi(label, pct(rel.pct), `${arrow(rel.diff)} ${word}　${baseName} ${yenShort(rel.total)}（${rel.diff >= 0 ? '＋' : '－'}${yenShort(Math.abs(rel.diff))}）`, rel.diff > 0 ? 'up' : rel.diff < 0 ? 'down' : 'muted');
 }
 
 function render() {
@@ -134,6 +137,17 @@ function render() {
   barList($('prodbars'), calc.products.top, { restLabel: 'そのほかの商品', rest: calc.products.rest, restShare: calc.products.restShare, restCount: calc.products.restCount });
   renderMovers();
   renderPoints();
+  unnamedNote();
+}
+
+/** 名前の無い行（列を選んでいない・空）は、順位に入れていない。額だけ知らせる */
+function unnamedNote() {
+  const note = (box, c, what) => {
+    box.querySelector('.unnamed')?.remove();
+    if (c.unnamed > 0) box.append(h('p', { class: 'rest unnamed' }, `${what}が空の行：${yenShort(c.unnamed)}（${share(c.unnamedShare)}）は、順位に入れていません。`));
+  };
+  note($('custbars'), calc.customers, '顧客');
+  note($('prodbars'), calc.products, '商品');
 }
 
 function lineTable() {

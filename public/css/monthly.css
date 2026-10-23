@@ -72,11 +72,11 @@ svg.lc .hit:focus-visible { stroke: var(--accent); stroke-width: 2; }
 #sheet .val { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
 #sheet .rest { margin: 6px 0 0; font-size: 13px; color: var(--ink-3); }
 
-/* 伸びた所・落ちた所：色＋▲▼＋言葉 */
+/* 伸びた所・落ちた所：色＋↑↓＋言葉 */
 .movers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; }
 .mcol h5 { margin: 0 0 4px; font-size: 14px; }
-.mcol.up h5::before { content: "▲ "; color: var(--leaf); }
-.mcol.down h5::before { content: "▼ "; color: var(--danger); }
+.mcol.up h5::before { content: "↑ "; color: var(--leaf); }
+.mcol.down h5::before { content: "↓ "; color: var(--danger); }
 .mg { margin-bottom: 8px; }
 .mk { font-size: 12px; color: var(--ink-3); font-weight: 700; }
 .mg ul { list-style: none; margin: 2px 0 0; padding: 0; }

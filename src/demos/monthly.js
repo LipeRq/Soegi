@@ -14,7 +14,7 @@ function cleanFacts(raw) {
     const id = typeof f?.id === 'string' && /^f\d{1,2}$/.test(f.id) ? f.id : null;
     if (!id || ids.has(id) || typeof f.label !== 'string' || typeof f.value !== 'string') throw new HttpError(400, '事実の形が正しくありません');
     ids.add(id);
-    return { id, label: f.label.replace(/[\r\n]/g, ' ').slice(0, 40), value: f.value.replace(/[\r\n]/g, ' ').slice(0, 80) };
+    return { id, label: f.label.replace(/[\r\n\u0085\u2028\u2029]/g, ' ').slice(0, 40), value: f.value.replace(/[\r\n\u0085\u2028\u2029]/g, ' ').slice(0, 80) };
   });
 }
 
@@ -27,7 +27,7 @@ export async function monthlyComment(env, body) {
       UNTRUSTED_NOTE,
       '決まりごと：',
       '- 下の「事実の一覧」だけを使う。一覧に無いことは書かない。',
-      '- **数字（アラビア数字・全角数字）を1文字も書かない。** 数字・金額・％・名前は、{f3} のように事実の番号で指す（プログラムが値を埋める）。「3つ」「2社」のような数も書かない。',
+      '- **数字（アラビア数字・全角数字）を1文字も書かない。** 数字・金額・％・名前は、{f3} のように事実の番号で指す（プログラムが値を埋める）。「3つ」「二社」のような数や、漢数字・「倍」「割」「半分」のような数を言う言葉も書かない。',
       '- 原因を言い切らない。「〜の可能性があります」「〜かもしれません」まで。「〜が原因です」「〜のためです」と書かない。',
       '- 効果や将来の数字を約束しない。3行とも、1行80文字以内の、やさしい日本語で。',
       '- 1行目は全体の様子、2行目は顧客や商品の偏り、3行目は確かめたほうがよい点。',

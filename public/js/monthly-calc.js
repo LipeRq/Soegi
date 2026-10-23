@@ -8,13 +8,22 @@ const norm = (s) => String(s ?? '').normalize('NFKC').replace(/\s+/g, ' ').trim(
 /** 金額・数量：「1,200」「¥1,200」「1200円」「△500」「▲500」「(500)」「-500」→ 数。読めなければ null */
 export function toNumber(v) {
   if (typeof v === 'number') return Number.isFinite(v) ? v : null;
-  let s = norm(v).replace(/[,¥￥円個本袋箱]/g, '');
+  // 単位は、前（¥）か後ろ（円・個…）に1つだけ。途中に混ざった文字は読めないことにする
+  let s = norm(v).replace(/^[¥￥]/, '').replace(/[円個本袋箱]$/, '');
   if (!s) return null;
   let neg = false;
-  if (/^[△▲]/.test(s)) { neg = true; s = s.slice(1); } else if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); } else if (s.startsWith('-')) { neg = true; s = s.slice(1); }
-  if (!/^\d+(\.\d+)?$/.test(s)) return null;
-  return neg ? -Number(s) : Number(s);
+  if (/^[△▲]/.test(s)) { neg = true; s = s.slice(1); } else if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); } else if (/^[-−－]/.test(s)) { neg = true; s = s.slice(1); } else if (s.endsWith('-')) { neg = true; s = s.slice(0, -1); } else if (s.startsWith('+')) s = s.slice(1);
+  s = s.replace(/^[¥￥]/, '');
+  if (!/^(\d{1,3}(,\d{3})+|\d+)(\.\d+)?$/.test(s)) return null;
+  const n = Number(s.replace(/,/g, ''));
+  if (!Number.isFinite(n)) return null;
+  return neg ? -n : n;
 }
+
+/** 名前の無い行（列を選んでいない・空）をまとめる名前。順位・伸び落ちには入れない */
+export const NO_CUSTOMER = '（顧客なし）';
+export const NO_PRODUCT = '（商品なし）';
+const UNNAMED = new Set([NO_CUSTOMER, NO_PRODUCT]);
 
 export const ymOf = (iso) => iso.slice(0, 7);
 export function addMonths(ym, n) {
@@ -41,8 +50,8 @@ export function readSales(rows, mapping, hasHeader = true) {
     if (amount == null) { errors.push({ row, message: `金額を読めません（「${norm(at(r, mapping.amount)).slice(0, 20)}」）` }); return; }
     const qtyRaw = at(r, mapping.qty);
     const qty = String(qtyRaw).trim() === '' ? null : toNumber(qtyRaw);
-    const customer = norm(at(r, mapping.customer)) || '（顧客なし）';
-    const product = norm(at(r, mapping.product)) || '（商品なし）';
+    const customer = norm(at(r, mapping.customer)) || NO_CUSTOMER;
+    const product = norm(at(r, mapping.product)) || NO_PRODUCT;
     records.push({ date, ym: ymOf(date), customer, product, qty, amount });
   });
   return { records, errors };
@@ -79,7 +88,7 @@ function monthTotals(byMonth, ym) {
 
 /** 伸びた・落ちた：前年同月との差の大きい順に3つずつ。前年同月のデータが無いときは null */
 function movers(cur, prev) {
-  const names = new Set([...cur.keys(), ...prev.keys()]);
+  const names = new Set([...cur.keys(), ...prev.keys()].filter((k) => !UNNAMED.has(k)));
   const all = [...names].map((name) => {
     const c = cur.get(name) ?? 0; const p = prev.get(name) ?? 0;
     return { name, cur: c, prev: p, diff: c - p, pct: pctOf(c, p), isNew: p === 0 && c > 0, isLost: c === 0 && p > 0 };
@@ -91,10 +100,12 @@ function movers(cur, prev) {
 }
 
 function top5(map, total) {
-  const sorted = [...map].filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ja'));
+  // 名前の無い行は順位に入れず、別に額だけ知らせる
+  const unnamed = [...map].filter(([k]) => UNNAMED.has(k)).reduce((t, [, v]) => t + v, 0);
+  const sorted = [...map].filter(([k, v]) => v > 0 && !UNNAMED.has(k)).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ja'));
   const top = sorted.slice(0, 5).map(([name, amount]) => ({ name, amount, share: total > 0 ? amount / total : null }));
   const rest = sorted.slice(5).reduce((t, [, v]) => t + v, 0);
-  return { top, rest, restShare: total > 0 ? rest / total : null, restCount: Math.max(0, sorted.length - 5) };
+  return { top, rest, restShare: total > 0 ? rest / total : null, restCount: Math.max(0, sorted.length - 5), unnamed, unnamedShare: total > 0 ? unnamed / total : null };
 }
 
 /**
@@ -135,9 +146,13 @@ export const yen = (n) => `${Math.round(n).toLocaleString('ja-JP')}円`;
 /** 万円（小数1桁まで）。1万円未満は円。大きな数が長くならないようにする */
 export function yenShort(n) {
   const a = Math.abs(n);
-  if (a >= 100_000_000) return `${(n / 100_000_000).toFixed(1).replace(/\.0$/, '')}億円`;
-  if (a >= 10_000) return `${Math.round(n / 1000) / 10}万円`.replace(/(\d)\.0万/, '$1万');
+  if (a >= 99_995_000) return `${(n / 100_000_000).toFixed(1).replace(/\.0$/, '')}億円`;
+  if (a >= 10_000) return `${(Math.round(n / 1000) / 10).toLocaleString('ja-JP')}万円`.replace(/(\d)\.0万/, '$1万');
   return yen(n);
 }
-export const pct = (p) => (p == null ? '—' : `${p >= 0 ? '＋' : '－'}${Math.abs(p * 100).toFixed(1)}%`);
+export const pct = (p) => {
+  if (p == null) return '—';
+  const t = Math.abs(p * 100).toFixed(1);
+  return t === '0.0' ? '0.0%' : `${p >= 0 ? '＋' : '－'}${t}%`;
+};
 export const share = (p) => (p == null ? '—' : `${(p * 100).toFixed(1)}%`);
