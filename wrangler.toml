@@ -6,7 +6,7 @@ compatibility_date = "2026-10-01"
 [assets]
 directory = "./public"
 binding = "ASSETS"
-run_worker_first = ["/api/*"]
+run_worker_first = ["/api/*", "/line/*"]
 
 [vars]
 # deepseek（デモ）／ claude（本番：お客さんのデータを扱う導入では必ず claude）
@@ -44,4 +44,6 @@ custom_domain = true
 #   wrangler secret put DEEPSEEK_API_KEY
 #   wrangler secret put ANTHROPIC_API_KEY   （claude に切り替えるときだけ）
 #   wrangler secret put TURNSTILE_SECRET    （宿のデモの自由入力を使うときだけ）
+#   wrangler secret put LINE_CHANNEL_SECRET        （LINE で答えるときだけ。docs/line-setup.md）
+#   wrangler secret put LINE_CHANNEL_ACCESS_TOKEN  （同上）
 #   wrangler secret put HASH_SALT           （任意。回数を数えるときのIPのハッシュに混ぜる値）

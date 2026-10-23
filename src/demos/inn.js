@@ -31,7 +31,8 @@ const SYSTEM = [
   buildInnContext(inn),
 ].join('\n');
 
-async function draft(env, inquiry) {
+/** 問い合わせの返信の下書き（回数の制限は呼び出し側で）。LINE からも使う */
+export async function draft(env, inquiry) {
   const v = await withRetry(async () => validateInnReply(await extractStructured(env, {
     tool: INN_REPLY_TOOL, system: SYSTEM, userText: `問い合わせ：\n${inquiry}`, maxTokens: 2500,
   })));

@@ -49,14 +49,10 @@ const cleanHistory = (h) => (Array.isArray(h) ? h : [])
   .slice(-HISTORY_TURNS)
   .map((m) => `${m.role === 'user' ? '訪問者' : '案内係'}：${m.text.slice(0, 600)}`);
 
-export async function siteChat(env, body, ip) {
-  const p = PROFILES[body?.profile] ?? PROFILES.soegi;
-  const message = typeof body?.message === 'string' ? body.message.trim() : '';
-  if (!message) throw new HttpError(400, '質問を入力してください');
-  if (message.length > CHAT_MAX) throw new HttpError(400, `${CHAT_MAX}文字までにしてください`);
-  const day = await allowPerDay(env, 'chat', ip, CHAT_PER_DAY);
-  if (!day.ok) throw new HttpError(429, '本日の質問の上限に達しました。お電話かメールでお問い合わせください');
-  const history = cleanHistory(body.history);
+/** AIに答えさせて、サイトの内容と照合した形にする（回数の制限は呼び出し側で）。LINE からも使う */
+export async function answerSite(env, profileKey, message, historyRaw = []) {
+  const p = PROFILES[profileKey] ?? PROFILES.soegi;
+  const history = cleanHistory(historyRaw);
   const v = await withRetry(async () => validateSiteAnswer(await extractStructured(env, {
     tool: SITE_TOOL,
     system: systemFor(p),
@@ -64,4 +60,13 @@ export async function siteChat(env, body, ip) {
     maxTokens: 1200,
   })));
   return finalizeSiteAnswer(p, v);
+}
+
+export async function siteChat(env, body, ip) {
+  const message = typeof body?.message === 'string' ? body.message.trim() : '';
+  if (!message) throw new HttpError(400, '質問を入力してください');
+  if (message.length > CHAT_MAX) throw new HttpError(400, `${CHAT_MAX}文字までにしてください`);
+  const day = await allowPerDay(env, 'chat', ip, CHAT_PER_DAY);
+  if (!day.ok) throw new HttpError(429, '本日の質問の上限に達しました。お電話かメールでお問い合わせください');
+  return answerSite(env, body?.profile, message, body?.history);
 }

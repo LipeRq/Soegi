@@ -2,6 +2,7 @@
 // 何も保存しない（自由入力の1日の回数だけ、IPのハッシュで翌日まで数える）。ログにも本文を出さない。
 //
 //   パスワードが必要（demo.withsoegi.jp の中のデモ）：/api/verify /api/receipt /api/timecard /api/order /api/knowledge /api/knowledge-own
+//   LINE（署名で確かめる）：/line/webhook
 //   公開（サイトから使うデモ）：/api/public-config /api/inn-reply /api/inn-review /api/inn-faq /api/site-chat
 
 import { AIError } from './ai.js';
@@ -12,6 +13,7 @@ import { knowledge } from './demos/knowledge.js';
 import { knowledgeOwn, knowledgeOwnStatus } from './demos/own.js';
 import { innReply, innFaq, innReview, FREE_MAX, FREE_PER_DAY, REVIEW_FREE_MAX } from './demos/inn.js';
 import { siteChat, CHAT_MAX } from './demos/sitechat.js';
+import { lineWebhook } from './demos/line.js';
 
 const MB = 1024 * 1024;
 
@@ -32,9 +34,17 @@ const PUBLIC = {
 };
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
+    // LINE の webhook：署名の確認が認証の代わり（パスワードは使わない）。本文はログに出さない
+    if (path === '/line/webhook') {
+      if (request.method !== 'POST') return err(405, 'POST のみ受け付けます');
+      try { return json(await lineWebhook(request, env, ctx)); } catch (e) {
+        if (e instanceof HttpError) return err(e.status, e.message);
+        return err(500, '内部エラーが発生しました');
+      }
+    }
     if (!path.startsWith('/api/')) return env.ASSETS.fetch(request);
 
     const route = PRIVATE[path] ? { ...PRIVATE[path], private: true } : PUBLIC[path];
