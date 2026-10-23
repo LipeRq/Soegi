@@ -135,7 +135,9 @@ function renderAnswer(a, sec) {
     msg.append(h('div', { class: 'part notfound' }, h('span', { class: 'badge gray' }, '資料に見当たりません'), h('p', { lang: a.language }, a.answer)));
     if (a.easyJa) msg.append(part('やさしい日本語', a.easyJa, 'easy'));
   } else {
-    msg.append(part('答え', a.answer, 'ans'));
+    // 引用の付いていない部分には、点線の下線（色だけに頼らない。下の注意の文で意味を伝える）
+    const body = h('p', { lang: a.language }, (a.parts?.length ? a.parts : [{ text: a.answer, cited: true }]).map((p) => (p.cited ? p.text : h('span', { class: 'uncited' }, p.text))));
+    msg.append(h('div', { class: 'part ans' }, h('span', { class: 'lbl' }, '答え'), body));
   }
   let chips = [];
   if (a.citations.length) {

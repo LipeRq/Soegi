@@ -245,6 +245,7 @@ export function mockDocAnswer(docs, question) {
   const start = best.start + best.sentence.indexOf(quote);
   return {
     text: `資料には次のように書かれています：${quote}`,
+    parts: [{ text: `資料には次のように書かれています：${quote}`, cited: true }],
     citations: [{ type: 'char_location', document_index: best.di, cited_text: quote, start_char_index: start, end_char_index: start + quote.length }],
     usage: null,
   };

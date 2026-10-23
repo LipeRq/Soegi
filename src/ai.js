@@ -133,7 +133,7 @@ async function callClaude(env, { tool, system, userText, imageBase64, maxTokens 
 export async function askWithDocuments(env, { system, docs, question, maxTokens = 2000 }) {
   const provider = (env.AI_PROVIDER || 'deepseek').toLowerCase();
   if (provider === 'mock') return mockDocAnswer(docs, question);
-  if (!env.ANTHROPIC_API_KEY) throw new AIError('ANTHROPIC_API_KEY が未設定です');
+  if (!String(env.ANTHROPIC_API_KEY ?? '').trim()) throw new AIError('ANTHROPIC_API_KEY が未設定です');
   const content = docs.map((d, i) => ({
     type: 'document',
     source: { type: 'text', media_type: 'text/plain', data: d.text },
@@ -149,12 +149,14 @@ export async function askWithDocuments(env, { system, docs, question, maxTokens 
   );
   if (data?.stop_reason === 'refusal') throw new AIError('AIが答えられませんでした。質問を変えてお試しください');
   if (data?.stop_reason === 'max_tokens') throw new AIError('答えが長くなりすぎて途中で切れました。質問を絞ってお試しください');
-  const blocks = (data?.content ?? []).filter((b) => b.type === 'text');
+  const blocks = (Array.isArray(data?.content) ? data.content : []).filter((b) => b?.type === 'text' && typeof b.text === 'string');
   if (!blocks.length) throw new AIError('AIの応答に結果がありませんでした');
-  const citations = blocks.flatMap((b) => (b.citations ?? []).filter((c) => c.type === 'char_location'));
+  const citations = blocks.flatMap((b) => (Array.isArray(b.citations) ? b.citations : []).filter((c) => c?.type === 'char_location'));
   const u = data.usage;
   return {
     text: blocks.map((b) => b.text).join(''),
+    // どの文に引用が付いているか（引用の付いていない文は、資料に書いてあるとは限らない）
+    parts: blocks.map((b) => ({ text: b.text, cited: Array.isArray(b.citations) && b.citations.some((c) => c?.type === 'char_location') })),
     citations,
     usage: u ? { input: u.input_tokens ?? 0, cacheRead: u.cache_read_input_tokens ?? 0, cacheWrite: u.cache_creation_input_tokens ?? 0, output: u.output_tokens ?? 0 } : null,
   };

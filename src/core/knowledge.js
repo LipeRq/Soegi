@@ -51,7 +51,7 @@ export function verifyCitations(docs, citations) {
 // 安全・衛生・体調に関わる質問かどうか（AIの判断に加えて、プログラムでも必ず見る）
 const SAFETY_RE = /けが|怪我|ケガ|切っ|切れ|切り傷|血|やけど|火傷|熱い|体調|発熱|熱が|下痢|吐|気分|頭痛|手袋|衛生|消毒|手洗|異物|安全|カバー|機械|エラー|ノズル|殺菌|薬品|洗剤|アレルギー|倒れ|転ん|危な|injur|cut|burn|sick|fever|glove|hygien|safety|machine|error|luka|sarung tangan|sakit|demam|găng tay|bị thương|bỏng|ốm|sốt|an toàn|vệ sinh/i;
 // 労務・在留資格の判断に踏み込む質問
-const LABOR_RE = /在留|ビザ|査証|資格の変更|転職|帰国|給料の計算|給与の計算|残業代|割増|解雇|クビ|労災の認定|visa|residence status|salary calculation|overtime pay|thị thực|lương tăng ca|izin tinggal|gaji lembur/i;
+const LABOR_RE = /在留|ビザ|査証|資格の変更|転職|帰国|給料の計算|給与の計算|残業代|割増|解雇|クビ|労災の認定|visa|residence status|salary calculation|overtime|時間外手当|最低賃金|overtime pay|thị thực|lương tăng ca|izin tinggal|gaji lembur/i;
 
 export const isSafetyRelated = (...texts) => texts.some((t) => SAFETY_RE.test(String(t ?? '')));
 export const isLaborJudgment = (...texts) => texts.some((t) => LABOR_RE.test(String(t ?? '')));

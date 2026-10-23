@@ -238,3 +238,5 @@ section.card.session .report { background: none; }
 .ownev mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; }
 .ownev .small-note { margin: 6px 0 0; }
 @media (max-width: 760px) { .ownfiles li { border-radius: var(--r); padding: 6px 0 6px 12px; } .ownfiles .fn { flex-basis: 100%; } }
+
+.msg .uncited { text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 4px; }

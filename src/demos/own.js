@@ -5,7 +5,7 @@ import { HttpError, UNTRUSTED_NOTE, jstToday } from '../http.js';
 import { normalizeOwnDocs, normalizeOwnQuestion, finalizeOwnAnswer, OWN_MAX_DOCS, OWN_MAX_CHARS } from '../core/own.js';
 
 /** 使えるのは、Claude のキーがあるとき（画面の見本確認用の mock のときも使える） */
-export const ownAvailable = (env) => (env.AI_PROVIDER || '').toLowerCase() === 'mock' || Boolean(env.ANTHROPIC_API_KEY);
+export const ownAvailable = (env) => (env.AI_PROVIDER || '').toLowerCase() === 'mock' || Boolean(String(env.ANTHROPIC_API_KEY ?? '').trim());
 
 export async function knowledgeOwnStatus(env) {
   return { available: ownAvailable(env), maxDocs: OWN_MAX_DOCS, maxChars: OWN_MAX_CHARS };
