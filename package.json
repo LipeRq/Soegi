@@ -8,7 +8,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "node --test \"test/*.test.js\"",
-    "vendor": "cp node_modules/exceljs/dist/exceljs.min.js public/vendor/exceljs.min.js && mkdir -p public/vendor/pdfjs && cp node_modules/pdfjs-dist/build/pdf.min.mjs node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/vendor/pdfjs/ && cp -r node_modules/pdfjs-dist/cmaps node_modules/pdfjs-dist/standard_fonts public/vendor/pdfjs/",
+    "vendor": "cp node_modules/exceljs/dist/exceljs.min.js public/vendor/exceljs.min.js && cp node_modules/jszip/dist/jszip.min.js public/vendor/jszip.min.js && cp node_modules/jszip/LICENSE.markdown public/vendor/jszip.LICENSE && mkdir -p public/vendor/pdfjs && cp node_modules/pdfjs-dist/build/pdf.min.mjs node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/vendor/pdfjs/ && cp -r node_modules/pdfjs-dist/cmaps node_modules/pdfjs-dist/standard_fonts public/vendor/pdfjs/",
     "sample": "node scripts/gen-sample.mjs",
     "samples": "node scripts/gen-order-samples.mjs"
   },

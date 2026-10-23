@@ -5,6 +5,7 @@
 import { requireAuth, api, h, clear } from './common.js';
 import { reduced, typeText, thinking, stagger } from './motion.js';
 import { mountEstimate } from './estimate-ui.js';
+import { setupOwn } from './knowledge-own.js';
 
 requireAuth();
 const $ = (id) => document.getElementById(id);
@@ -363,14 +364,16 @@ function renderAdmin() {
 }
 
 function setTab(which) {
-  $('tab-ask').setAttribute('aria-selected', String(which === 'ask'));
-  $('tab-admin').setAttribute('aria-selected', String(which === 'admin'));
-  $('pane-ask').hidden = which !== 'ask';
-  $('pane-admin').hidden = which !== 'admin';
+  for (const k of ['ask', 'admin', 'own']) {
+    $(`tab-${k}`).setAttribute('aria-selected', String(which === k));
+    $(`pane-${k}`).hidden = which !== k;
+  }
   if (which === 'admin') renderAdmin();
 }
 $('tab-ask').addEventListener('click', () => setTab('ask'));
 $('tab-admin').addEventListener('click', () => setTab('admin'));
+$('tab-own').addEventListener('click', () => setTab('own'));
+setupOwn(() => { if (location.hash === '#own') setTab('own'); }); // Claude のキーがあるときだけ、3つ目の札が出る
 
 loadDocs();
 if (fromForeign) {

@@ -26,6 +26,8 @@
   <div class="tabs" role="tablist" aria-label="画面の切り替え">
     <button type="button" role="tab" id="tab-ask" aria-selected="true">質問する</button>
     <button type="button" role="tab" id="tab-admin" aria-selected="false">管理画面（よく聞かれた質問）</button>
+    <!-- Claude のキーが設定されているときだけ出す（knowledge-own.js が状態を確かめて hidden を外す） -->
+    <button type="button" role="tab" id="tab-own" aria-selected="false" hidden>御社の資料で試す</button>
   </div>
 
   <div id="pane-ask">
@@ -77,9 +79,46 @@
     </section>
   </div>
 
+  <div id="pane-own" hidden>
+    <section class="card own" aria-labelledby="own-h">
+      <h2 id="own-h"><b class="no">1</b>　御社の資料を入れる</h2>
+      <!-- 安全の表示：ファイルを選ぶ前に、動かさずに出す。チェックを入れるまで先へ進めない -->
+      <p class="notice warn own-notice"><b>資料は外部のAIサービス（Claude）に送られます。保存しません。社外秘は入れないでください。</b></p>
+      <label class="inline own-consent"><input type="checkbox" id="own-consent">上の内容を読んで、送ってよい資料だけを入れます</label>
+      <div class="row mt8" id="own-pick">
+        <label class="btn" for="own-file" id="own-file-btn" aria-disabled="true">資料を選ぶ（3つまで）</label>
+        <input type="file" id="own-file" class="vh" multiple disabled>
+        <button type="button" id="own-sample" disabled>見本の資料3つ（架空の工務店）を入れる</button>
+        <span class="small-note" id="own-limit"></span>
+      </div>
+      <p class="small-note">PDF・Word（.docx）・Excel（.xlsx）・テキスト（.txt .csv .md）。1つ10MBまで。文字の取り出しは画面の中で行い、送るのは文字だけです。スキャンした画像だけのPDFは読めません。</p>
+      <p class="err" id="own-err" role="alert"></p>
+      <ul class="ownfiles" id="own-files"></ul>
+      <div class="ownmeter" id="own-meter" hidden>
+        <div class="bartrack" aria-hidden="true"><div class="minibar" id="own-bar"></div></div>
+        <p class="small-note" id="own-total" role="status"></p>
+      </div>
+    </section>
+
+    <section class="card own" id="own-ask" aria-labelledby="own-ask-h" hidden>
+      <h2 id="own-ask-h"><b class="no">2</b>　質問する</h2>
+      <p class="small-note">資料に書いてあることだけで答え、根拠の引用を付けます。引用が資料の中で確かめられないときは「見当たりません」と答えます。</p>
+      <div class="roles" id="own-examples" hidden></div>
+      <div class="chatlog" id="own-log" aria-live="polite"></div>
+      <form class="chatform" id="own-form" autocomplete="off">
+        <input type="text" id="own-q" maxlength="500" placeholder="資料について質問（例：この資料の返品の条件は？）" aria-label="資料への質問">
+        <button type="submit" class="primary" id="own-btn">聞く</button>
+      </form>
+      <p class="small-note">安全・衛生・体調に関わる質問には「必ずリーダーに確認」を、労務・在留資格の判断には「できません」を、答えと一緒に出します。</p>
+      <section class="ownev" id="own-ev" hidden aria-live="polite"></section>
+    </section>
+  </div>
+
   <section class="card" id="estimate"></section>
 </main>
 <footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<script src="/vendor/exceljs.min.js"></script>
+<script src="/vendor/jszip.min.js"></script>
 <script type="module" src="/js/knowledge.js"></script>
 </body>
 </html>

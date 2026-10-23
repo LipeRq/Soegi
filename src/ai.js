@@ -4,7 +4,7 @@
 //   mock     … AIを呼ばず固定の架空データを返す（画面の確認・リハーサル用）
 // ログには本文（画像・読み取り結果）を出さない。
 
-import { mockResponse } from './mock.js';
+import { mockResponse, mockDocAnswer } from './mock.js';
 
 const TIMEOUT_MS = 55_000;
 
@@ -120,4 +120,42 @@ async function callClaude(env, { tool, system, userText, imageBase64, maxTokens 
   const block = data?.content?.find((b) => b.type === 'tool_use');
   if (!block?.input) throw new AIError('AIの応答に結果がありませんでした');
   return block.input;
+}
+
+/**
+ * 資料を文書ブロックで渡し、引用つきの文章で答えさせる（Claude 固定。DeepSeek には送らない）。
+ * 引用は決まった形のJSONと同時に使えないので、答えは文章＋引用で受け取る。
+ * 最後の資料に cache_control を付ける：2問目からは資料の部分がキャッシュで安く・速くなる。
+ * @param {object} env
+ * @param {{system:string, docs:{name,text}[], question:string, maxTokens?:number}} req
+ * @returns {Promise<{text:string, citations:{document_index,cited_text,start_char_index,end_char_index}[], usage:object|null}>}
+ */
+export async function askWithDocuments(env, { system, docs, question, maxTokens = 2000 }) {
+  const provider = (env.AI_PROVIDER || 'deepseek').toLowerCase();
+  if (provider === 'mock') return mockDocAnswer(docs, question);
+  if (!env.ANTHROPIC_API_KEY) throw new AIError('ANTHROPIC_API_KEY が未設定です');
+  const content = docs.map((d, i) => ({
+    type: 'document',
+    source: { type: 'text', media_type: 'text/plain', data: d.text },
+    title: d.name,
+    citations: { enabled: true },
+    ...(i === docs.length - 1 ? { cache_control: { type: 'ephemeral' } } : {}),
+  }));
+  content.push({ type: 'text', text: question });
+  const data = await postJson(
+    'https://api.anthropic.com/v1/messages',
+    { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+    { model: env.CLAUDE_MODEL || 'claude-sonnet-5-5', max_tokens: maxTokens, system, messages: [{ role: 'user', content }] },
+  );
+  if (data?.stop_reason === 'refusal') throw new AIError('AIが答えられませんでした。質問を変えてお試しください');
+  if (data?.stop_reason === 'max_tokens') throw new AIError('答えが長くなりすぎて途中で切れました。質問を絞ってお試しください');
+  const blocks = (data?.content ?? []).filter((b) => b.type === 'text');
+  if (!blocks.length) throw new AIError('AIの応答に結果がありませんでした');
+  const citations = blocks.flatMap((b) => (b.citations ?? []).filter((c) => c.type === 'char_location'));
+  const u = data.usage;
+  return {
+    text: blocks.map((b) => b.text).join(''),
+    citations,
+    usage: u ? { input: u.input_tokens ?? 0, cacheRead: u.cache_read_input_tokens ?? 0, cacheWrite: u.cache_creation_input_tokens ?? 0, output: u.output_tokens ?? 0 } : null,
+  };
 }

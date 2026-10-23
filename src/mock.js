@@ -216,3 +216,36 @@ export function mockResponse({ tool, userText, sample }) {
     default: throw new Error(`mock: ${tool.name}`);
   }
 }
+
+/**
+ * 「御社の資料で試す」の見本（AIを呼ばない）：質問と一番近い1文を、資料から引用して答える。
+ * 近い文が無ければ、引用なし（＝「見当たりません」になる）。
+ */
+export function mockDocAnswer(docs, question) {
+  const grams = (t) => {
+    const s = String(t).normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+    const out = new Set();
+    for (let i = 0; i + 2 <= s.length; i += 1) out.add(s.slice(i, i + 2));
+    return out;
+  };
+  const q = grams(question);
+  let best = null;
+  docs.forEach((d, di) => {
+    for (const m of d.text.matchAll(/[^。\n]+[。]?/g)) {
+      const sentence = m[0];
+      if (sentence.trim().length < 6) continue;
+      const g = grams(sentence);
+      let score = 0;
+      for (const x of q) if (g.has(x)) score += 1;
+      if (!best || score > best.score) best = { score, di, start: m.index, end: m.index + sentence.length, sentence };
+    }
+  });
+  if (!best || best.score < 3) return { text: '資料には、この質問に答える内容が見当たりません。', citations: [], usage: null };
+  const quote = best.sentence.trim();
+  const start = best.start + best.sentence.indexOf(quote);
+  return {
+    text: `資料には次のように書かれています：${quote}`,
+    citations: [{ type: 'char_location', document_index: best.di, cited_text: quote, start_char_index: start, end_char_index: start + quote.length }],
+    usage: null,
+  };
+}
