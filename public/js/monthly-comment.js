@@ -64,7 +64,7 @@ export function renderComment(aiLines, facts) {
     const t = String(raw ?? '').trim();
     const bare = t.replace(TOKEN, '').normalize('NFKC');
     const ids = [...t.matchAll(TOKEN)].map((m) => toId(m[1]));
-    const bad = !t ? '空' : t.length > 120 ? '長すぎる' : ids.some((id) => !byId.has(id)) ? '事実に無い番号' : /[{}｛｝]/.test(bare) ? '番号の形が正しくない' : DIGIT.test(bare) ? '数字が残っている' : CAUSAL.test(bare) ? '原因を言い切っている' : '';
+    const bad = !t ? '空' : t.length > 90 ? '長すぎる' : ids.some((id) => !byId.has(id)) ? '事実に無い番号' : /[{}｛｝]/.test(bare) ? '番号の形が正しくない' : DIGIT.test(bare) ? '数字が残っている' : CAUSAL.test(bare) ? '原因を言い切っている' : '';
     if (bad) { dropped.push({ index, reason: bad }); return null; }
     return t.replace(TOKEN, (_, n) => byId.get(toId(n)));
   });

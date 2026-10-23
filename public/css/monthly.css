@@ -17,7 +17,7 @@
 /* ---- 1枚（画面でも印刷でも同じ見た目。A4に収める） ---- */
 .sheet { background: var(--tile); border-radius: var(--r-md); box-shadow: var(--shadow); padding: 20px 22px; margin-top: 12px; }
 .sheethead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 16px; border-bottom: 2px solid var(--ink); padding-bottom: 6px; }
-.sheethead .co { margin: 0; font-weight: 700; color: var(--ink-2); }
+.sheethead .co { overflow-wrap: anywhere; margin: 0; font-weight: 700; color: var(--ink-2); }
 .sheethead h3 { margin: 0; font-family: var(--display); font-size: 24px; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
 .kpi { background: var(--sunk); border-radius: var(--r); padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -89,7 +89,7 @@ svg.lc .hit:focus-visible { stroke: var(--accent); stroke-width: 2; }
 .mg small { color: var(--ink-3); }
 
 .points ol { margin: 0; padding-left: 22px; }
-.points li { margin: 3px 0; line-height: 1.7; }
+.points li { margin: 3px 0; line-height: 1.7; overflow-wrap: anywhere; }
 .badge.ai { margin-left: 6px; }
 .sheetfoot { margin-top: 14px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
 .sheetfoot p { margin: 2px 0; }
@@ -130,7 +130,10 @@ details.tableview td.num, details.tableview th.num { text-align: right; }
   .blk h4 { font-size: 10pt; margin-bottom: 3px; }
   .two { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
   .movers { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
-  svg.lc { max-height: 31mm; }
+  svg.lc { max-height: 38mm; }
+  svg.lc .ytick, svg.lc .xtick, svg.lc .xyear, svg.lc .endlabel { font-size: 15px; }
+  /* 長い名前は1行で切る（画面では全部読める）。どんなデータでも1枚に収める */
+  #sheet .nm, .mn, .sheethead .co { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   #sheet .barrow { grid-template-columns: 11em minmax(0, 1fr) auto; gap: 4px; font-size: 8pt; }
   #sheet .nm { line-height: 1.25; }
   #sheet .val { font-size: 8pt; }

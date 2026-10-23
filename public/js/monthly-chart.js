@@ -97,6 +97,7 @@ export function lineChart(box, series, labels = { thisName: '今年', prevName: 
     g.addEventListener('pointermove', () => show(i));
     g.addEventListener('focus', () => show(i));
     g.addEventListener('blur', hide);
+    g.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
     svg.append(g);
   });
   svg.addEventListener('pointerleave', hide);

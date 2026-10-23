@@ -21,6 +21,7 @@ let records = [];
 let calc = null;
 let ai = null; // {lines:[{text, source}], dropped}
 let seq = 0;
+const AI_LABEL = 'AIのコメントを付ける（任意）';
 
 /** 今日（日本の日付）。締まった月は、今月より前 */
 const today = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
@@ -80,7 +81,7 @@ function apply(label = '') {
   const first = closed ?? months[0];
   sel.value = first;
   $('monthnote').textContent = closed ? '既定は、いちばん新しい「締まった月」（今月より前）です。' : '今月のデータだけなので、その月を出しています（途中の月の数字です）。';
-  ai = null;
+  resetAi();
   if (!label && keep && months.includes(keep)) sel.value = keep; // 列の対応を直したときは、選んでいた月を保つ
   render();
   setStep(2);
@@ -99,7 +100,7 @@ $('file').addEventListener('change', async (e) => {
   if (!f) return;
   try { load(await f.arrayBuffer(), f.name, $('company').value); } catch { $('loaderr').textContent = `${f.name}：読み込めませんでした`; }
 });
-$('month').addEventListener('change', () => { ai = null; render(); });
+$('month').addEventListener('change', () => { resetAi(); render(); });
 $('company').addEventListener('input', () => { $('s-co').textContent = $('company').value; });
 
 // ---- 1枚 -----------------------------------------------------------------------------------
@@ -183,20 +184,27 @@ function renderPoints() {
   else meta.textContent = `「AI」の付いた文は、AIが書いた文です（数字はプログラムが埋めました。原因を言い切るものではありません）。${ai.dropped.length ? `AIの文のうち${ai.dropped.length}行は、数字が残っていたなどの理由で捨てて、決まった文に置き換えました。` : ''}`;
 }
 
+/** 月・列の対応・ファイルが変わったら、返事待ちのAIは捨てる（別の月の文を、いまの1枚に載せない） */
+function resetAi() {
+  ai = null; seq += 1;
+  $('ai').disabled = false; $('ai').textContent = AI_LABEL; $('aierr').textContent = '';
+}
+
 // ---- AIのコメント（任意） ------------------------------------------------------------------------
 
 $('ai').addEventListener('click', async () => {
   if (!calc) return;
   const mine = ++seq;
   $('ai').disabled = true; $('aierr').textContent = '';
-  const keep = $('ai').textContent; $('ai').textContent = 'コメントを作っています…';
+  const used = calc;
+  $('ai').textContent = 'コメントを作っています…';
   try {
-    const r = await api('/api/monthly-comment', { facts: buildFacts(calc) });
-    if (mine !== seq || $('month').value !== calc.ym) return;
+    const r = await api('/api/monthly-comment', { facts: buildFacts(used) });
+    if (mine !== seq || calc !== used) return;
     ai = { lines: r.lines, dropped: r.dropped ?? [] };
     renderPoints();
     flash($('points'));
-  } catch (e) { if (mine === seq) $('aierr').textContent = e.message; } finally { if (mine === seq) { $('ai').disabled = false; $('ai').textContent = keep; } }
+  } catch (e) { if (mine === seq) $('aierr').textContent = e.message; } finally { if (mine === seq) { $('ai').disabled = false; $('ai').textContent = AI_LABEL; } }
 });
 
 // ---- 印刷（A4・1枚） -----------------------------------------------------------------------------
