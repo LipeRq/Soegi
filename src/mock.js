@@ -178,6 +178,20 @@ function report(userText, today) {
   return { ...base, date: today, work: ['（モック）話した内容'], questions: [{ field: 'site', question: '現場（訪問先）の名前は何ですか？' }] };
 }
 
+/** 月次コメントの見本：事実の一覧（番号）を読んで、番号で指す3行を返す（数字は書かない） */
+function monthlyComment(userText) {
+  const facts = [...userText.matchAll(/^(f\d+)：(.+?)＝(.*)$/gm)].map((m) => ({ id: m[1], label: m[2], value: m[3] }));
+  const id = (label) => facts.find((f) => f.label === label)?.id;
+  const t = (s) => (s ? `{${s}}` : '');
+  const lines = [];
+  if (id('前年同月比')) lines.push(`${t(id('対象の月'))}の売上は前年同月比で${t(id('前年同月比'))}でした。季節の動きの可能性もあるので、前年の同じ月と並べて確かめてください。`);
+  else lines.push(`${t(id('対象の月'))}の売上は${t(id('売上合計'))}でした。`);
+  if (id('売上がいちばん多い顧客')) lines.push(`${t(id('売上がいちばん多い顧客'))}への売上が全体の${t(id('その顧客の構成比'))}を占めています。一社への偏りが続くかを見ておく価値があります。`);
+  if (id('前年同月より最も落ちた顧客')) lines.push(`${t(id('前年同月より最も落ちた顧客'))}は前年同月より${t(id('その減った額'))}減っています。取引の変化の可能性があるので、担当者に状況を確かめてください。`);
+  else if (id('前年同月より最も伸びた商品')) lines.push(`${t(id('前年同月より最も伸びた商品'))}が前年同月より伸びています。`);
+  return { lines: lines.slice(0, 3) };
+}
+
 function innFaq() {
   return {
     items: [
@@ -225,6 +239,7 @@ export function mockResponse({ tool, userText, sample }) {
     case 'submit_answer': return knowledge(userText);
     case 'submit_inn_reply': return innReply(userText);
     case 'submit_inn_review': return innReview(userText);
+    case 'submit_monthly_comment': return monthlyComment(userText);
     case 'submit_report': return report(userText, userText.match(/今日の日付：(\d{4}-\d{2}-\d{2})/)?.[1] ?? '');
     case 'submit_inn_faq': return innFaq();
     case 'submit_site_answer': return siteAnswer(userText);

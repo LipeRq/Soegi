@@ -27,6 +27,7 @@
 | 2026-10-17 | 設計 v0.4 を作成。`design/live-ui` を作業ブランチに取り込んだ。T0（既存の不具合）を提案として追加 |
 | 2026-10-17 | T2 完了：持ち帰り1枚の隣に「1週間の記録表をダウンロード」。ExcelJS の無い画面では押したときに読み込む |
 | 2026-10-17 | T0 は見送り（オーナー判断）。T1 完了：`estimate.js`・`estimate-ui.js`・`estimate.css`、6画面に組み込み、古い `roi.js` を削除 |
+| 2026-10-23 | T10 のレビュー（約15件）を直した：設計 10-1。単体テスト 194件（月次の計算・コメントの単体テストを含む） |
 | 2026-10-23 | T9 のレビュー（12件）を直した：設計 9-1。単体テスト 181件 |
 | 2026-10-23 | T10 を確認待ちに：`/report.html`・`report-format.js`・`/api/report`・`report-xlsx.js`。`_headers` を `microphone=(self)` に。入口にタイルと移動ボタン。単体テスト 179件 |
 | 2026-10-23 | T9 を確認待ちに：`/line/webhook`・`core/line.js`・`demos/line.js`・`docs/line-setup.md`。`answerSite`・`draft` を LINE からも使えるよう切り出した。単体テスト 171件 |

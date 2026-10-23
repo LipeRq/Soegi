@@ -3,7 +3,7 @@
 import { requireAuth, api, h, clear, downloadBlob, XLSX_MIME, stamp, setStep } from './common.js';
 import { mountEstimate } from './estimate-ui.js';
 import { reduced, flash, replay } from './motion.js';
-import { REQUIRED, emptyFields, missingFields, isSafety, formatReport, formatShort, SHORT_MAX } from './report-format.js';
+import { REQUIRED, emptyFields, missingFields, isSafety, safetyWords, formatReport, formatShort, SHORT_MAX } from './report-format.js';
 import { buildReportWorkbook } from './report-xlsx.js';
 
 requireAuth();
@@ -21,6 +21,8 @@ let fields = emptyFields();
 let spoken = '';
 let seq = 0;
 let started = 0;
+let dirty = false; // 手で直した項目があるか（もう一度「整える」を押すときに確かめる）
+let busy = false;
 
 // ---- 話す（ブラウザの音声認識） -------------------------------------------------------------
 
@@ -29,8 +31,10 @@ let rec = null;
 let listening = false;
 let base = ''; // 話し始める前の文字
 
+let ended = null; // 止まったことを待つ（止めた後に届く最後の結果を、取りこぼさない）
 function setMicUi(on) {
   listening = on;
+  $('spoken').readOnly = on; // 話している間は、欄を直せない（認識の結果で書き換わるため）
   $('mic').setAttribute('aria-pressed', String(on));
   $('mic-label').textContent = on ? '止める（話しています…）' : '話す（マイクを使う）';
   $('mic').classList.toggle('on', on);
@@ -50,10 +54,15 @@ function startMic() {
     sync();
   };
   rec.onerror = (e) => {
-    const m = { 'not-allowed': 'マイクの使用が許可されていません。ブラウザの設定で許可するか、キーボードの音声入力でどうぞ', 'service-not-allowed': 'この端末では音声認識を使えません。キーボードの音声入力でどうぞ', 'no-speech': '声が聞こえませんでした', 'audio-capture': 'マイクが見つかりません', network: '音声認識のサービスに接続できませんでした' }[e.error];
+    const m = { aborted: '音声認識が止まりました', 'language-not-supported': 'この端末は日本語の音声認識に対応していません。キーボードの音声入力でどうぞ', 'not-allowed': 'マイクの使用が許可されていません。ブラウザの設定で許可するか、キーボードの音声入力でどうぞ', 'service-not-allowed': 'この端末では音声認識を使えません。キーボードの音声入力でどうぞ', 'no-speech': '声が聞こえませんでした', 'audio-capture': 'マイクが見つかりません', network: '音声認識のサービスに接続できませんでした' }[e.error];
     $('mic-note').textContent = m ?? `音声認識でエラーが出ました（${e.error}）`;
   };
-  rec.onend = () => { setMicUi(false); $('interim').textContent = ''; };
+  rec.onend = () => {
+    setMicUi(false); $('interim').textContent = '';
+    if (/話してください/.test($('mic-note').textContent)) $('mic-note').textContent = '止まりました。続けるときは、もう一度「話す」を押してください。';
+    ended?.(); ended = null;
+    sync();
+  };
   try { rec.start(); setMicUi(true); $('mic-note').textContent = '話してください。止めるときは、もう一度ボタンを押します。'; } catch { $('mic-note').textContent = 'マイクを始められませんでした'; }
 }
 
@@ -68,7 +77,7 @@ if (SR) {
 
 function sync() {
   const n = $('spoken').value.trim().length;
-  $('go').disabled = n === 0;
+  $('go').disabled = n === 0 || busy;
   $('count').textContent = `${n} / 1500 文字`;
 }
 $('spoken').addEventListener('input', sync);
@@ -77,24 +86,31 @@ for (const k of ['ex1', 'ex2']) {
 }
 
 $('go').addEventListener('click', async () => {
-  const text = $('spoken').value.trim();
-  if (!text) return;
-  if (listening) rec?.stop();
+  const text0 = $('spoken').value.trim();
+  if (!text0) return;
+  if (listening) { // 止めて、最後の結果が届くのを待ってから読む（欄と送る文が食い違わないように）
+    await new Promise((ok) => { ended = ok; setTimeout(ok, 800); rec?.stop(); });
+    setMicUi(false);
+  }
+  const text2 = $('spoken').value.trim();
+  if (dirty && !$('step2').hidden && text2 && !confirm('手で直した項目は、新しく取り出した内容に置き換わります。よいですか？')) return;
   const mine = ++seq;
-  $('go').disabled = true; $('err').textContent = '';
+  busy = true; sync(); $('err').textContent = '';
   $('reading').hidden = false; $('rtext').textContent = '話した内容から、日報の項目を取り出しています…';
   $('bar').style.width = '60%';
   started = performance.now();
   try {
+    const text = $('spoken').value.trim();
     const r = await api('/api/report', { text });
     if (mine !== seq) return;
     spoken = text;
+    dirty = false;
     fields = { ...emptyFields(), ...r.fields };
     showFields(r, (performance.now() - started) / 1000);
   } catch (e) {
     if (mine === seq) $('err').textContent = e.message;
   } finally {
-    if (mine === seq) { $('reading').hidden = true; $('bar').style.width = '0'; sync(); }
+    if (mine === seq) { busy = false; $('reading').hidden = true; $('bar').style.width = '0'; sync(); }
   }
 });
 
@@ -115,6 +131,17 @@ function fillForm() {
   $('f-tomorrow').value = fields.tomorrow;
 }
 
+/** 欄に入れた値が、範囲の外のとき：「未入力」ではなく、どう直すかを欄の下に出す */
+const RANGE = [['f-people', 'people', (v) => Number.isInteger(v) && v >= 1 && v <= 999, '1〜999の整数で入れてください'], ['f-hours', 'hours3', (v) => v > 0 && v <= 24, '0より大きく24以下で入れてください']];
+function checkRanges() {
+  for (const [id, label, ok, msg] of RANGE) {
+    const raw = $(id).value; const n = raw === '' ? null : Number(raw);
+    const l = document.querySelector(`#form label[data-f="${label}"]`);
+    l.classList.toggle('bad', n != null && !ok(n));
+    l.dataset.msg = msg;
+  }
+}
+
 function readForm() {
   const num = (id) => { const v = $(id).value; return v === '' ? null : Number(v); };
   const people = num('f-people');
@@ -123,9 +150,9 @@ function readForm() {
     date: $('f-date').value,
     site: $('f-site').value,
     work: $('f-work').value.split('\n').map((x) => x.trim()).filter(Boolean),
-    people: Number.isInteger(people) && people > 0 ? people : null,
+    people: Number.isInteger(people) && people > 0 && people <= 999 ? people : null,
     start: $('f-start').value, end: $('f-end').value,
-    hours: Number.isFinite(hours) && hours > 0 ? hours : null,
+    hours: Number.isFinite(hours) && hours > 0 && hours <= 24 ? hours : null,
     hazards: $('f-hazards').value, notes: $('f-notes').value, tomorrow: $('f-tomorrow').value,
   };
 }
@@ -134,6 +161,7 @@ let extra = [];
 
 /** 色と言葉：足りない項目は、欄の中に「未入力」と、決まった質問を出す */
 function refresh() {
+  checkRanges();
   const missing = missingFields(fields);
   const names = new Set(missing.map((m) => m.field));
   const map = { date: ['date'], site: ['site'], work: ['work'], people: ['people'], hours: ['hours', 'hours2', 'hours3'], tomorrow: ['tomorrow'] };
@@ -146,6 +174,8 @@ function refresh() {
   }
   $('asks').hidden = !missing.length;
   $('safety').hidden = !isSafety(fields, spoken);
+  const w = safetyWords(fields, spoken);
+  $('safety-words').textContent = w.length ? `（見つけた語：${w.slice(0, 4).join('・')}。違うときは、そのまま責任者に「問題なし」と伝えてください）` : '';
   const text = formatReport(fields, spoken);
   $('preview').textContent = text;
   const short = formatShort(fields, spoken);
@@ -178,7 +208,7 @@ function showFields(r, sec) {
   $('step2').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
 }
 
-$('form').addEventListener('input', () => { readForm(); refresh(); });
+$('form').addEventListener('input', () => { dirty = true; readForm(); refresh(); });
 $('form').addEventListener('submit', (e) => e.preventDefault());
 
 // ---- コピー・Excel --------------------------------------------------------------------------------

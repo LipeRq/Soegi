@@ -33,6 +33,11 @@
 .fields label.missing { background: var(--warn-bg); }
 .fields label.missing::after { content: "未入力"; font-size: 13px; font-weight: 700; color: var(--warn-ink); }
 .fields label.missing input, .fields label.missing textarea { border-color: var(--warn-ink); }
+.fields label.bad { background: var(--red-bg); }
+.fields label.bad::after { content: "範囲の外：" attr(data-msg); font-size: 13px; font-weight: 700; color: var(--danger); }
+.fields label.bad input { border-color: var(--danger); }
+#safety-words { display: block; margin-top: 2px; color: var(--ink-2); }
+.spoken textarea[readonly] { background: var(--sunk); }
 .paper { margin: 0; padding: 14px 16px; background: var(--sunk); border-radius: var(--r); font-family: var(--sans); font-size: 15px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
 .paper.short { font-size: 14px; }
 #made { margin-top: 12px; }

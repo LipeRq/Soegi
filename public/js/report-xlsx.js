@@ -35,7 +35,9 @@ export function buildReportWorkbook(ExcelJS, f, spoken = '') {
     r.getCell(1).font = { bold: true }; r.getCell(1).fill = fill(COLORS.gray);
     r.getCell(2).alignment = { wrapText: true, vertical: 'top' }; r.getCell(1).alignment = { vertical: 'top' };
     if (key && miss.has(key)) r.getCell(2).fill = fill(COLORS.red);
-    if (key === 'work') r.height = Math.max(20, 18 * Math.max(1, work.length));
+    // 行の高さ：項目の長さに合わせる（折り返しで切れないように。1行は日本語で約30文字）
+    const nLines = String(value || UNFILLED).split('\n').reduce((t, l) => t + Math.max(1, Math.ceil(Array.from(l).length / 30)), 0);
+    r.height = Math.max(20, 17 * nLines + 4);
     for (const c of [1, 2]) r.getCell(c).border = border;
     r.getCell(2).value = safeText(r.getCell(2).value);
   }

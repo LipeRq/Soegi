@@ -209,6 +209,9 @@ export const REPORT_TOOL = {
   },
 };
 
+/** 日報の時刻は、その日の 0:00〜23:59（24時以降は読み取れなかったことにする） */
+const dayTime = (v) => { const t = toTime(v); return t && Number(t.slice(0, 2)) < 24 ? t : ''; };
+
 export function validateReport(raw) {
   if (!isObj(raw)) fail('object');
   const hours = raw.hours == null || raw.hours === '' ? null : Number(raw.hours);
@@ -218,14 +221,31 @@ export function validateReport(raw) {
     site: toStr(raw.site).slice(0, 80),
     work: arr(raw.work ?? [], 'work', 12).map((w) => toStr(w).slice(0, 120)).filter(Boolean),
     people: Number.isInteger(people) && people > 0 && people < 1000 ? people : null,
-    start: toTime(raw.start),
-    end: toTime(raw.end),
+    start: dayTime(raw.start),
+    end: dayTime(raw.end),
     hours: Number.isFinite(hours) && hours > 0 && hours <= 24 ? Math.round(hours * 10) / 10 : null,
     hazards: toStr(raw.hazards).slice(0, 300),
     notes: toStr(raw.notes).slice(0, 300),
     tomorrow: toStr(raw.tomorrow).slice(0, 200),
     questions: arr(raw.questions ?? [], 'questions', 10).filter(isObj).map((q) => ({ field: toStr(q.field).slice(0, 20), question: toStr(q.question).slice(0, 120) })).filter((q) => q.question),
   };
+}
+
+// ---- 月次レポートのコメント ------------------------------------------------------------------
+
+export const MONTHLY_TOOL = {
+  name: 'submit_monthly_comment',
+  description: '月次レポートの3行のコメントを提出する。数字・名前は {f3} のような事実の番号で指す',
+  schema: {
+    type: 'object',
+    properties: { lines: { type: 'array', items: { type: 'string' }, description: '3行。各行は80文字以内。数字（アラビア数字・全角数字）は書かず、{f番号} で指す' } },
+    required: ['lines'],
+  },
+};
+
+export function validateMonthlyComment(raw) {
+  if (!isObj(raw)) fail('object');
+  return { lines: arr(raw.lines, 'lines', 5).map((l) => (typeof l === 'string' ? l.slice(0, 300) : '')) };
 }
 
 // ---- デモA：社内ナレッジ検索 --------------------------------------------------------

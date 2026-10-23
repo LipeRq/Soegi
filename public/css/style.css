@@ -156,7 +156,7 @@ button.link { border: 0; background: none; color: var(--accent); padding: 4px 6p
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .row.gap-lg { gap: 20px; }
 .mt8 { margin-top: 8px; } .mt10 { margin-top: 10px; } .mt12 { margin-top: 12px; } .mt14 { margin-top: 14px; }
-input[type=text], input[type=password], input[type=number], input[type=month], input[type=time], select, textarea {
+input[type=text], input[type=password], input[type=number], input[type=month], input[type=time], input[type=date], select, textarea {
   font: inherit; padding: 8px 12px; min-height: 44px; border: 1.5px solid var(--field); border-radius: var(--r-sm); background: #fff; color: var(--ink); max-width: 100%;
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
