@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/report.css">
+<link rel="stylesheet" href="/css/estimate.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>音声日報 → 報告書｜ソエギ デモ</title>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">日報：音声 → 報告書</span>
+  <nav><a href="/">デモの選択へ</a></nav>
+</div></header>
+<main class="wrap">
+  <h1 class="vt-report">音声日報 → 報告書</h1>
+  <p class="lead">現場で話すだけで、日報の形になります。話に出てこなかった項目は、推測で埋めずに「聞き返し」として出します。日報の文は決まった型で作り、AIは話した言葉から項目を取り出すだけです。</p>
+  <nav class="steps" aria-label="進み具合"><ol>
+    <li aria-current="step"><span class="n">1</span>話す・<wbr>入れる</li>
+    <li><span class="n">2</span>足りない所を<wbr>埋める</li>
+    <li><span class="n">3</span>日報に<wbr>する</li>
+  </ol></nav>
+
+  <section class="card" id="step1">
+    <h2><b class="no">1</b>　話す・入れる</h2>
+    <p class="small-note company">架空の工務店・介護事業所の例で試せます。人も会社も架空です。</p>
+    <!-- 安全の表示：マイクを使う前に、動かさずに出す -->
+    <p class="notice warn" id="voice-notice"><b>音声の文字起こしは、お使いのブラウザ・スマホの機能（Google・Apple など）で行われます。</b>ソエギのサーバーには文字だけが届き、保存しません。日報の項目の取り出しには、外部のAIサービスを使います。名前・電話番号・住所は話さないでください。</p>
+    <div class="row">
+      <button type="button" id="mic" class="mic" aria-pressed="false" hidden><span class="dot" aria-hidden="true"></span><span id="mic-label">話す（マイクを使う）</span></button>
+      <button type="button" id="ex1">話した例を入れる（外壁塗装の現場）</button>
+      <button type="button" id="ex2">話した例を入れる（訪問介護）</button>
+    </div>
+    <p class="small-note" id="mic-note" role="status"></p>
+    <label class="spoken">話した内容（文字に起こしたもの。直してもかまいません）
+      <textarea id="spoken" maxlength="1500" rows="6" placeholder="例：今日は田中邸で外壁塗装の足場を組みました。職人3人で、朝8時から夕方5時までです。明日は下塗りの予定です。"></textarea>
+    </label>
+    <p class="interim" id="interim" aria-hidden="true"></p>
+    <div class="row mt12">
+      <button type="button" class="primary btn-xl" id="go" disabled>日報に整える</button>
+      <span class="small-note" id="count"></span>
+    </div>
+    <div id="reading" hidden><div class="progress"><div id="bar"></div></div><p class="small-note" id="rtext"></p></div>
+    <p class="err" id="err" role="alert"></p>
+  </section>
+
+  <section class="card" id="step2" hidden>
+    <h2><b class="no">2</b>　足りない所を埋める<small>（直すと、日報がその場で変わります）</small></h2>
+    <!-- 安全の固定の文は、いちばん上・動かさない -->
+    <p class="notice warn draft" id="safety" hidden><b>安全に関わる内容があります。</b>責任者に共有してください。</p>
+    <div class="stats" id="stats"></div>
+    <div class="asks" id="asks" hidden>
+      <h3>聞き返し（話に出てこなかった項目）</h3>
+      <ul id="asklist"></ul>
+    </div>
+    <div class="extra" id="extra" hidden><h3>AIからの確認</h3><ul id="extralist"></ul></div>
+    <form class="fields" id="form" autocomplete="off">
+      <label data-f="date">日付<input type="date" id="f-date"></label>
+      <label data-f="site">現場・訪問先<input type="text" id="f-site" maxlength="80"></label>
+      <label data-f="work" class="wide">作業内容（1行に1つ）<textarea id="f-work" rows="3"></textarea></label>
+      <label data-f="people">人数<input type="number" id="f-people" min="1" max="999" step="1" inputmode="numeric"></label>
+      <label data-f="hours">開始<input type="time" id="f-start"></label>
+      <label data-f="hours2">終了<input type="time" id="f-end"></label>
+      <label data-f="hours3">実働時間（開始・終了が分からないとき）<input type="number" id="f-hours" min="0" max="24" step="0.5" inputmode="decimal"></label>
+      <label data-f="hazards" class="wide">危ない所・ヒヤリとしたこと<input type="text" id="f-hazards" maxlength="300"></label>
+      <label data-f="notes" class="wide">そのほかの気づき<input type="text" id="f-notes" maxlength="300"></label>
+      <label data-f="tomorrow" class="wide">明日の予定<input type="text" id="f-tomorrow" maxlength="200"></label>
+    </form>
+  </section>
+
+  <section class="card" id="step3" hidden>
+    <h2><b class="no">3</b>　日報にする</h2>
+    <pre class="paper" id="preview" aria-label="日報のプレビュー"></pre>
+    <div class="row mt8">
+      <button type="button" id="copy">日報をコピー</button>
+      <button type="button" class="primary" id="export">Excelをダウンロード</button>
+    </div>
+    <h3 class="mt14">LINE に貼れる短い形（300文字まで）</h3>
+    <pre class="paper short" id="short" aria-label="LINE用の短い形"></pre>
+    <div class="row mt8"><button type="button" id="copy-short">短い形をコピー</button><span class="small-note" id="short-count" role="status"></span></div>
+    <p class="made" id="made" role="status" hidden></p>
+    <p class="notice plain mt12">日報の文はプログラムの型で作っています。足りない項目は「（未入力）」のまま出ます。送る前に、人が確かめてください。</p>
+  </section>
+
+  <section class="card" id="estimate" hidden></section>
+</main>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<script src="/vendor/exceljs.min.js"></script>
+<script type="module" src="/js/report.js"></script>
+</body>
+</html>

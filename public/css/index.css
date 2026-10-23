@@ -136,6 +136,14 @@
 .alert { color: var(--orange-ink); font-weight: 700; }
 .otnote { margin: 8px 0 0; font-size: 12.5px; }
 
+/* 日報：話した言葉から項目が埋まり、話に無い項目は聞き返しになる */
+.rp .said { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: var(--accent-soft); color: var(--accent-ink); border-radius: var(--r); font-size: 13px; line-height: 1.7; }
+.rp .said b { font-size: 11.5px; letter-spacing: .04em; }
+.rp td:first-child { color: var(--ink-3); width: 4em; white-space: nowrap; font-size: 12px; }
+.rp td.ask { color: var(--warn-ink); font-weight: 700; }
+.rpnote { margin: 8px 0 0; font-size: 12.5px; }
+
+
 /* 会話の見本 */
 .chat { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
 .role { font-size: 12px; font-weight: 700; color: var(--ink-3); }

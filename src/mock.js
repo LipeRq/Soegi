@@ -164,6 +164,20 @@ function innReview(userText) {
   };
 }
 
+/** 音声日報の見本（画面の確認用）。話した言葉の中身で、見本の2つを出し分ける */
+function report(userText, today) {
+  const base = { date: '', site: '', work: [], people: null, start: '', end: '', hours: null, hazards: '', notes: '', tomorrow: '', questions: [] };
+  if (/足場|外壁|塗装/.test(userText)) {
+    return { ...base, date: today, site: '田中邸', work: ['外壁塗装の足場の組み立て', '2階ベランダまわりの養生'], people: 3, hazards: '2階ベランダの手すりがぐらついていて、ヒヤリとした', notes: '午後から風が強くなった', tomorrow: '下塗り',
+      questions: [{ field: 'hours', question: '作業は何時から何時まででしたか？' }] };
+  }
+  if (/訪問|入浴|介助|利用者/.test(userText)) {
+    return { ...base, date: today, site: '山本さん宅', work: ['入浴の介助', '居室の掃除'], people: 2, hours: 2, notes: '足のむくみが少しあった',
+      questions: [{ field: 'tomorrow', question: '明日の予定は何ですか？' }, { field: 'other', question: '足のむくみについて、看護師へ共有しましたか？' }] };
+  }
+  return { ...base, date: today, work: ['（モック）話した内容'], questions: [{ field: 'site', question: '現場（訪問先）の名前は何ですか？' }] };
+}
+
 function innFaq() {
   return {
     items: [
@@ -211,6 +225,7 @@ export function mockResponse({ tool, userText, sample }) {
     case 'submit_answer': return knowledge(userText);
     case 'submit_inn_reply': return innReply(userText);
     case 'submit_inn_review': return innReview(userText);
+    case 'submit_report': return report(userText, userText.match(/今日の日付：(\d{4}-\d{2}-\d{2})/)?.[1] ?? '');
     case 'submit_inn_faq': return innFaq();
     case 'submit_site_answer': return siteAnswer(userText);
     default: throw new Error(`mock: ${tool.name}`);

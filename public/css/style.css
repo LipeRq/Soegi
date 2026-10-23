@@ -63,6 +63,7 @@ a { color: var(--accent); text-underline-offset: 3px; }
 .vt-chatbot { view-transition-name: vt-chatbot; }
 .vt-order { view-transition-name: vt-order; }
 .vt-shift { view-transition-name: vt-shift; }
+.vt-report { view-transition-name: vt-report; }
 
 /* ---- 動きの部品（/js/motion.js と組で使う） ------------------------------------------ */
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }

@@ -72,6 +72,16 @@ export const DEMOS = {
     hours: (v) => (v.count * (v.before - v.after)) / 60,
     measures: ['1枚あたりの入力時間', '要確認になった明細の割合', '数量・商品の打ち間違いの件数'],
   },
+  report: {
+    name: '日報：音声 → 報告書', menu: 'manual', industry: 'construction',
+    inputs: [
+      { key: 'count', label: '月に書く日報の本数（全員分）', unit: '本', def: 100, min: 0, max: 100000, step: 10 },
+      { key: 'before', label: '1本を書く（打つ・書き写す）時間', unit: '分', def: 15, min: 0, max: 120, step: 1 },
+      { key: 'after', label: '導入後の1本の時間（話して、確かめるだけ）', unit: '分', def: 5, min: 0, max: 120, step: 1 },
+    ],
+    hours: (v) => (v.count * (v.before - v.after)) / 60,
+    measures: ['1本あたりの時間', '聞き返しになった項目の数', '安全に関わる内容を、その日のうちに共有できた回数'],
+  },
   knowledge: {
     name: '社内ナレッジ検索', menu: 'knowledge', industry: 'food',
     inputs: [

@@ -25,6 +25,7 @@
       <a class="btn" href="/receipt.html" data-lock>経理：レシート → Excel</a>
       <a class="btn" href="/attendance.html" data-lock>労務：残業の集計</a>
       <a class="btn" href="/shift.html" data-lock>労務：シフト表のチェック</a>
+      <a class="btn" href="/report.html" data-lock>日報：音声 → 報告書</a>
       <a class="btn" href="/order.html" data-lock>受注：注文書 → 受注データ</a>
       <a class="btn" href="/knowledge.html" data-lock>社内ナレッジ検索</a>
       <a class="btn" href="/knowledge.html#foreign" data-lock>外国人スタッフ向け</a>
@@ -132,6 +133,23 @@
               </tbody>
             </table>
             <p class="sfnote"><span class="chip y" id="sf-chip">注意</span> <span id="sf-note">小林さん：17日〜23日の7連勤（上限5日）</span></p>
+          </div>
+          <span class="go">試す</span>
+        </a>
+        <a class="tile w6" href="/report.html" data-lock>
+          <h3 class="vt-report">日報：音声 → 報告書</h3>
+          <p>現場で話すだけ。話に出ない項目は、推測せずに聞き返す</p>
+          <div class="live rc od rp" id="live-rp" aria-hidden="true">
+            <div class="said"><b>話した内容</b><span id="rp-said">今日は田中邸で、足場を組みました。職人3人で、2階ベランダの手すりがぐらついて、ヒヤリとしました。明日は下塗りの予定です。</span></div>
+            <div class="sheet"><table class="mini">
+              <tbody>
+                <tr><td>現場</td><td>田中邸</td><td></td></tr>
+                <tr><td>作業</td><td>足場の組み立て</td><td></td></tr>
+                <tr><td>人数</td><td>3人</td><td></td></tr>
+                <tr><td>時間</td><td class="ask">何時から何時まで？</td><td><span class="chip y">未入力</span></td></tr>
+              </tbody>
+            </table>
+            <p class="rpnote"><span class="chip r">安全</span> 手すりのぐらつき：責任者に共有</p></div>
           </div>
           <span class="go">試す</span>
         </a>

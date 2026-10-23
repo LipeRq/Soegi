@@ -1,0 +1,45 @@
+/* 音声日報。色・書体・角丸・動きの値は /css/style.css の変数だけを使う */
+.company { margin-top: 0; }
+.mic { gap: 10px; min-height: 56px; padding: 10px 24px; border-radius: var(--r-pill); }
+.mic .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 0 transparent; }
+.mic.on { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+.mic.on .dot { animation: ring 1.4s ease-out infinite; --ring: color-mix(in srgb, var(--danger) 50%, transparent); }
+#mic-note:empty { display: none; }
+#voice-notice { margin: 8px 0 12px; border: 1.5px solid var(--warn-line); font-size: 15px; }
+.spoken { display: flex; margin-top: 10px; font-weight: 700; }
+.spoken textarea { font-weight: 400; min-height: 130px; line-height: 1.7; }
+.interim { min-height: 1.5em; margin: 2px 0 0; color: var(--ink-3); font-size: 14px; }
+#err:empty { display: none; }
+#step2 > h2 small, #step3 h3 { font-size: 14px; font-weight: 400; color: var(--ink-3); font-family: var(--sans); }
+#step3 h3 { margin: 16px 0 6px; color: var(--ink-2); font-weight: 700; }
+#safety { margin: 0 0 12px; border: 1.5px solid var(--danger); background: var(--danger-soft); font-size: 16px; }
+#safety::before { background: var(--danger); }
+#stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+#stats .stat.quiet { background: none; border: 1.5px solid var(--line); }
+#stats .stat.warn { background: var(--warn-bg); }
+.asks, .extra { margin: 0 0 12px; padding: 10px 14px; background: var(--warn-bg); border-radius: var(--r); }
+.extra { background: var(--sunk); }
+.asks h3, .extra h3 { margin: 0 0 4px; font-size: 15px; }
+.asks ul, .extra ul { list-style: none; margin: 0; padding: 0; }
+.asks li { display: grid; grid-template-columns: auto 8.5em minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 6px 0; border-top: 1px dashed var(--warn-line); }
+.asks li:first-child { border-top: 0; }
+.asks .q { overflow-wrap: anywhere; }
+.extra li { padding: 4px 0; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+.fields label { font-weight: 700; padding: 6px 8px; border-radius: var(--r-sm); transition: background-color var(--t); }
+.fields label.wide { grid-column: 1 / -1; }
+.fields input, .fields textarea { width: 100%; font-weight: 400; }
+/* 足りない項目：黄の面＋「未入力」の文字（色だけに頼らない） */
+.fields label.missing { background: var(--warn-bg); }
+.fields label.missing::after { content: "未入力"; font-size: 13px; font-weight: 700; color: var(--warn-ink); }
+.fields label.missing input, .fields label.missing textarea { border-color: var(--warn-ink); }
+.paper { margin: 0; padding: 14px 16px; background: var(--sunk); border-radius: var(--r); font-family: var(--sans); font-size: 15px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.paper.short { font-size: 14px; }
+#made { margin-top: 12px; }
+@media (max-width: 760px) {
+  .fields { grid-template-columns: minmax(0, 1fr); }
+  .asks li { grid-template-columns: auto minmax(0, 1fr); }
+  .asks .q { grid-column: 1 / -1; }
+  .asks li button { grid-column: 1 / -1; justify-self: end; }
+  #go, #export { width: 100%; }
+}

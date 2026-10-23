@@ -133,6 +133,20 @@ function shifts() {
   });
 }
 
+/** 日報：話した言葉の中から、項目が1つずつ埋まっていく（最後の「時間」は話に無いので、聞き返しのまま） */
+function reports() {
+  const box = $('live-rp');
+  const rows = Array.from(box.querySelectorAll('tbody tr'));
+  loop(box, 5000, async () => {
+    rows.forEach((r) => r.classList.add('off'));
+    for (const r of rows) {
+      await sleep(850);
+      r.classList.remove('off');
+    }
+    await sleep(3600);
+  });
+}
+
 function overtime() {
   const box = $('live-ot');
   loop(box, 6000, async () => { replay(box); await sleep(6500); });
@@ -211,5 +225,5 @@ function bot() {
 
 export function startLive() {
   if (reduced()) return;
-  receipts(); overtime(); orders(); shifts(); knowledge(); foreign(); inn(); bot();
+  receipts(); overtime(); orders(); shifts(); reports(); knowledge(); foreign(); inn(); bot();
 }

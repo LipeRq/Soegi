@@ -181,6 +181,53 @@ export function validateTimecard(raw) {
   return { employee_name: toStr(raw.employee_name).slice(0, 40), entries };
 }
 
+// ---- 音声日報 ------------------------------------------------------------------------------
+
+export const REPORT_TOOL = {
+  name: 'submit_report',
+  description: '話した内容から取り出した、日報の項目を提出する',
+  schema: {
+    type: 'object',
+    properties: {
+      date: { type: 'string', description: 'YYYY-MM-DD。「今日」は今日の日付に直す。話に無ければ空文字' },
+      site: { type: 'string', description: '現場名・訪問先（例：田中邸、山本さん宅）。話に無ければ空文字' },
+      work: { type: 'array', items: { type: 'string' }, description: '作業内容を、短い項目に分けたもの（話した言葉のまま）。話に無ければ空の配列' },
+      people: { type: ['integer', 'null'], description: '作業した人数。話に無ければ null' },
+      start: { type: 'string', description: '開始時刻 HH:MM（24時間）。話に無ければ空文字' },
+      end: { type: 'string', description: '終了時刻 HH:MM（24時間）。話に無ければ空文字' },
+      hours: { type: ['number', 'null'], description: '開始・終了が無く、作業した時間だけ話したときの時間数。話に無ければ null' },
+      hazards: { type: 'string', description: '危ない所・ヒヤリとしたこと・けがなど。話に無ければ空文字' },
+      notes: { type: 'string', description: 'そのほかの気づき（資材・天気・お客さまの様子など）。話に無ければ空文字' },
+      tomorrow: { type: 'string', description: '明日の予定。話に無ければ空文字' },
+      questions: {
+        type: 'array',
+        description: '話に無く、聞き返すべきこと（項目ごとに1つ）',
+        items: { type: 'object', properties: { field: { type: 'string', enum: ['date', 'site', 'work', 'people', 'hours', 'tomorrow', 'hazards', 'other'] }, question: { type: 'string' } }, required: ['field', 'question'] },
+      },
+    },
+    required: ['date', 'site', 'work', 'people', 'start', 'end', 'hours', 'hazards', 'notes', 'tomorrow', 'questions'],
+  },
+};
+
+export function validateReport(raw) {
+  if (!isObj(raw)) fail('object');
+  const hours = raw.hours == null || raw.hours === '' ? null : Number(raw.hours);
+  const people = raw.people == null || raw.people === '' ? null : Number(raw.people);
+  return {
+    date: toDate(raw.date),
+    site: toStr(raw.site).slice(0, 80),
+    work: arr(raw.work ?? [], 'work', 12).map((w) => toStr(w).slice(0, 120)).filter(Boolean),
+    people: Number.isInteger(people) && people > 0 && people < 1000 ? people : null,
+    start: toTime(raw.start),
+    end: toTime(raw.end),
+    hours: Number.isFinite(hours) && hours > 0 && hours <= 24 ? Math.round(hours * 10) / 10 : null,
+    hazards: toStr(raw.hazards).slice(0, 300),
+    notes: toStr(raw.notes).slice(0, 300),
+    tomorrow: toStr(raw.tomorrow).slice(0, 200),
+    questions: arr(raw.questions ?? [], 'questions', 10).filter(isObj).map((q) => ({ field: toStr(q.field).slice(0, 20), question: toStr(q.question).slice(0, 120) })).filter((q) => q.question),
+  };
+}
+
 // ---- デモA：社内ナレッジ検索 --------------------------------------------------------
 
 

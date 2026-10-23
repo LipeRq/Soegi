@@ -45,6 +45,24 @@ export const RECORDS = {
       ['確認・直しにかかった分（1週間）', `SUMIF(${c[0]},"確認",${c[2]})+SUMIF(${c[0]},"直し",${c[2]})`, '分'],
     ],
   },
+  report: {
+    perDay: 5,
+    cols: [
+      { header: '現場・担当', width: 18, type: 'text', count: true },
+      { header: '書き方', width: 12, type: 'list', list: ['手書き', 'パソコン', 'スマホ', 'LINE', 'そのほか'] },
+      { header: '1本の分', width: 9, type: 'num', sum: true },
+      { header: '書き直し・聞き直し', width: 14, type: 'list', list: YESNO },
+      { header: '提出が翌日以降', width: 12, type: 'list', list: YESNO },
+      { header: 'メモ', width: 24, type: 'text' },
+    ],
+    summary: (c) => [
+      ['日報の本数（1週間）', `COUNTA(${c[0]})`, '本'],
+      ['月に直した本数', `ROUND(COUNTA(${c[0]})*${WEEKS_PER_MONTH},0)`, '本', 'count'],
+      ['1本の書く分', `IFERROR(ROUND(AVERAGE(${c[2]}),1),"")`, '分', 'before'],
+      ['書き直し・聞き直しがあった本数', `COUNTIF(${c[3]},"はい")`, '本'],
+      ['提出が翌日以降だった本数', `COUNTIF(${c[4]},"はい")`, '本'],
+    ],
+  },
   shift: {
     perDay: 3,
     hint: 'シフト表づくりは月に1回の作業です。この1週間に無ければ、前の月のシフト表を確かめた・組み直した分を書いてください。',
