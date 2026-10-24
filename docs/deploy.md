@@ -42,3 +42,8 @@
 - **公開中の版のコードが、リポジトリと同じか。** 別の場所（別のセッションなど）で直して公開した修正が、リポジトリにないと、こちらの公開で上書きされる。2026-10-24 に、DeepSeek の思考モードを切る修正（`claude/wonderful-tesla-jm0npj`）を取り込まずに公開し、チャットボットなどが約2時間 400 エラーになった（取り込んだ版 `8e9e9186` で復旧）
 - 確認の仕方：`git branch -a` で、他のブランチに未取り込みの修正がないか見る。公開中の版の説明（`wrangler versions list` の message）と、リポジトリのコミットを突き合わせる
 - 公開したら、**AIを使う機能を1つ実際に動かして**確かめる（チャットボットに1問、など）
+
+## お申し込みフォーム（2026-10-24）
+- サイト `/contact/` → `https://demo.withsoegi.jp/api/inquiry`（CORS は `CHAT_ALLOWED_ORIGINS`）→ `send_email`（`MAIL`）でメールを送る。保存はしない
+- 送り先は秘密の設定 `INQUIRY_TO`（カンマ区切りで複数可。Email Routing で確認済みのアドレスだけ送れる）。変更：`npx wrangler secret put INQUIRY_TO`
+- 未設定・送信失敗のときは、フォームが「お電話で」と案内する
