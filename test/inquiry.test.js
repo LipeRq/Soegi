@@ -62,6 +62,18 @@ test('送信：メールを1通送る。送り先が未設定・送信失敗・1
   await assert.rejects(inquiry(env, OK, '9.9.9.9'), (e) => e.status === 429);
 });
 
+test('送り先が複数（カンマ区切り）：1通ずつ送り、どれか届けば成功。全部だめなら失敗', async () => {
+  const { env, sent } = fakeEnv({ INQUIRY_TO: 'a@example.com, b@example.com' });
+  await inquiry(env, OK, '2.2.2.1');
+  assert.deepEqual(sent.map((m) => m.to), ['a@example.com', 'b@example.com']);
+  assert.match(sent[0].raw, /^To: a@example\.com$/m); assert.match(sent[1].raw, /^To: b@example\.com$/m);
+  const half = { ...env, MAIL: { send: async (m) => { if (m.to === 'a@example.com') throw new Error('unverified'); sent.push(m); } } };
+  assert.deepEqual(await inquiry(half, OK, '2.2.2.2'), { sent: true });
+  const none = { ...env, MAIL: { send: async () => { throw new Error('x'); } } };
+  await assert.rejects(inquiry(none, OK, '2.2.2.3'), (e) => e.status === 502);
+  await assert.rejects(inquiry({ ...env, INQUIRY_TO: 'broken, ' }, OK, '2.2.2.4'), (e) => e.status === 503);
+});
+
 test('API：withsoegi.jp からだけ呼べる（CORS）。パスワードは要らない。入力が大きすぎれば断る', async () => {
   const { env, sent } = fakeEnv();
   const post = (body, origin = 'https://withsoegi.jp') => worker.fetch(new Request('https://demo.withsoegi.jp/api/inquiry', { method: 'POST', headers: { 'content-type': 'application/json', origin }, body: JSON.stringify(body) }), env);

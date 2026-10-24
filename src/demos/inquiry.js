@@ -96,13 +96,13 @@ export async function inquiry(env, body, ip) {
   const day = await allowPerDay(env, 'inquiry', ip, INQUIRY_PER_DAY);
   if (!day.ok) throw new HttpError(429, `本日の受付の上限に達しました。お電話（${PHONE}）でご連絡ください`);
   const from = env.INQUIRY_FROM || 'inquiry@withsoegi.jp';
-  const raw = rawMail({ from, to: env.INQUIRY_TO, replyTo: d.email || '', subject: `【無料相談】${d.name}${d.company ? `（${d.company}）` : ''}さんからお申し込み`, text: inquiryBody(d) });
-  try {
-    const EmailMessage = env.__EmailMessage ?? (await import('cloudflare:email')).EmailMessage;
-    await env.MAIL.send(new EmailMessage(from, env.INQUIRY_TO, raw));
-  } catch {
-    // 本文はログに出さない。届かなかったことは、お客さまにはっきり伝える
-    throw new HttpError(502, `送信できませんでした。お手数ですが、お電話（${PHONE}）でご連絡ください`);
-  }
+  const tos = String(env.INQUIRY_TO).split(',').map((x) => x.trim()).filter((x) => /^[^\s@,;<>"]+@[^\s@,;<>"]+\.[^\s@,;<>"]+$/.test(x));
+  if (!tos.length) throw new HttpError(503, `お申し込みの受付は準備中です。お手数ですが、お電話（${PHONE}）でご連絡ください`);
+  const subject = `【無料相談】${d.name}${d.company ? `（${d.company}）` : ''}さんからお申し込み`;
+  const text = inquiryBody(d);
+  const EmailMessage = env.__EmailMessage ?? (await import('cloudflare:email')).EmailMessage;
+  // 送り先ごとに1通。どれか1つでも届けば成功（本文はログに出さない）
+  const results = await Promise.allSettled(tos.map((to) => env.MAIL.send(new EmailMessage(from, to, rawMail({ from, to, replyTo: d.email || '', subject, text })))));
+  if (!results.some((r) => r.status === 'fulfilled')) throw new HttpError(502, `送信できませんでした。お手数ですが、お電話（${PHONE}）でご連絡ください`);
   return { sent: true };
 }
