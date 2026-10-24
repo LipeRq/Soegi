@@ -67,6 +67,8 @@ async function callDeepSeek(env, { tool, system, userText, imageBase64, maxToken
     {
       model,
       temperature: 0,
+      // 思考モードでは tool_choice の強制が 400 になる（Thinking mode does not support this tool_choice）。画像用モデルには付けない。
+      ...(imageBase64 ? {} : { thinking: { type: 'disabled' } }),
       max_tokens: maxTokens,
       messages: [
         { role: 'system', content: system },
