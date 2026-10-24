@@ -25,3 +25,14 @@ if (!reduce && matchMedia('(hover: hover)').matches) {
 }
 const f = document.querySelector('.form');
 f.addEventListener('submit', (e) => { e.preventDefault(); f.querySelector('.done').hidden = false; });
+
+// 読んだ長さの帯（上）と、マウスについてくる丸（ホバーできる端末だけ）
+const bar = document.getElementById('progress');
+const setBar = () => { const h = document.documentElement.scrollHeight - innerHeight; bar.style.setProperty('transform', `scaleX(${h > 0 ? Math.min(1, scrollY / h) : 0})`); };
+addEventListener('scroll', setBar, { passive: true }); setBar();
+const cur = document.getElementById('cursor');
+if (!reduce && matchMedia('(hover: hover)').matches) {
+  addEventListener('pointermove', (e) => { cur.classList.add('on'); cur.style.setProperty('transform', `translate(${e.clientX}px,${e.clientY}px)`); });
+  document.addEventListener('pointerleave', () => cur.classList.remove('on'));
+  document.querySelectorAll('a, button, [data-tilt]').forEach((el) => { el.addEventListener('pointerenter', () => cur.classList.add('big')); el.addEventListener('pointerleave', () => cur.classList.remove('big')); });
+}

@@ -5,10 +5,11 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Maru+Gothic:wght@400;500&display=swap">
 <link rel="stylesheet" href="03-nature.css"></head>
 <body>
-<header class="top"><a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L24 15 H19 L26 25 H6 L13 15 H8 Z"/><path d="M16 25 V30"/></svg>みどりの森</a><nav aria-label="メニュー"><a href="#about">森について</a><a href="#stay">過ごし方</a><a href="#season">季節</a><a href="#plan">料金・予約</a></nav></header>
+<header class="top"><a class="logo" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L24 15 H19 L26 25 H6 L13 15 H8 Z"/><path d="M16 25 V30"/></svg>みどりの森</a><nav aria-label="メニュー"><a href="#about">森について</a><a href="#stay">過ごし方</a><a href="#season">季節</a><a href="#plan">料金・予約</a><button type="button" class="tod" id="tod" aria-pressed="false" aria-label="夜の景色に切り替える"><span class="tod-d">昼</span><span class="tod-n">夜</span></button></nav></header>
 <main id="top">
 <section class="hero">
 <svg class="hills" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true"><path class="h3" d="M0 220 Q200 120 420 200 T820 170 T1200 210 V400 H0Z"/><path class="h2" d="M0 280 Q260 190 520 270 T1200 250 V400 H0Z"/><path class="h1" d="M0 340 Q300 280 620 330 T1200 320 V400 H0Z"/></svg>
+<div class="stars" aria-hidden="true"></div>
 <div class="sun" aria-hidden="true"></div>
 <div class="leaves" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <div class="inner"><p class="kicker">山形県・里山のキャンプ場（架空）</p><h1>深呼吸が、<br>ここから始まる。</h1><p class="lead">朝は鳥の声で目がさめて、夜は星と焚き火。何もしない時間を、ゆっくりどうぞ。</p><a class="btn" href="#plan">空き状況を見る</a></div>
@@ -21,6 +22,12 @@
 <article class="card" data-reveal><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 C30 16 36 20 36 28 A12 12 0 0 1 12 28 C12 20 18 16 24 6Z"/><path d="M24 40 C20 36 20 30 24 26 C28 30 28 36 24 40Z"/></svg><h3>焚き火</h3><p>薪は現地で。火の起こし方は、スタッフが教えます。</p></article>
 <article class="card" data-reveal><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 38 Q16 14 24 26 T40 12"/><circle cx="12" cy="12" r="3"/><circle cx="34" cy="34" r="2"/></svg><h3>森の散歩</h3><p>朝の散策ガイド（30分）。野鳥と草花に出会えます。</p></article>
 </div></section>
+<section id="map" class="sec" aria-labelledby="map-h"><h2 id="map-h" data-reveal>区画のようす（見本）</h2>
+<p class="note" data-reveal>12区画。気になる区画を押すと、広さと特徴が出ます。</p>
+<div class="mapwrap" data-reveal>
+<div class="plots" id="plots" role="group" aria-label="区画の一覧"></div>
+<div class="plotinfo" id="plotinfo" role="status" aria-live="polite"><b>区画を選んでください</b><span>川に近い区画は、夏に涼しく、水の音が聞こえます。</span></div>
+</div><p class="note">空き状況は見本です。予約の受付は行っていません。</p></section>
 <section id="season" class="sec season"><h2 data-reveal>季節のたより</h2>
 <div class="seasons" role="tablist" aria-label="季節"><button role="tab" aria-selected="true" data-s="spring">春</button><button role="tab" aria-selected="false" data-s="summer">夏</button><button role="tab" aria-selected="false" data-s="autumn">秋</button><button role="tab" aria-selected="false" data-s="winter">冬</button></div>
 <div class="sbox" id="sbox" data-s="spring" role="tabpanel"><b id="stitle">春：芽吹きの森</b><p id="stext">山菜と新緑の季節。夜はまだ冷えるので、あたたかい寝袋を。</p></div></section>

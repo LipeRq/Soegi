@@ -37,3 +37,23 @@ h2 { font:800 clamp(26px,4vw,38px) var(--d); margin:0 0 20px; }
 footer { text-align:center; padding:24px; font-size:13px; color:var(--mute); border-top:1px solid var(--line); }
 @media (max-width:760px) { .hero { grid-template-columns:minmax(0,1fr); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } html { scroll-behavior:auto; } }
+
+.hero-art { position:relative; align-self:end; } .hero-art .hcar { position:relative; z-index:1; animation:drive 1.6s cubic-bezier(.2,.8,.2,1) both, bob 2.4s ease-in-out 1.6s infinite; }
+@keyframes bob { 50% { transform:translateY(-3px); } }
+.road { position:relative; height:10px; margin-top:-14px; border-radius:99px; background:linear-gradient(var(--line),var(--line)); overflow:hidden; }
+.road i { position:absolute; inset:4px 0 auto 0; height:2px; background:repeating-linear-gradient(90deg,var(--mute) 0 28px,transparent 28px 56px); animation:lane 1.2s linear infinite; }
+@keyframes lane { to { transform:translateX(-56px); } }
+.favlink { display:inline-flex; align-items:center; gap:4px; min-height:44px; padding:0 12px; border-radius:10px; color:var(--ink); text-decoration:none; font-weight:700; } .favlink b { min-width:1.2em; text-align:center; font-family:var(--d); }
+.favlink.has { color:#e0245e; }
+.cards-act { display:flex; gap:8px; padding:0 18px 16px; } .cards-act button { flex:1; min-height:46px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); font:700 14px var(--f); cursor:pointer; transition:background .2s, border-color .2s, color .2s; }
+.cards-act button:hover, .cards-act button:focus-visible { border-color:var(--pri); color:var(--pri); outline:none; }
+.cards-act .fav[aria-pressed=true] { background:#fde7ee; color:#c01c4f; border-color:#e0245e; }
+.spec { border:0; padding:0; border-radius:26px; width:min(560px,calc(100vw - 24px)); background:var(--card); color:var(--ink); box-shadow:0 30px 60px -20px rgba(15,27,45,.55); }
+.spec::backdrop { background:rgba(15,27,45,.55); backdrop-filter:blur(3px); }
+.spec[open] { animation:pop .3s both; }
+.spec-in { padding:0 22px 22px; display:grid; gap:10px; } .spec-top { margin:0 -22px; padding:18px 22px 6px; background:linear-gradient(160deg,color-mix(in srgb,var(--cc) 16%,var(--card)),var(--card)); } .spec-car { width:100%; height:auto; }
+.spec h3 { margin:0; font:800 22px var(--d); } .spec-price { margin:0; font:800 30px var(--d); } .spec-price small { font:500 13px var(--f); color:var(--mute); margin-left:6px; }
+.spec-t { width:100%; border-collapse:collapse; font-size:15px; } .spec-t th, .spec-t td { padding:8px 4px; border-bottom:1px solid var(--line); text-align:left; } .spec-t th { width:36%; font-weight:500; color:var(--mute); }
+.spec-note { margin:0; font-size:12px; color:var(--mute); } .spec-act { display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; }
+@media (max-width:760px) { .hero-art { max-width:420px; } }
+@media (prefers-reduced-motion: reduce) { .road i { animation:none; } }

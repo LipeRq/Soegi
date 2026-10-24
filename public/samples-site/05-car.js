@@ -10,8 +10,13 @@ const STOCK = [
   { id: 8, name: 'ミライ スパーク S', type: 'ev', year: 2022, km: 21000, price: 262, color: '#00a6b8' },
   { id: 9, name: 'ミライ セレナーデ', type: 'sedan', year: 2018, km: 74000, price: 132, color: '#2b2f38' },
 ];
+const DETAIL = {
+  1: ['660cc', '2WD', '2027年6月', 'ホワイト系の内装・衝突被害軽減ブレーキ'], 2: ['660cc', '2WD', '2026年12月', 'オートスライドドア（左）'], 3: ['2000cc', '4WD', '2027年3月', 'スタッドレスタイヤ・ドライブレコーダー'], 4: ['2400cc', '4WD', '2028年8月', 'レザーシート・全周囲カメラ'],
+  5: ['2000cc', '4WD', '2026年11月', 'ルーフレール・ETC'], 6: ['1800cc', '2WD', '2027年9月', 'ナビ・バックカメラ'], 7: ['電気（60kWh）', '2WD', '2028年4月', '充電ケーブル付・走行距離の目安 約400km'], 8: ['電気（40kWh）', '2WD', '2027年5月', '急速充電に対応・ナビ'], 9: ['1500cc', '2WD', '2026年11月', '禁煙車・記録簿あり'],
+};
 const LABEL = { kei: '軽', suv: 'SUV', sedan: 'セダン', ev: '電気' };
 const st = { type: 'all', max: 400, sort: 'p' };
+const favs = new Set();
 const $ = (id) => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
 const monthly = (priceMan, downMan, n, rate) => {
@@ -35,7 +40,12 @@ function card(c) {
   const price = document.createElement('div'); price.className = 'price'; price.textContent = `${c.price}万円`;
   const sm = document.createElement('small'); sm.textContent = '総額'; price.append(sm);
   const mo = document.createElement('div'); mo.className = 'mo'; mo.textContent = `月々 約${monthly(c.price, 0, 60, 3.9).m.toLocaleString('ja-JP')}円〜（60回・目安）`;
-  info.append(h, meta, price, mo); li.append(pic, info);
+  info.append(h, meta, price, mo);
+  const act = document.createElement('div'); act.className = 'cards-act';
+  const more = document.createElement('button'); more.type = 'button'; more.textContent = 'くわしく見る'; more.setAttribute('aria-label', `${c.name}をくわしく見る`); more.addEventListener('click', () => openSpec(c));
+  const fav = document.createElement('button'); fav.type = 'button'; fav.className = 'fav'; fav.setAttribute('aria-pressed', String(favs.has(c.id))); fav.textContent = favs.has(c.id) ? '♥ 入れました' : '♡ お気に入り'; fav.setAttribute('aria-label', `${c.name}をお気に入りに入れる`);
+  fav.addEventListener('click', () => { toggleFav(c.id); fav.setAttribute('aria-pressed', String(favs.has(c.id))); fav.textContent = favs.has(c.id) ? '♥ 入れました' : '♡ お気に入り'; });
+  act.append(more, fav); li.append(pic, info, act);
   return li;
 }
 function render() {
@@ -61,3 +71,23 @@ function calc() {
 $('calc').addEventListener('input', calc);
 $('calc').addEventListener('submit', (e) => e.preventDefault());
 render(); calc();
+
+function toggleFav(id) {
+  if (favs.has(id)) favs.delete(id); else favs.add(id);
+  const fl = $('favlink'); $('favn').textContent = String(favs.size); fl.classList.toggle('has', favs.size > 0); fl.setAttribute('aria-label', `お気に入り ${favs.size}台`);
+  if (cur) { $('spec-fav').textContent = favs.has(cur.id) ? '♥ お気に入りに入っています' : '♡ お気に入りに入れる'; }
+}
+let cur = null;
+function openSpec(c) {
+  cur = c; const dl = $('spec'); const dt = DETAIL[c.id] ?? ['—', '—', '—', ''];
+  dl.style.setProperty('--cc', c.color); $('spec-use').setAttribute('href', `#car-${c.type}`);
+  $('spec-h').textContent = c.name;
+  const p = $('spec-price'); p.textContent = `${c.price}万円`; const sm = document.createElement('small'); sm.textContent = `総額・月々 約${monthly(c.price, 0, 60, 3.9).m.toLocaleString('ja-JP')}円〜（60回・目安）`; p.append(sm);
+  const rows = [['タイプ', LABEL[c.type]], ['年式', `${c.year}年式`], ['走行距離', `${(c.km / 10000).toFixed(1)}万km`], ['排気量', dt[0]], ['駆動', dt[1]], ['車検', dt[2]], ['修復歴', 'なし'], ['装備', dt[3] || c.note || '—']];
+  $('spec-rows').replaceChildren(...rows.map(([k, v]) => { const tr = document.createElement('tr'); const th = document.createElement('th'); th.scope = 'row'; th.textContent = k; const td = document.createElement('td'); td.textContent = v; tr.append(th, td); return tr; }));
+  $('spec-fav').textContent = favs.has(c.id) ? '♥ お気に入りに入っています' : '♡ お気に入りに入れる';
+  dl.showModal();
+}
+$('spec-fav').addEventListener('click', () => { if (cur) { toggleFav(cur.id); render(); } });
+$('spec').addEventListener('close', () => { cur = null; });
+$('spec').addEventListener('click', (e) => { if (e.target === $('spec')) $('spec').close(); });

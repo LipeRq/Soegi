@@ -5,10 +5,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="05-car.css"></head>
 <body>
-<header class="top"><a class="logo" href="#top"><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M2 14 L6 7 Q8 5 12 5 H20 Q24 5 26 8 L30 13 V16 H2Z"/><circle cx="9" cy="16" r="3"/><circle cx="23" cy="16" r="3"/></svg>MIRAI<b>MOTORS</b></a><nav aria-label="メニュー"><a href="#stock">在庫</a><a href="#loan">支払いの目安</a><a href="#visit">来店</a></nav></header>
+<header class="top"><a class="logo" href="#top"><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M2 14 L6 7 Q8 5 12 5 H20 Q24 5 26 8 L30 13 V16 H2Z"/><circle cx="9" cy="16" r="3"/><circle cx="23" cy="16" r="3"/></svg>MIRAI<b>MOTORS</b></a><nav aria-label="メニュー"><a href="#stock">在庫</a><a href="#loan">支払いの目安</a><a href="#visit">来店</a><a class="favlink" href="#stock" id="favlink" aria-label="お気に入り 0台">♥ <b id="favn">0</b></a></nav></header>
 <main id="top">
 <section class="hero"><div><p class="eyebrow">山形のクルマ屋さん（架空）</p><h1><span class="nb">乗りたい1台を、</span><br><em>わかりやすく。</em></h1><p class="lead">総額を最初に表示。点検記録と修復歴も、すべて公開しています。</p><div class="btns"><a class="btn pri" href="#stock">在庫を見る</a><a class="btn" href="#loan">月々の目安を計算</a></div></div>
-<svg class="hcar" viewBox="0 0 400 160" aria-hidden="true"><use href="#car-suv"/></svg>
+<div class="hero-art" aria-hidden="true"><svg class="hcar" viewBox="0 0 400 160"><use href="#car-suv"/></svg><div class="road"><i></i></div></div>
 <ul class="trust"><li><b>総額表示</b>諸費用こみ</li><li><b>保証つき</b>全車1年（見本）</li><li><b>修復歴</b>すべて公開</li></ul></section>
 <section id="stock" class="sec"><h2>在庫</h2>
 <div class="filters"><div class="chips" role="group" aria-label="車のタイプ"><button aria-pressed="true" data-t="all">すべて</button><button aria-pressed="false" data-t="kei">軽</button><button aria-pressed="false" data-t="suv">SUV</button><button aria-pressed="false" data-t="sedan">セダン</button><button aria-pressed="false" data-t="ev">電気</button></div>
@@ -23,6 +23,11 @@
 <section id="visit" class="sec"><h2>来店</h2><div class="visit"><div><p>山形県〇〇市（架空）<br>営業 9:30〜18:30 ／ 水曜定休</p><p>試乗は予約なしでも可能です。お電話の場合：000-000-0000（見本）</p></div><a class="btn pri" href="#top">トップへ戻る</a></div></section>
 </main>
 <footer>© ミライモータース（架空）／ ソエギ制作の見本サイトです。車・価格はすべて架空です。</footer>
+<dialog id="spec" class="spec" aria-labelledby="spec-h"><form method="dialog" class="spec-in"><div class="spec-top"><svg viewBox="0 0 400 160" class="spec-car" id="spec-car" aria-hidden="true"><use id="spec-use" href="#car-suv"/></svg></div>
+<h3 id="spec-h">—</h3><p class="spec-price" id="spec-price"></p>
+<table class="spec-t"><tbody id="spec-rows"></tbody></table>
+<p class="spec-note">価格・内容は架空の見本です。</p>
+<div class="spec-act"><button type="button" class="btn" id="spec-fav">♡ お気に入りに入れる</button><button class="btn pri" value="close">閉じる</button></div></form></dialog>
 <svg width="0" height="0" class="defs" aria-hidden="true" focusable="false"><defs>
 <linearGradient id="g-shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".38" stop-color="#fff" stop-opacity=".04"/><stop offset=".7" stop-color="#000" stop-opacity=".1"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient>
 <linearGradient id="g-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8f4ff"/><stop offset=".55" stop-color="#8db4d8"/><stop offset="1" stop-color="#4d6f93"/></linearGradient>

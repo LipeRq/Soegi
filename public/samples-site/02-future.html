@@ -8,11 +8,23 @@
 <canvas id="bg" aria-hidden="true"></canvas>
 <header class="top"><a class="logo" href="#top">NOVA<span>/</span>LAB</a><nav aria-label="メニュー"><a href="#tech">技術</a><a href="#products">製品</a><a href="#spec">仕様</a><a href="#join">問い合わせ</a></nav></header>
 <main id="top">
-<section class="hero"><p class="mono">// 次世代の協働ロボット（架空）</p>
+<section class="hero"><div class="hero-l"><p class="mono">// 次世代の協働ロボット（架空）</p>
 <h1>人と機械の<br><em>あいだ</em>を、<br>設計する。</h1>
 <p class="lead">NOVA/LAB は、現場で人の隣に立つ自律ロボットと、それを動かすAI基盤をつくる研究開発チームです。</p>
 <div class="btns"><a class="btn pri" href="#products">製品を見る</a><a class="btn" href="#join">開発者に話す</a></div>
-<dl class="hud" aria-label="主な指標"><div><dt>応答</dt><dd><b data-to="12">0</b><small>ms</small></dd></div><div><dt>稼働率</dt><dd><b data-to="99.9" data-dec="1">0</b><small>%</small></dd></div><div><dt>センサー</dt><dd><b data-to="64">0</b><small>ch</small></dd></div></dl></section>
+<dl class="hud" aria-label="主な指標"><div><dt>応答</dt><dd><b data-to="12">0</b><small>ms</small></dd></div><div><dt>稼働率</dt><dd><b data-to="99.9" data-dec="1">0</b><small>%</small></dd></div><div><dt>センサー</dt><dd><b data-to="64">0</b><small>ch</small></dd></div></dl></div>
+<div class="orb" aria-hidden="true">
+<svg viewBox="0 0 400 400"><defs><radialGradient id="o-core" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#3df0ff" stop-opacity=".9"/><stop offset=".6" stop-color="#3df0ff" stop-opacity=".12"/><stop offset="1" stop-color="#3df0ff" stop-opacity="0"/></radialGradient></defs>
+<circle cx="200" cy="200" r="120" fill="url(#o-core)"/>
+<g class="ring r1"><ellipse cx="200" cy="200" rx="170" ry="170"/><circle cx="200" cy="30" r="5"/></g>
+<g class="ring r2"><ellipse cx="200" cy="200" rx="140" ry="52"/><circle cx="340" cy="200" r="4"/></g>
+<g class="ring r3"><ellipse cx="200" cy="200" rx="52" ry="140"/><circle cx="200" cy="60" r="4"/></g>
+<g class="wire"><circle cx="200" cy="200" r="86"/><ellipse cx="200" cy="200" rx="86" ry="30"/><ellipse cx="200" cy="200" rx="30" ry="86"/><path d="M114 200H286M200 114V286"/></g>
+<g class="nodes"><circle cx="200" cy="200" r="7"/><circle cx="286" cy="200" r="3"/><circle cx="114" cy="200" r="3"/><circle cx="200" cy="114" r="3"/><circle cx="200" cy="286" r="3"/></g>
+<g class="ticks"><path d="M200 8V22M200 378V392M8 200H22M378 200H392"/></g>
+<text x="214" y="196" class="lbl">CORE-01</text><text x="300" y="196" class="lbl dim">12ms</text>
+</svg>
+</div></section>
 <section id="tech" class="sec"><h2><span class="mono">01</span>技術</h2>
 <div class="grid3">
 <article class="panel" data-reveal><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="6"/><circle cx="24" cy="24" r="14"/><circle cx="24" cy="24" r="21"/></svg><h3>空間認識</h3><p>周囲の動きを毎秒数百回読み取り、人との距離を保ちます。</p></article>
