@@ -2,6 +2,10 @@ name = "soegi-demo"
 main = "src/worker.js"
 compatibility_date = "2026-10-01"
 
+# 公開するとき、ダッシュボードで直接入れた変数（Variables）を消さない（wrangler.toml に無いものを残す）。
+# 秘密の値（secret）は、もともと上書きされない。
+keep_vars = true
+
 # 静的ファイル（public/）＋ API（/api/*）
 [assets]
 directory = "./public"
