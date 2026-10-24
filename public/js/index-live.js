@@ -86,67 +86,6 @@ function receipts() {
   });
 }
 
-/** 受注：注文書の行を1行ずつ読み、照らし合わせた結果の行が増える（注意・要確認の印は、行と一緒に最初から出る） */
-function orders() {
-  const box = $('live-od');
-  const rows = Array.from(box.querySelectorAll('tbody tr'));
-  const lines = Array.from(box.querySelectorAll('.paper span'));
-  const set = (n) => {
-    $('od-cnt').textContent = String(n);
-    $('od-prog').style.setProperty('--p', `${(n / rows.length) * 100}%`);
-  };
-  loop(box, 3800, async () => {
-    rows.forEach((r) => r.classList.add('off'));
-    set(0);
-    for (let i = 0; i < rows.length; i += 1) {
-      lines.forEach((l, k) => l.classList.toggle('hit', k === i));
-      await sleep(900);
-      rows[i].classList.remove('off');
-      set(i + 1);
-    }
-    lines.forEach((l) => l.classList.remove('hit'));
-    await sleep(3600);
-  });
-}
-
-/** 労務：シフト表を左の日から確かめていき、赤・黄のマスに言葉が出る（下の一文は、最後に見つけた問題） */
-function shifts() {
-  const box = $('live-sf');
-  const rows = Array.from(box.querySelectorAll('tbody tr')).map((tr) => Array.from(tr.querySelectorAll('td')));
-  const flagged = rows.flat().filter((td) => td.dataset.note);
-  loop(box, 4400, async () => {
-    flagged.forEach((td) => td.classList.add('off'));
-    for (let c = 0; c < rows[0].length; c += 1) {
-      rows.forEach((r) => r[c].classList.add('scan'));
-      await sleep(650);
-      rows.forEach((r) => {
-        const td = r[c];
-        td.classList.remove('scan');
-        if (!td.classList.contains('off')) return;
-        td.classList.remove('off');
-        $('sf-note').textContent = td.dataset.note;
-        $('sf-chip').className = `chip ${td.classList.contains('r') ? 'r' : 'y'}`;
-        $('sf-chip').textContent = td.classList.contains('r') ? '要確認' : '注意';
-      });
-    }
-    await sleep(3800);
-  });
-}
-
-/** 日報：話した言葉の中から、項目が1つずつ埋まっていく（最後の「時間」は話に無いので、聞き返しのまま） */
-function reports() {
-  const box = $('live-rp');
-  const rows = Array.from(box.querySelectorAll('tbody tr'));
-  loop(box, 5000, async () => {
-    rows.forEach((r) => r.classList.add('off'));
-    for (const r of rows) {
-      await sleep(850);
-      r.classList.remove('off');
-    }
-    await sleep(3600);
-  });
-}
-
 /** 月次：顧客の行が1つずつ現れる（伸びた所・落ちた所を、色と記号と言葉で） */
 function monthlies() {
   const box = $('live-mo');
@@ -239,5 +178,5 @@ function bot() {
 
 export function startLive() {
   if (reduced()) return;
-  receipts(); overtime(); orders(); shifts(); reports(); monthlies(); knowledge(); foreign(); inn(); bot();
+  receipts(); overtime(); monthlies(); knowledge(); foreign(); inn(); bot();
 }
