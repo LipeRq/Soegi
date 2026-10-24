@@ -3,7 +3,7 @@
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; scroll-padding-top:64px; }
 body { margin:0; background:var(--bg); color:var(--ink); font:400 16px/1.8 var(--f); overflow-x:hidden; }
-.defs { position:absolute; } .body { fill:var(--cc,#0b5fff); } .glass { fill:#cfe4ff; opacity:.9; } .tire { fill:#16181d; } .rim { fill:#c9d1dc; } .bolt { stroke:var(--lime); stroke-width:6; stroke-linecap:round; }
+.defs { position:absolute; } .body { fill:var(--cc,#0b5fff); } .glass { fill:url(#g-glass); stroke:rgba(0,0,0,.35); stroke-width:1.2; }
 .top { position:sticky; top:0; z-index:5; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; padding:6px 20px; background:color-mix(in srgb,var(--bg) 85%,transparent); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); }
 .logo { display:inline-flex; align-items:center; gap:8px; min-height:44px; font:800 18px var(--d); letter-spacing:.06em; text-decoration:none; color:var(--ink); } .logo svg { width:34px; fill:var(--pri); } .logo b { color:var(--pri); font-weight:800; }
 .top nav { display:flex; } .top nav a { min-height:44px; display:inline-flex; align-items:center; padding:0 12px; color:var(--ink); text-decoration:none; font-weight:500; font-size:15px; border-radius:10px; } .top nav a:hover, .top nav a:focus-visible { background:var(--line); outline:none; }

@@ -23,11 +23,102 @@
 <section id="visit" class="sec"><h2>来店</h2><div class="visit"><div><p>山形県〇〇市（架空）<br>営業 9:30〜18:30 ／ 水曜定休</p><p>試乗は予約なしでも可能です。お電話の場合：000-000-0000（見本）</p></div><a class="btn pri" href="#top">トップへ戻る</a></div></section>
 </main>
 <footer>© ミライモータース（架空）／ ソエギ制作の見本サイトです。車・価格はすべて架空です。</footer>
-<svg width="0" height="0" class="defs" aria-hidden="true"><defs>
-<symbol id="car-kei" viewBox="0 0 400 160"><path d="M40 112 L58 60 Q64 46 84 46 H250 Q280 46 292 70 L330 82 Q354 88 358 108 V122 H40Z" class="body"/><path d="M82 62 H172 V84 H70Z M184 62 H246 Q262 64 270 84 H184Z" class="glass"/><circle cx="104" cy="124" r="22" class="tire"/><circle cx="294" cy="124" r="22" class="tire"/><circle cx="104" cy="124" r="9" class="rim"/><circle cx="294" cy="124" r="9" class="rim"/></symbol>
-<symbol id="car-suv" viewBox="0 0 400 160"><path d="M20 112 L36 66 Q42 46 66 44 H236 Q272 44 292 70 L346 80 Q376 84 380 108 V122 H20Z" class="body"/><path d="M64 60 H150 V82 H48Z M162 60 H232 Q256 62 270 82 H162Z" class="glass"/><circle cx="92" cy="124" r="25" class="tire"/><circle cx="312" cy="124" r="25" class="tire"/><circle cx="92" cy="124" r="10" class="rim"/><circle cx="312" cy="124" r="10" class="rim"/></symbol>
-<symbol id="car-sedan" viewBox="0 0 400 160"><path d="M14 114 L24 92 Q30 84 58 80 L120 52 Q132 46 150 46 H238 Q264 46 280 62 L304 82 Q352 84 376 98 L384 114 V122 H14Z" class="body"/><path d="M128 60 H172 V82 H98Z M184 60 H236 Q252 62 266 82 H184Z" class="glass"/><circle cx="88" cy="124" r="22" class="tire"/><circle cx="312" cy="124" r="22" class="tire"/><circle cx="88" cy="124" r="9" class="rim"/><circle cx="312" cy="124" r="9" class="rim"/></symbol>
-<symbol id="car-ev" viewBox="0 0 400 160"><path d="M16 114 Q18 92 44 84 L112 60 Q130 46 160 46 H236 Q268 46 288 66 L318 84 Q366 90 382 108 V122 H16Z" class="body"/><path d="M122 62 H178 V82 H100Z M190 62 H236 Q256 64 272 82 H190Z" class="glass"/><path d="M300 100 L318 100" class="bolt"/><circle cx="92" cy="124" r="23" class="tire"/><circle cx="310" cy="124" r="23" class="tire"/><circle cx="92" cy="124" r="9" class="rim"/><circle cx="310" cy="124" r="9" class="rim"/></symbol>
+<svg width="0" height="0" class="defs" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="g-shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".38" stop-color="#fff" stop-opacity=".04"/><stop offset=".7" stop-color="#000" stop-opacity=".1"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient>
+<linearGradient id="g-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8f4ff"/><stop offset=".55" stop-color="#8db4d8"/><stop offset="1" stop-color="#4d6f93"/></linearGradient>
+<linearGradient id="g-lamp" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c9d4de"/><stop offset=".5" stop-color="#fffbe6"/><stop offset="1" stop-color="#ffe9a6"/></linearGradient>
+<radialGradient id="g-alloy" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#f6f9fc"/><stop offset=".6" stop-color="#aab4c2"/><stop offset="1" stop-color="#6f7886"/></radialGradient>
+<linearGradient id="g-ground" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0f1b2d" stop-opacity="0"/><stop offset=".15" stop-color="#0f1b2d" stop-opacity=".3"/><stop offset=".85" stop-color="#0f1b2d" stop-opacity=".3"/><stop offset="1" stop-color="#0f1b2d" stop-opacity="0"/></linearGradient>
+<g id="wheel">
+  <circle r="26" fill="#14161b"/>
+  <circle r="23" fill="none" stroke="#2c3039" stroke-width="1.6"/>
+  <circle r="17.5" fill="#1b1e25"/>
+  <circle r="17" fill="url(#g-alloy)"/>
+  <circle r="15" fill="#1d2027"/>
+  <g fill="url(#g-alloy)">
+    <path d="M-2.6,-4 L-2,-15 L2,-15 L2.6,-4Z"/>
+    <path d="M-2.6,-4 L-2,-15 L2,-15 L2.6,-4Z" transform="rotate(72)"/>
+    <path d="M-2.6,-4 L-2,-15 L2,-15 L2.6,-4Z" transform="rotate(144)"/>
+    <path d="M-2.6,-4 L-2,-15 L2,-15 L2.6,-4Z" transform="rotate(216)"/>
+    <path d="M-2.6,-4 L-2,-15 L2,-15 L2.6,-4Z" transform="rotate(288)"/>
+  </g>
+  <circle r="4.6" fill="#d7dee8"/><circle r="1.8" fill="#6f7886"/>
+  <path d="M-12,9 A15 15 0 0 0 -5,14.2" fill="none" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+</g>
+<symbol id="car-kei" viewBox="0 0 400 160">
+  <ellipse cx="210" cy="146" rx="150" ry="7" fill="url(#g-ground)"/>
+  <path class="body" d="M84,112 L80,90 Q80,82 86,78 L96,52 Q101,40 116,38 L252,38 Q268,38 276,52 L292,80 L322,90 Q338,94 340,106 L340,116 Q340,122 334,122 L90,122 Q84,122 84,116Z"/>
+  <path fill="url(#g-shade)" d="M84,112 L80,90 Q80,82 86,78 L96,52 Q101,40 116,38 L252,38 Q268,38 276,52 L292,80 L322,90 Q338,94 340,106 L340,116 Q340,122 334,122 L90,122 Q84,122 84,116Z"/>
+  <path d="M86,108 L338,108 L340,116 Q340,122 334,122 L90,122 Q84,122 84,116Z" fill="#000" opacity=".28"/>
+  <path d="M84,94 L326,94" stroke="#fff" stroke-width="1.4" opacity=".25"/>
+  <path class="glass" d="M98,78 L106,52 Q109,46 116,46 L170,46 L170,78Z"/>
+  <path class="glass" d="M180,46 L250,46 Q259,46 264,56 L278,78 L180,78Z"/>
+  <path d="M120,50 L152,48 M196,50 L232,48" stroke="#fff" stroke-width="3" opacity=".55" stroke-linecap="round"/>
+  <path d="M175,44 L175,108 M98,80 L98,108 M280,80 L284,108" stroke="#000" stroke-width="1.4" opacity=".4"/>
+  <rect x="186" y="86" width="15" height="4" rx="2" fill="#000" opacity=".5"/>
+  <path d="M264,66 L277,66 L279,74 L264,76Z" class="body"/><path d="M264,66 L277,66 L279,74 L264,76Z" fill="#000" opacity=".25"/>
+  <path d="M322,92 Q336,95 339,101 L339,108 L322,106Z" fill="url(#g-lamp)" stroke="#8a93a0" stroke-width=".8"/>
+  <path d="M326,110 L340,110 L340,115 L326,115Z" fill="#222831"/><path d="M329,112 L338,112" stroke="#8a93a0" stroke-width="1"/>
+  <path d="M80,84 L90,84 L90,102 L82,100Z" fill="#d6372b"/><path d="M82,90 L89,90" stroke="#fff" opacity=".5"/>
+  <path d="M105,122 A29,29 0 0 1 163,122Z M259,122 A29,29 0 0 1 317,122Z" fill="#0c0e12"/>
+  <use href="#wheel" transform="translate(134,121) scale(.94)"/><use href="#wheel" transform="translate(288,121) scale(.94)"/>
+</symbol>
+<symbol id="car-suv" viewBox="0 0 400 160">
+  <ellipse cx="200" cy="148" rx="176" ry="7" fill="url(#g-ground)"/>
+  <path d="M92,34 L248,34" stroke="#222831" stroke-width="3" stroke-linecap="round"/>
+  <path class="body" d="M30,112 L28,86 Q28,78 36,76 L52,70 L68,48 Q74,38 92,38 L246,38 Q262,38 272,50 L296,76 L346,84 Q362,88 366,102 L368,116 Q368,122 362,122 L36,122 Q30,122 30,116Z"/>
+  <path fill="url(#g-shade)" d="M30,112 L28,86 Q28,78 36,76 L52,70 L68,48 Q74,38 92,38 L246,38 Q262,38 272,50 L296,76 L346,84 Q362,88 366,102 L368,116 Q368,122 362,122 L36,122 Q30,122 30,116Z"/>
+  <path d="M32,106 L366,106 L368,116 Q368,122 362,122 L36,122 Q30,122 30,116Z" fill="#000" opacity=".3"/>
+  <path d="M34,98 L362,98" stroke="#fff" stroke-width="1.4" opacity=".22"/><path d="M60,70 Q70,62 90,62 L250,62" stroke="#fff" stroke-width="1.2" fill="none" opacity=".18"/>
+  <path class="glass" d="M62,78 L78,50 Q82,46 90,46 L146,46 L146,78Z"/>
+  <path class="glass" d="M158,46 L240,46 Q250,46 256,54 L276,78 L158,78Z"/>
+  <path d="M92,50 L126,48 M176,50 L214,48" stroke="#fff" stroke-width="3" opacity=".55" stroke-linecap="round"/>
+  <path d="M152,44 L152,104 M64,78 L60,104 M280,80 L284,104" stroke="#000" stroke-width="1.4" opacity=".4"/>
+  <rect x="166" y="86" width="18" height="4.5" rx="2.2" fill="#000" opacity=".5"/>
+  <path d="M258,66 L274,66 L277,76 L258,78Z" class="body"/><path d="M258,66 L274,66 L277,76 L258,78Z" fill="#000" opacity=".28"/>
+  <path d="M346,86 Q360,89 364,98 L364,104 L346,102Z" fill="url(#g-lamp)" stroke="#8a93a0" stroke-width=".8"/>
+  <path d="M352,106 L368,106 L368,112 L352,112Z" fill="#222831"/><path d="M355,108 L366,108 M355,110.5 L366,110.5" stroke="#8a93a0" stroke-width="1"/>
+  <path d="M28,84 L38,84 L38,102 L30,100Z" fill="#d6372b"/>
+  <path d="M40,114 L360,114" stroke="#222831" stroke-width="3" opacity=".5"/>
+  <path d="M74,122 A34,34 0 0 1 142,122Z M246,122 A34,34 0 0 1 314,122Z" fill="#0c0e12"/>
+  <use href="#wheel" transform="translate(108,121) scale(1.08)"/><use href="#wheel" transform="translate(280,121) scale(1.08)"/>
+</symbol>
+<symbol id="car-sedan" viewBox="0 0 400 160">
+  <ellipse cx="200" cy="146" rx="180" ry="7" fill="url(#g-ground)"/>
+  <path class="body" d="M22,112 L24,92 Q26,84 40,82 L108,74 Q126,50 160,46 L236,46 Q262,46 278,64 L296,78 Q348,80 372,96 Q382,102 382,112 L382,116 Q382,122 376,122 L28,122 Q22,122 22,116Z"/>
+  <path fill="url(#g-shade)" d="M22,112 L24,92 Q26,84 40,82 L108,74 Q126,50 160,46 L236,46 Q262,46 278,64 L296,78 Q348,80 372,96 Q382,102 382,112 L382,116 Q382,122 376,122 L28,122 Q22,122 22,116Z"/>
+  <path d="M24,108 L382,108 L382,116 Q382,122 376,122 L28,122 Q22,122 22,116Z" fill="#000" opacity=".3"/>
+  <path d="M26,94 Q200,88 372,98" stroke="#fff" stroke-width="1.5" fill="none" opacity=".28"/>
+  <path class="glass" d="M118,74 Q132,54 160,52 L184,52 L184,74Z"/>
+  <path class="glass" d="M195,52 L236,52 Q254,52 266,66 L280,76 L195,76Z"/>
+  <path d="M130,64 L158,56 M205,58 L232,56" stroke="#fff" stroke-width="3" opacity=".55" stroke-linecap="round"/>
+  <path d="M189,50 L189,108 M114,76 L112,108 M284,78 L292,108" stroke="#000" stroke-width="1.4" opacity=".4"/>
+  <rect x="200" y="84" width="17" height="4.2" rx="2.1" fill="#000" opacity=".5"/>
+  <path d="M258,68 L274,68 L278,76 L258,77Z" class="body"/><path d="M258,68 L274,68 L278,76 L258,77Z" fill="#000" opacity=".28"/>
+  <path d="M338,84 Q364,88 372,98 L370,104 L340,100Z" fill="url(#g-lamp)" stroke="#8a93a0" stroke-width=".8"/>
+  <path d="M358,106 L382,106 L382,112 L360,112Z" fill="#222831"/><path d="M362,108 L380,108 M362,110.5 L380,110.5" stroke="#8a93a0" stroke-width="1"/>
+  <path d="M22,90 L34,88 L34,100 L24,100Z" fill="#d6372b"/>
+  <path d="M60,122 A31,31 0 0 1 122,122Z M282,122 A31,31 0 0 1 344,122Z" fill="#0c0e12"/>
+  <use href="#wheel" transform="translate(91,120)"/><use href="#wheel" transform="translate(313,120)"/>
+</symbol>
+<symbol id="car-ev" viewBox="0 0 400 160">
+  <ellipse cx="200" cy="146" rx="180" ry="7" fill="url(#g-ground)"/>
+  <path class="body" d="M24,112 Q24,92 46,86 L112,68 Q132,46 168,44 L230,44 Q262,44 284,66 L310,82 Q362,86 378,100 Q384,106 384,114 L384,116 Q384,122 378,122 L30,122 Q24,122 24,116Z"/>
+  <path fill="url(#g-shade)" d="M24,112 Q24,92 46,86 L112,68 Q132,46 168,44 L230,44 Q262,44 284,66 L310,82 Q362,86 378,100 Q384,106 384,114 L384,116 Q384,122 378,122 L30,122 Q24,122 24,116Z"/>
+  <path d="M26,108 L384,108 L384,116 Q384,122 378,122 L30,122 Q24,122 24,116Z" fill="#000" opacity=".3"/>
+  <path class="glass" d="M122,68 Q138,52 168,50 L202,50 L202,76 L110,76Z"/>
+  <path class="glass" d="M212,50 L230,50 Q254,50 272,68 L286,76 L212,76Z"/>
+  <path d="M138,62 L166,54 M222,56 L246,56" stroke="#fff" stroke-width="3" opacity=".55" stroke-linecap="round"/>
+  <path d="M207,48 L207,108 M110,78 L106,108" stroke="#000" stroke-width="1.4" opacity=".4"/>
+  <path d="M220,86 L236,86" stroke="#000" stroke-width="3.4" stroke-linecap="round" opacity=".5"/>
+  <path d="M286,82 L378,100" stroke="#fff" stroke-width="1.4" opacity=".3"/>
+  <path d="M236,94 L252,94 L246,104 L256,104 L240,118 L243,108 L234,108Z" fill="#c6ff3d" opacity=".9" transform="translate(-6,-4) scale(.9)"/>
+  <path d="M346,90 L378,100 L376,104 L344,96Z" fill="url(#g-lamp)" stroke="#8a93a0" stroke-width=".8"/>
+  <path d="M358,106 L384,106" stroke="#c6ff3d" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M24,92 L40,88 L40,92 L26,96Z" fill="#d6372b"/><path d="M26,96 L38,92" stroke="#ff7a6e" stroke-width="1.2"/>
+  <path d="M60,122 A31,31 0 0 1 122,122Z M281,122 A31,31 0 0 1 343,122Z" fill="#0c0e12"/>
+  <use href="#wheel" transform="translate(91,120)"/><use href="#wheel" transform="translate(312,120)"/>
+</symbol>
 </defs></svg>
 <script type="module" src="05-car.js"></script>
 </body></html>
