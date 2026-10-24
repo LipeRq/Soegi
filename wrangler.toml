@@ -34,9 +34,9 @@ namespace_id = "1001"
 # 宿の自由入力（1日5回）とチャットボット（1日30回）の回数を数える KV。LINE で答えるときは必須（モードを24時間覚える・1日20回・通知の重複を捨てる）。
 # 作り方：npx wrangler kv namespace create DEMO_KV → 表示された id を下に入れて、コメントを外す。
 # 無くても動くが、そのときは回数を Worker のメモリで数えるだけになる（目安）。
-# [[kv_namespaces]]
-# binding = "DEMO_KV"
-# id = "ここに id"
+[[kv_namespaces]]
+binding = "DEMO_KV"
+id = "655a4f2d7d974d778f70f572a3885b17"
 
 [[routes]]
 pattern = "demo.withsoegi.jp"
