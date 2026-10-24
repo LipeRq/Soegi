@@ -167,7 +167,7 @@ test('チャット：リンクは決めた一覧からだけ。答えられな�
   const p = loadProfiles().soegi;
   const v = validateSiteAnswer({ language: 'ja', found: true, answer: 'a', link_ids: ['price', 'evil', 'price'], suggest_consult: false, category: '料金' });
   const out = finalizeSiteAnswer(p, v);
-  assert.deepEqual(out.links.map((l) => l.href), ['https://withsoegi.jp/#price']);
+  assert.deepEqual(out.links.map((l) => l.href), ['https://withsoegi.jp/price/']);
   assert.equal(out.consult, null);
   const nf = finalizeSiteAnswer(p, validateSiteAnswer({ language: 'en', found: false, answer: '', link_ids: [], suggest_consult: false, category: '' }));
   assert.match(nf.answer, /Sorry/);
@@ -186,7 +186,7 @@ test('チャット：ソエギ版の知識に料金（pricing.js）が入り、�
 test('チャット：台本の質問（モック）と、長すぎる・空の質問', async () => {
   const out = await siteChat(MOCK, { profile: 'soegi', message: '料金はいくら？' }, '9.9.9.9');
   assert.ok(out.found);
-  assert.equal(out.links[0].href, 'https://withsoegi.jp/#price');
+  assert.equal(out.links[0].href, 'https://withsoegi.jp/price/');
   const en = await siteChat(MOCK, { profile: 'soegi', message: 'Do you support companies outside Yamagata?' }, '9.9.9.9');
   assert.equal(en.language, 'en');
   await assert.rejects(siteChat(MOCK, { message: '' }, '9.9.9.9'), /質問/);
