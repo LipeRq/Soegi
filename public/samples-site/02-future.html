@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
+<title>NOVA/LAB｜見本サイト 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Noto+Sans+JP:wght@300;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="02-future.css"></head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<header class="top"><a class="logo" href="#top">NOVA<span>/</span>LAB</a><nav aria-label="メニュー"><a href="#tech">技術</a><a href="#products">製品</a><a href="#spec">仕様</a><a href="#join">問い合わせ</a></nav></header>
+<main id="top">
+<section class="hero"><p class="mono">// 次世代の協働ロボット（架空）</p>
+<h1>人と機械の<br><em>あいだ</em>を、<br>設計する。</h1>
+<p class="lead">NOVA/LAB は、現場で人の隣に立つ自律ロボットと、それを動かすAI基盤をつくる研究開発チームです。</p>
+<div class="btns"><a class="btn pri" href="#products">製品を見る</a><a class="btn" href="#join">開発者に話す</a></div>
+<dl class="hud" aria-label="主な指標"><div><dt>応答</dt><dd><b data-to="12">0</b><small>ms</small></dd></div><div><dt>稼働率</dt><dd><b data-to="99.9" data-dec="1">0</b><small>%</small></dd></div><div><dt>センサー</dt><dd><b data-to="64">0</b><small>ch</small></dd></div></dl></section>
+<section id="tech" class="sec"><h2><span class="mono">01</span>技術</h2>
+<div class="grid3">
+<article class="panel" data-reveal><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="6"/><circle cx="24" cy="24" r="14"/><circle cx="24" cy="24" r="21"/></svg><h3>空間認識</h3><p>周囲の動きを毎秒数百回読み取り、人との距離を保ちます。</p></article>
+<article class="panel" data-reveal><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 36 L18 18 L28 28 L42 8"/><circle cx="42" cy="8" r="3"/></svg><h3>自己学習</h3><p>現場の作業をくり返し見て、手順を少しずつ覚えます。</p></article>
+<article class="panel" data-reveal><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4 L42 14 V34 L24 44 L6 34 V14 Z"/><path d="M24 4 V44 M6 14 L42 34 M42 14 L6 34"/></svg><h3>安全設計</h3><p>止まるべき時は、必ず止まる。安全は学習に任せません。</p></article>
+</div></section>
+<section id="products" class="sec"><h2><span class="mono">02</span>製品</h2>
+<div class="tabs" role="tablist" aria-label="製品"><button role="tab" aria-selected="true" aria-controls="p1" id="t1">N-01 運搬</button><button role="tab" aria-selected="false" aria-controls="p2" id="t2" tabindex="-1">N-02 点検</button><button role="tab" aria-selected="false" aria-controls="p3" id="t3" tabindex="-1">N-03 支援</button></div>
+<div class="tabp" role="tabpanel" id="p1" aria-labelledby="t1"><h3>N-01 運搬ユニット</h3><p>倉庫・工場の通路を、人をよけながら自律走行。最大積載 120kg（目安）。</p><svg class="bot" viewBox="0 0 200 120" aria-hidden="true"><rect x="30" y="50" width="140" height="40" rx="8"/><circle cx="60" cy="98" r="12"/><circle cx="140" cy="98" r="12"/><rect x="70" y="26" width="60" height="24" rx="6"/><circle cx="100" cy="38" r="5"/></svg></div>
+<div class="tabp" role="tabpanel" id="p2" aria-labelledby="t2" hidden><h3>N-02 点検ユニット</h3><p>配管や設備の点検を、決まった経路で自動巡回。異常は画像つきで知らせます。</p><svg class="bot" viewBox="0 0 200 120" aria-hidden="true"><path d="M20 90 H180"/><rect x="70" y="40" width="60" height="40" rx="10"/><path d="M100 40 V16 M88 16 H112"/><circle cx="100" cy="60" r="10"/></svg></div>
+<div class="tabp" role="tabpanel" id="p3" aria-labelledby="t3" hidden><h3>N-03 支援アーム</h3><p>人の手元で、重い物を持ち上げる補助をします。操作は声と手の動きで。</p><svg class="bot" viewBox="0 0 200 120" aria-hidden="true"><rect x="20" y="96" width="60" height="12" rx="3"/><path d="M50 96 L50 56 L110 30 L160 50"/><circle cx="50" cy="56" r="7"/><circle cx="110" cy="30" r="7"/><circle cx="160" cy="50" r="7"/></svg></div>
+</section>
+<section id="spec" class="sec"><h2><span class="mono">03</span>仕様（見本）</h2>
+<div class="tw"><table><thead><tr><th>モデル</th><th>用途</th><th>稼働時間</th><th>重量</th></tr></thead><tbody><tr><td>N-01</td><td>運搬</td><td>約10時間</td><td>38kg</td></tr><tr><td>N-02</td><td>点検</td><td>約8時間</td><td>22kg</td></tr><tr><td>N-03</td><td>支援</td><td>電源接続</td><td>55kg</td></tr></tbody></table></div>
+<p class="note">数値は架空の見本です。</p></section>
+<section id="join" class="sec"><h2><span class="mono">04</span>問い合わせ</h2><form class="form"><label>メールアドレス<input type="email" autocomplete="off"></label><button class="btn pri" type="submit">送信</button><p class="done" role="status" hidden>見本のため、送信はしていません。</p></form></section>
+</main>
+<footer>© NOVA/LAB（架空）／ ソエギ制作の見本サイトです</footer>
+<script type="module" src="02-future.js"></script>
+</body></html>

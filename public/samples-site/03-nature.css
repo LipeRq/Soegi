@@ -1,0 +1,38 @@
+:root { --bg:#f6f2e7; --ink:#2a3a2c; --g1:#cfe3c2; --g2:#8fb98a; --g3:#4f8559; --g4:#2f5a3b; --sun:#f5c76a; --clay:#b8643f; --d:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif; --f:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",Meiryo,sans-serif; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--ink); font:400 17px/2 var(--f); overflow-x:hidden; }
+.top { position:absolute; inset:0 0 auto 0; z-index:5; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; padding:8px 20px; }
+.logo { display:inline-flex; align-items:center; gap:8px; min-height:44px; font:700 20px var(--d); color:var(--g4); text-decoration:none; } .logo svg { width:28px; height:28px; fill:var(--g3); stroke:var(--g3); stroke-width:2; stroke-linejoin:round; }
+.top nav { display:flex; flex-wrap:wrap; } .top nav a { min-height:44px; display:inline-flex; align-items:center; padding:0 12px; color:var(--g4); text-decoration:none; font-size:15px; border-radius:99px; transition:background .3s; } .top nav a:hover, .top nav a:focus-visible { background:rgba(255,255,255,.6); outline:none; }
+.hero { position:relative; min-height:100svh; background:linear-gradient(#fbe9c6, #e9f1d8 60%, var(--g1)); overflow:hidden; display:flex; align-items:center; padding:96px 7vw 160px; }
+.hills { position:absolute; left:0; bottom:0; width:100%; height:48%; } .h3 { fill:var(--g2); opacity:.55; } .h2 { fill:var(--g3); opacity:.8; } .h1 { fill:var(--g4); }
+.sun { position:absolute; right:12vw; top:16vh; width:clamp(90px,14vw,180px); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,#ffe7a8,var(--sun)); box-shadow:0 0 80px 30px rgba(245,199,106,.45); animation:breathe 8s ease-in-out infinite; }
+@keyframes breathe { 50% { transform:scale(1.06); box-shadow:0 0 100px 40px rgba(245,199,106,.55); } }
+.leaves i { position:absolute; top:-30px; width:16px; height:24px; background:var(--g3); border-radius:0 100% 0 100%; opacity:.6; animation:fall 14s linear infinite; }
+.leaves i:nth-child(1) { left:8%; } .leaves i:nth-child(2) { left:24%; animation-delay:-4s; background:var(--clay); } .leaves i:nth-child(3) { left:42%; animation-delay:-8s; } .leaves i:nth-child(4) { left:60%; animation-delay:-2s; background:var(--clay); } .leaves i:nth-child(5) { left:76%; animation-delay:-10s; } .leaves i:nth-child(6) { left:90%; animation-delay:-6s; }
+@keyframes fall { to { transform:translate(60px,110vh) rotate(540deg); } }
+.inner { position:relative; max-width:640px; }
+.kicker { margin:0 0 8px; color:var(--g3); letter-spacing:.14em; font-size:14px; }
+h1 { font:700 clamp(36px,8vw,76px)/1.35 var(--d); margin:0 0 16px; color:var(--g4); }
+.lead { margin:0 0 24px; max-width:28em; }
+.btn { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:0 30px; border:0; border-radius:99px; background:var(--g4); color:#fff; font:500 16px var(--f); text-decoration:none; cursor:pointer; transition:background .3s, transform .3s; }
+.btn:hover, .btn:focus-visible { background:var(--clay); transform:translateY(-2px); outline:none; }
+.sec { max-width:1040px; margin:0 auto; padding:clamp(56px,9vw,110px) 6vw; } .narrow { max-width:720px; }
+h2 { font:700 clamp(26px,4vw,38px) var(--d); margin:0 0 20px; color:var(--g4); display:flex; align-items:center; gap:12px; } h2::after { content:""; flex:1; height:1.5px; background:linear-gradient(90deg,var(--g2),transparent); }
+.cards { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr)); }
+.card { background:#fffdf6; border-radius:28px 28px 28px 8px; padding:24px; box-shadow:0 10px 26px -18px rgba(47,90,59,.5); transition:transform .4s, box-shadow .4s; } .card:hover { transform:translateY(-6px) rotate(-.6deg); }
+.card svg { width:48px; height:48px; fill:none; stroke:var(--g3); stroke-width:2; stroke-linejoin:round; stroke-linecap:round; } .card h3 { font:700 20px var(--d); margin:8px 0 0; color:var(--g4); } .card p { margin:4px 0 0; font-size:15px; line-height:1.8; }
+.season { max-width:none; background:var(--g1); }
+.seasons { display:flex; gap:8px; margin-bottom:14px; max-width:1040px; margin-inline:auto; } .seasons button { flex:1; max-width:120px; min-height:48px; border:2px solid var(--g3); border-radius:99px; background:transparent; color:var(--g4); font:700 17px var(--d); cursor:pointer; transition:background .3s; } .seasons button[aria-selected=true] { background:var(--g3); color:#fff; } .seasons button:focus-visible { outline:3px solid var(--sun); outline-offset:2px; }
+.sbox { max-width:1040px; margin:0 auto; padding:28px; border-radius:28px; background:#fffdf6; border-left:10px solid var(--g2); transition:border-color .5s; } .sbox b { font:700 22px var(--d); } .sbox p { margin:4px 0 0; }
+.sbox[data-s=summer] { border-color:#59b5c9; } .sbox[data-s=autumn] { border-color:var(--clay); } .sbox[data-s=winter] { border-color:#9db4cf; }
+.season h2 { max-width:1040px; margin-inline:auto; }
+.tw { overflow-x:auto; } table { width:100%; border-collapse:collapse; background:#fffdf6; border-radius:20px; overflow:hidden; } th, td { padding:14px 18px; text-align:left; white-space:nowrap; } th { background:var(--g1); font-weight:500; } td { border-top:1px solid var(--g1); }
+.form { display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; margin-top:20px; } .form label { display:grid; gap:2px; font-size:14px; } .form select { min-height:48px; padding:0 14px; border:2px solid var(--g2); border-radius:14px; background:#fffdf6; font:400 16px var(--f); color:var(--ink); } .form select:focus-visible { outline:3px solid var(--sun); }
+.out { flex-basis:100%; margin:0; font-weight:500; color:var(--g4); } .out:empty { display:none; }
+.note { font-size:13px; opacity:.75; }
+footer { background:var(--g4); color:#e5f0dd; text-align:center; padding:24px; font-size:13px; }
+[data-reveal] { opacity:0; transform:translateY(26px); transition:opacity 1s, transform 1s cubic-bezier(.2,.7,.2,1); } [data-reveal].in { opacity:1; transform:none; }
+.card[data-reveal].in { transition:opacity 1s, transform .4s, box-shadow .4s; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } [data-reveal] { opacity:1; transform:none; } html { scroll-behavior:auto; } }
