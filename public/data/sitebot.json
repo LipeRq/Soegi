@@ -4,16 +4,16 @@
       "name": "ソエギ",
       "site": "https://withsoegi.jp/",
       "greeting": "ソエギのサイトについて、お答えします。料金・進め方・対応地域など、お気軽にどうぞ。",
-      "consult": { "label": "無料相談を申し込む", "href": "https://withsoegi.jp/#contact" },
+      "consult": { "label": "無料相談を申し込む", "href": "https://withsoegi.jp/contact/" },
       "suggest": ["料金はいくら？", "うちは従業員10人の工務店だけど、何ができる？", "補助金の申請書を書いてくれる？", "Do you support companies outside Yamagata?"],
       "links": {
         "service": { "label": "やること・分野", "href": "https://withsoegi.jp/#service" },
-        "flow": { "label": "進め方", "href": "https://withsoegi.jp/#flow" },
+        "flow": { "label": "進め方", "href": "https://withsoegi.jp/graduate/" },
         "price": { "label": "料金", "href": "https://withsoegi.jp/price/" },
         "sites": { "label": "ホームページの見本", "href": "https://withsoegi.jp/sites/" },
-        "safety": { "label": "情報の取り扱い・よくあるご質問", "href": "https://withsoegi.jp/#safety" },
-        "about": { "label": "事業者概要", "href": "https://withsoegi.jp/#about" },
-        "contact": { "label": "お問い合わせ", "href": "https://withsoegi.jp/#contact" }
+        "safety": { "label": "情報の取り扱い・よくあるご質問", "href": "https://withsoegi.jp/safety/" },
+        "about": { "label": "事業者概要", "href": "https://withsoegi.jp/about/" },
+        "contact": { "label": "お問い合わせ", "href": "https://withsoegi.jp/contact/" }
       },
       "sections": [
         { "id": "service", "heading": "ソエギがすること", "text": "山形の中小企業の仕事の流れを伺い、手間のかかっている所を一緒に見つけます。いまお使いのExcelやメールを生かしながら、AIを使って仕事に合う仕組みをつくり、社内に根付かせます。進め方は、伺う → 見つける → 設計する → 入れて、直す。AIが合わない作業には、AIは使いません。" },
@@ -26,7 +26,7 @@
         { "id": "safety", "heading": "情報の取り扱い", "text": "入力した内容が学習に使われない設定、または法人向けのプランのツールだけを使います。お客さまの個人情報や取引先の名前は、AIに入れる前に伏せます。お預かりした資料は、作業後に削除し、削除した旨をご報告します。ご希望があれば秘密保持契約を結びます。AIが出した文章や数字は、必ず人が確かめてから使う運用にします。" },
         { "id": "safety", "heading": "よくあるご質問", "text": "AIにくわしくなくても大丈夫です。手順書をお渡しし、慣れるところまでお付き合いします。AIを入れることが前提ではありません。従業員5〜50人ほどの小さな会社さま向けです。お試し導入は1ヶ月で区切り、割に合わなければそこで終了できます。補助金は、使える制度がある場合は確かなものだけをご案内しますが、申請書の作成はお引き受けしていません。料金は税抜で、消費税を加えてご請求します。" },
         { "id": "about", "heading": "事業者概要", "text": "屋号：ソエギ（個人事業）。代表者：稲村 圭太。所在地：山形県。対応地域：山形県内（オンラインでの対応は全国）。受付時間：9:00〜19:00（平日・土日とも）。名前は添え木（そえぎ）から。若い木が自分で立てるようになるまで支え、いずれ外れる、という考え方です。" },
-        { "id": "contact", "heading": "お問い合わせ", "text": "電話：080-9018-2777（受付 9:00〜19:00、出られないときは折り返します）。メール：info@withsoegi.jp。「うちの場合はどうか」だけでも構いません。売り込みはいたしません。" }
+        { "id": "contact", "heading": "お問い合わせ", "text": "お申し込みフォーム（ご希望の日時を選べます）、電話 080-9018-2777（受付 9:00〜19:00、出られないときは折り返します）、メール info@withsoegi.jp のどれでも受け付けています。「うちの場合はどうか」だけでも構いません。売り込みはいたしません。" }
       ]
     },
     "koumuten": {
