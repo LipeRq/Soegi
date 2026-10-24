@@ -1,19 +1,23 @@
 # ソエギ デモ（demo.withsoegi.jp）
 
-山形の会社の「3つの壁」（手入力・知識・言葉）を、AIで「探す・答える・訳す」を見せるデモです。登場する会社・宿・人物はすべて架空です。
+山形の会社の「4つの壁」（手入力・知識・言葉・数字）を、AIで「探す・答える・訳す」を見せるデモです。登場する会社・宿・人物はすべて架空です。成果のまとめは `docs/results.md`。
 
 | デモ | 画面 | パスワード |
 |---|---|---|
 | ① 経理：レシート → Excel | `/receipt.html` | 要 |
-| ① 労務：打刻データ → 残業の集計 | `/attendance.html` | 要 |
-| A 社内ナレッジ検索＋外国人スタッフ向け | `/knowledge.html` | 要 |
-| B 宿の多言語対応 | `/inn.html` | 不要（サイトからリンク） |
-| C サイトのチャットボット | `/chatbot.html`、`/widget/chat.js`（サイトに1行貼る） | 不要 |
+| ① 労務：残業の集計 | `/attendance.html` | 要 |
+| ② 社内ナレッジ検索＋外国人スタッフ向け | `/knowledge.html` | 要 |
+| ③ 宿の多言語対応（口コミ返信を含む） | `/inn.html` | 不要（サイトからリンク） |
+| ③ サイトのチャットボット（LINE も） | `/chatbot.html`、`/widget/chat.js`、`/line/webhook` | 不要 |
+| ④ 売上CSV → 月次レポート1枚 | `/monthly.html` | 要 |
+| 〔業種別の控え〕シフト表・注文書・日報 | `/shift.html`、`/order.html`、`/report.html` | 要 |
+| Webサイト制作の見本（5種類） | `/samples-site/` | 不要 |
 
 - 台本：`docs/demo-scenario.md`
 - 設計（v0.2からの改良点・決めてほしいこと）：`docs/design-v0.3.md`
 - デザインシステム「ライブ」（色・書体・動き・部品・本番への適用）：`docs/design-system-v1.md`
 - サイト（withsoegi.jp）に足すもの：`docs/site-embed.md`
+- 成果のまとめ：`docs/results.md`／反映手順：`docs/deploy.md`／本物のAIでの確認リスト：`docs/verification-checklist.md`
 - 次のタスク（T1〜T11）の設計：`docs/design-v0.4.md`、進捗表：`docs/progress.md`
 
 ## 構成
