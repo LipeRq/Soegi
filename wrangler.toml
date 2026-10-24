@@ -38,6 +38,10 @@ namespace_id = "1001"
 binding = "DEMO_KV"
 id = "655a4f2d7d974d778f70f572a3885b17"
 
+# 無料相談のお申し込みをメールで届ける。送り先は秘密の設定 INQUIRY_TO（Email Routing で確認済みのアドレス）
+[[send_email]]
+name = "MAIL"
+
 [[routes]]
 pattern = "demo.withsoegi.jp"
 custom_domain = true
@@ -50,4 +54,5 @@ custom_domain = true
 #   wrangler secret put TURNSTILE_SECRET    （宿のデモの自由入力を使うときだけ）
 #   wrangler secret put LINE_CHANNEL_SECRET        （LINE で答えるときだけ。docs/line-setup.md）
 #   wrangler secret put LINE_CHANNEL_ACCESS_TOKEN  （同上）
+#   wrangler secret put INQUIRY_TO          （無料相談のお申し込みの送り先メール。Email Routing で確認済みのアドレス）
 #   wrangler secret put HASH_SALT           （任意。回数を数えるときのIPのハッシュに混ぜる値）

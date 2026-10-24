@@ -16,6 +16,7 @@ import { monthlyComment } from './demos/monthly.js';
 import { innReply, innFaq, innReview, FREE_MAX, FREE_PER_DAY, REVIEW_FREE_MAX } from './demos/inn.js';
 import { siteChat, CHAT_MAX } from './demos/sitechat.js';
 import { lineWebhook } from './demos/line.js';
+import { inquiry } from './demos/inquiry.js';
 
 const MB = 1024 * 1024;
 
@@ -35,6 +36,7 @@ const PUBLIC = {
   '/api/inn-review': { max: 16384, run: (env, body, ip) => innReview(env, body, ip) },
   '/api/inn-faq': { max: 1024, run: (env) => innFaq(env) },
   '/api/site-chat': { max: 16384, run: (env, body, ip) => siteChat(env, body, ip), cors: true },
+  '/api/inquiry': { max: 8192, run: (env, body, ip) => inquiry(env, body, ip), cors: true },
 };
 
 export default {
