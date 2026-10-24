@@ -8,7 +8,9 @@ import { mockResponse, mockDocAnswer } from './mock.js';
 
 const TIMEOUT_MS = 55_000;
 
-export class AIError extends Error {}
+export class AIError extends Error {
+  constructor(message, status) { super(message); this.status = status; }
+}
 
 /**
  * 決まった形のJSONを1つ返させる。
@@ -39,7 +41,7 @@ async function postJson(url, headers, body) {
   }
   if (!res.ok) {
     // 応答本文は記録・返却しない
-    throw new AIError(`AIサービスがエラーを返しました（${res.status}）`);
+    throw new AIError(`AIサービスがエラーを返しました（${res.status}）`, res.status);
   }
   try {
     return await res.json();
@@ -97,6 +99,52 @@ function parseJson(text) {
 
 // ---- Claude ------------------------------------------------------------------
 
+// Claude の構造化出力（output_config.format）が受け付ける形に直す。
+// 受け付けない制約（最小・最大・文字数・件数など）は外す（値の範囲は、返ってきたあとに schemas.js の検証が見る）。
+// すべてのオブジェクトに additionalProperties:false、['x','null'] は anyOf にする。
+const DROP = new Set(['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf', 'minLength', 'maxLength', 'minItems', 'maxItems', 'uniqueItems', 'pattern', 'default']);
+export function toOutputSchema(node) {
+  if (Array.isArray(node)) return node.map(toOutputSchema);
+  if (!node || typeof node !== 'object') return node;
+  const out = {};
+  for (const [k, v] of Object.entries(node)) {
+    if (DROP.has(k)) continue;
+    out[k] = k === 'properties' && v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([pk, pv]) => [pk, toOutputSchema(pv)])) : toOutputSchema(v);
+  }
+  if (Array.isArray(out.type)) {
+    const { type, description, ...rest } = out;
+    return { ...(description ? { description } : {}), anyOf: type.map((t) => toOutputSchema({ ...rest, type: t })) };
+  }
+  if (out.type === 'object') out.additionalProperties = false;
+  return out;
+}
+
+const FALLBACK_BETA = 'server-side-fallback-2026-07-01';
+
+/**
+ * Claude に送る。安全装置で断られたときは、サーバー側の代わりのモデルへ回す（fallbacks: "default"）。
+ * 組み合わせが受け付けられず 400 になったら、fallbacks なしで1回だけやり直す。CLAUDE_FALLBACKS=off で使わない。
+ */
+async function postClaude(env, body) {
+  const headers = { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' };
+  const url = 'https://api.anthropic.com/v1/messages';
+  if (String(env.CLAUDE_FALLBACKS || '').toLowerCase() === 'off') return postJson(url, headers, body);
+  try {
+    return await postJson(url, { ...headers, 'anthropic-beta': FALLBACK_BETA }, { ...body, fallbacks: 'default' });
+  } catch (e) {
+    if (e instanceof AIError && e.status === 400) return postJson(url, headers, body);
+    throw e;
+  }
+}
+
+function checkStop(data) {
+  if (data?.stop_reason === 'refusal') throw new AIError('AIが答えられませんでした。内容を変えてお試しください');
+  if (data?.stop_reason === 'max_tokens') throw new AIError('AIの応答が長くなりすぎて途中で切れました');
+}
+
+// 強制のツール呼び出し（tool_choice）は Sonnet 5.5 などで 400 になるので、構造化出力で決まった形のJSONを受け取る。
+// 考える量は low にして、考える分の出力枠（THINK_ROOM）を足す。
+const THINK_ROOM = 4000;
 async function callClaude(env, { tool, system, userText, imageBase64, maxTokens = 2000 }) {
   if (!env.ANTHROPIC_API_KEY) throw new AIError('ANTHROPIC_API_KEY が未設定です');
   const content = [];
@@ -104,22 +152,18 @@ async function callClaude(env, { tool, system, userText, imageBase64, maxTokens 
     content.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 } });
   }
   content.push({ type: 'text', text: userText });
-  const data = await postJson(
-    'https://api.anthropic.com/v1/messages',
-    { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-    {
-      model: env.CLAUDE_MODEL,
-      max_tokens: maxTokens,
-      // 資料など毎回同じ部分はプロンプトキャッシュに載せる（短いものはキャッシュされないだけで害はない）
-      system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
-      messages: [{ role: 'user', content }],
-      tools: [{ name: tool.name, description: tool.description, input_schema: tool.schema }],
-      tool_choice: { type: 'tool', name: tool.name },
-    },
-  );
-  const block = data?.content?.find((b) => b.type === 'tool_use');
-  if (!block?.input) throw new AIError('AIの応答に結果がありませんでした');
-  return block.input;
+  const data = await postClaude(env, {
+    model: env.CLAUDE_MODEL || 'claude-sonnet-5-5',
+    max_tokens: maxTokens + THINK_ROOM,
+    // 資料など毎回同じ部分はプロンプトキャッシュに載せる（短いものはキャッシュされないだけで害はない）
+    system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
+    messages: [{ role: 'user', content }],
+    output_config: { effort: 'low', format: { type: 'json_schema', schema: toOutputSchema(tool.schema) } },
+  });
+  checkStop(data);
+  const text = (Array.isArray(data?.content) ? data.content : []).filter((b) => b?.type === 'text' && typeof b.text === 'string').map((b) => b.text).join('');
+  if (!text.trim()) throw new AIError('AIの応答に結果がありませんでした');
+  return parseJson(text);
 }
 
 /**
@@ -142,13 +186,8 @@ export async function askWithDocuments(env, { system, docs, question, maxTokens 
     ...(i === docs.length - 1 ? { cache_control: { type: 'ephemeral' } } : {}),
   }));
   content.push({ type: 'text', text: question });
-  const data = await postJson(
-    'https://api.anthropic.com/v1/messages',
-    { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-    { model: env.CLAUDE_MODEL || 'claude-sonnet-5-5', max_tokens: maxTokens, system, messages: [{ role: 'user', content }] },
-  );
-  if (data?.stop_reason === 'refusal') throw new AIError('AIが答えられませんでした。質問を変えてお試しください');
-  if (data?.stop_reason === 'max_tokens') throw new AIError('答えが長くなりすぎて途中で切れました。質問を絞ってお試しください');
+  const data = await postClaude(env, { model: env.CLAUDE_MODEL || 'claude-sonnet-5-5', max_tokens: maxTokens + THINK_ROOM, system, output_config: { effort: 'low' }, messages: [{ role: 'user', content }] });
+  checkStop(data);
   const blocks = (Array.isArray(data?.content) ? data.content : []).filter((b) => b?.type === 'text' && typeof b.text === 'string');
   if (!blocks.length) throw new AIError('AIの応答に結果がありませんでした');
   const citations = blocks.flatMap((b) => (Array.isArray(b.citations) ? b.citations : []).filter((c) => c?.type === 'char_location'));

@@ -43,6 +43,18 @@
 
 **提案：T1 の前に T0 として直す**（決めてほしいこと #1）。
 
+### 0-4. T0 を直した（2026-10-24）
+
+| 決めたこと | 内容 |
+|---|---|
+| 形の指定 | `src/ai.js` の `callClaude` を、ツールの強制から構造化出力（`output_config.format`＝`json_schema`）に変更。答えは `text` ブロックの JSON（`thinking` ブロックは読み飛ばす） |
+| スキーマの変換 | `toOutputSchema()`：すべての `object` に `additionalProperties:false`、`['integer','null']` は `anyOf`、数の上下限・文字数・件数・`pattern` は外す（値の範囲は、返ってきたあとの `schemas.js` の検証が見る）。全ツール（レシート・タイムカード・日報・月次ほか）が変換後に基準を満たすことを単体テストで確認 |
+| 考える量 | `output_config.effort: "low"`。考える分の出力枠として `max_tokens` に4,000を足す（足さないと、考えただけで枠を使い切って途中で切れる） |
+| 止まった理由 | `refusal`＝「AIが答えられませんでした」、`max_tokens`＝「応答が長くなりすぎて途中で切れました」、本文なし・JSONでない、をそれぞれ別の文で返す |
+| 断られたとき | `fallbacks: "default"`＋ヘッダ `server-side-fallback-2026-07-01` を付ける（T8 の資料つき質問も同じ）。**この組み合わせが 400 で断られたら、fallbacks なしで1回だけやり直す**（構造化出力との併用は、この環境からは Claude に接続できず未確認のため）。`CLAUDE_FALLBACKS=off` で使わない。400 以外（認証・過負荷）はやり直さない |
+| モデル | 既定 `claude-sonnet-5-5`（`CLAUDE_MODEL` で変える） |
+| 確かめたこと | 単体テスト6件（`test/claude.test.js`：送り方・変換・fallbacks の付け外し・止まった理由・レシートの検証）。**残り：本物のキーで、台本を一度ずつ（オーナー）**。特に「構造化出力＋fallbacks」の併用が通るか |
+
 ---
 
 ## 1. T1：「御社の場合」計算＋浮いた時間の使い道＋持ち帰り1枚
