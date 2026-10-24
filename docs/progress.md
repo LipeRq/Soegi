@@ -36,6 +36,7 @@
 | 2026-10-17 | 設計 v0.4 を作成。`design/live-ui` を作業ブランチに取り込んだ。T0（既存の不具合）を提案として追加 |
 | 2026-10-17 | T2 完了：持ち帰り1枚の隣に「1週間の記録表をダウンロード」。ExcelJS の無い画面では押したときに読み込む |
 | 2026-10-17 | T0 は見送り（オーナー判断）。T1 完了：`estimate.js`・`estimate-ui.js`・`estimate.css`、6画面に組み込み、古い `roi.js` を削除 |
+| 2026-10-24 | **本番に反映**：デモ（soegi-demo）とサイト（soegi）の確認用の版を、そのまま100%に。サイトのソースは `SOEGI_Website` の `main` に反映（旧版 → 本番の複数ページ版＋今回の更新）。`wrangler.toml` に本番の KV（DEMO_KV）を書いた |
 | 2026-10-24 | サイトとデモを揃えた：サイト（SOEGI_Website）に本番の版を同期＋文言更新（別ブランチ）。デモ側は、標準の文言を全デモ画面に追加、月次を「手入力の壁」に移して3つの壁に戻し、`pricing.js`・`sitebot.json` にホームページ制作（3万円〜）と最新のサイトの内容を反映。単体テスト 206件 |
 | 2026-10-24 | Cloudflare への反映手順 `docs/deploy.md` を作成。`wrangler.toml` に `keep_vars = true`（ダッシュボードの変数を消さない）。AI は当面 DeepSeek のまま |
 | 2026-10-24 | 本物のAIでの確認リスト `docs/verification-checklist.md` を作成（入口の7本。DeepSeek → Claude の2回） |

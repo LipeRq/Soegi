@@ -32,3 +32,8 @@
 - 設定ファイルの確認だけ（何も送らない）：`npx wrangler deploy --dry-run`
 - Secret の追加・変更：`npx wrangler secret put 名前`（値はチャットに貼らない）
 - 本番を Claude にするとき：`wrangler.toml` の `AI_PROVIDER = "claude"` と `wrangler secret put ANTHROPIC_API_KEY`（いまは DeepSeek のまま）
+
+## 公開の記録
+- 2026-10-24：デモ `soegi-demo` 版 `d6822d0d`（直前は `878ddd07`）、サイト `soegi` 版 `b0f80356`（直前は `0e99bd44`）を100%で公開。`npx wrangler rollback` で直前の版に戻せる
+- `wrangler.toml` に、本番の KV（`DEMO_KV`）を書いてある。**消さないこと**（消すと、公開したときに KV の接続が外れ、LINE と回数の数え方が止まる）
+- サイト（withsoegi.jp）のソースは `LipeRq/SOEGI_Website` の `main`。公開のしかたは、そちらの README
