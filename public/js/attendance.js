@@ -448,7 +448,7 @@ $('calc').addEventListener('click', () => {
   elapsedMs = performance.now() - t0;
   $('result').hidden = false;
   $('step3').hidden = false;
-  $('estimate').hidden = false;
+
   setStep(2);
   if (!result.periods.length) {
     periodKey = null;
@@ -457,7 +457,7 @@ $('calc').addEventListener('click', () => {
     $('chart').hidden = true; $('daily').hidden = true;
     $('export').disabled = true;
     $('step3').hidden = true;
-    $('estimate').hidden = true;
+
     return;
   }
   $('export').disabled = false;

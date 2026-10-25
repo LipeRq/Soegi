@@ -189,7 +189,7 @@ async function xlsxRows(buf) {
 
 function resetResult() {
   result = null; built = null;
-  $('result').hidden = true; $('step3').hidden = true; $('estimate').hidden = true; $('made').hidden = true;
+  $('result').hidden = true; $('step3').hidden = true;$('made').hidden = true;
   setStep(1);
 }
 
@@ -295,7 +295,7 @@ function runCheck() {
 $('check').addEventListener('click', () => {
   if (!grid) return;
   runCheck();
-  $('result').hidden = false; $('step3').hidden = false; $('estimate').hidden = false; $('made').hidden = true;
+  $('result').hidden = false; $('step3').hidden = false;$('made').hidden = true;
   setStep(2);
   renderAll(true);
   announce();

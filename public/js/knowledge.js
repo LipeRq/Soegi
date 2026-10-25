@@ -46,7 +46,6 @@ async function loadDocs() {
   const res = await fetch('/data/sakuranbo.json');
   const data = await res.json();
   docs = data.docs;
-  $('company').textContent = `架空の会社：${data.company.name}。${data.company.about}`;
   const list = clear($('doclist'));
   for (const [type, label] of Object.entries(TYPE_LABEL)) {
     const ds = docs.filter((d) => d.type === type);

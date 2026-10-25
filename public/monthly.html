@@ -9,18 +9,17 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="/css/monthly.css">
-<link rel="stylesheet" href="/css/estimate.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<title>売上CSV → 月次レポート1枚｜ソエギ デモ</title>
+<title>売上の表から、月次の報告書をつくる｜ソエギ デモ</title>
 </head>
 <body>
 <header class="site"><div class="wrap">
-  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">数字：売上CSV → 月次レポート1枚</span>
+  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">売上の表から、月次の報告書をつくる</span>
   <nav><a href="/">デモの選択へ</a></nav>
 </div></header>
 <main class="wrap">
-  <h1 class="vt-monthly">売上CSV → 月次レポート1枚</h1>
-  <p class="lead">売上の表（CSV）を入れると、毎月の「この1枚」ができます。合計・前月比・前年同月比・推移・上位の顧客と商品・伸びた所と落ちた所を、すべてプログラムが計算します。AIは、計算した数字についての短いコメントを書くだけです（任意）。</p>
+  <h1 class="vt-monthly">売上の表から、月次の報告書をつくる</h1>
+  <p class="lead">売上の表（CSV）を入れると、合計・前年との比較・上位の顧客や商品をまとめた、A4・1枚の報告書ができます。計算はすべてプログラムで行います。</p>
   <p class="notice plain demo-note">デモ用の架空データです。入力内容は保存しません。売上の計算はプログラムで行い、コメントを付けるときだけ、外部のAIサービスを使います。</p>
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>売上を<wbr>入れる</li>
@@ -94,7 +93,6 @@
     </article>
   </section>
 
-  <section class="card" id="estimate" hidden></section>
 </main>
 <footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
 <script type="module" src="/js/monthly.js"></script>

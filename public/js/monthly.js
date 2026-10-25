@@ -72,7 +72,7 @@ function apply(label = '') {
   $('loaded').hidden = false;
   if (label) flash(info);
   const months = monthsOf(records);
-  $('filterrow').hidden = !months.length; $('result').hidden = !months.length; $('estimate').hidden = !months.length;
+  $('filterrow').hidden = !months.length; $('result').hidden = !months.length;
   if (!months.length) { setStep(1); return; }
   const closed = latestClosedMonth(records, today());
   const keep = $('month').value;

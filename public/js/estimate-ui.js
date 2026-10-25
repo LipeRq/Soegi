@@ -24,6 +24,8 @@ const preloadQr = () => {
  * @returns {{set(key, name, value): number, get(key), select(key)}}
  */
 export function mountEstimate(box, opts) {
+  // 入れ物が無い画面（試算を載せない画面）では、何も描かず、渡された値をそのまま返す
+  if (!box) return { set: (key, name, value) => value, get: () => undefined, select: () => {} };
   const keys = opts.keys;
   const id = `est${++seq}`;
   const first = keys.includes(opts.initialKey) ? opts.initialKey : keys[0];

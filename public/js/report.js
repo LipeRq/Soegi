@@ -201,7 +201,7 @@ function showFields(r, sec) {
   const ex = clear($('extralist'));
   for (const q of extra) ex.append(h('li', {}, q.question));
   $('extra').hidden = !extra.length;
-  $('step2').hidden = false; $('step3').hidden = false; $('estimate').hidden = false;
+  $('step2').hidden = false; $('step3').hidden = false;
   refresh();
   setStep(2);
   replay($('step2'), 'in');

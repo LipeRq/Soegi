@@ -9,18 +9,17 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="/css/receipt.css">
-<link rel="stylesheet" href="/css/estimate.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<title>レシート → Excel｜ソエギ デモ</title>
+<title>レシートを読み取って、Excelにまとめる｜ソエギ デモ</title>
 </head>
 <body>
 <header class="site"><div class="wrap">
-  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">経理：レシート → Excel</span>
+  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">レシートを読み取って、Excelにまとめる</span>
   <nav><a href="/">デモの選択へ</a></nav>
 </div></header>
 <main class="wrap">
-  <h1 class="vt-receipt">レシート → Excel</h1>
-  <p class="lead">月末月初の手入力と入力ミスを減らします。AIは「読むだけ」、チェックは仕組み、最後は人が確かめます。いまお使いのExcelの様式に入ります。</p>
+  <h1 class="vt-receipt">レシートを読み取って、Excelにまとめる</h1>
+  <p class="lead">撮ったレシートを読み取り、いまお使いのExcelの様式に入れます。AIは読むだけで、チェックは仕組みで行い、最後は人が確かめます。</p>
   <p class="notice plain demo-note">デモ用の架空データです。入力内容は保存しません。レシートを読み取るときに、外部のAIサービスを使います。</p>
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>撮る・<wbr>読み込む</li>
@@ -41,7 +40,7 @@
       </div>
       <p class="drop-hint">パソコンでは、写真をこの枠の中に置いても入ります</p>
     </div>
-    <p class="small-note">架空のレシート、または本人の私物のレシートだけをお使いください。写真は長辺2000pxに縮めて読み取りに使い、保存しません。</p>
+    <p class="small-note">架空のレシート、または本人のレシートだけを使ってください。写真は保存しません。</p>
     <div class="thumbs" id="thumbs"></div>
     <div class="row mt12 gobar">
       <button type="button" class="primary btn-xl" id="go" disabled>読み取る</button>
@@ -167,7 +166,6 @@
       <p class="notice plain mt12">電子帳簿保存法のスキャナ保存の要件を満たす仕組みではありません。原本の保存は今までどおりお願いします。</p>
     </section>
 
-    <section class="card" id="estimate"></section>
   </div>
 
   <dialog id="zoom"><img alt="レシートの拡大"></dialog>
