@@ -67,16 +67,11 @@
 .roles button:hover::after { transform: translateX(4px); }
 .roles button:hover small b { background: var(--accent); color: var(--tile); }
 /* 管理画面へ行くボタンは、質問ではないので控えめに */
-.roles button.to-admin { border-style: dashed; border-color: var(--field); background: none; }
-.roles button.to-admin small b { background: var(--sunk-2); color: var(--ink-2); }
-.roles button.to-admin:hover small b { background: var(--accent-hover); color: var(--tile); }
 /* 指で押す画面では、押したあとに色が残って「選ばれている」ように見えないようにする */
 @media (hover: none) {
   .roles button:hover { background: var(--tile); border-color: var(--line); box-shadow: none; }
   .roles button:hover small b { background: var(--accent-soft); color: var(--accent); }
-  .roles button.to-admin:hover { background: none; border-color: var(--field); }
-  .roles button.to-admin:hover small b { background: var(--sunk-2); color: var(--ink-2); }
-  .roles button.pick:hover { border-color: var(--accent); }
+      .roles button.pick:hover { border-color: var(--accent); }
 }
 /* 入口の「外国人スタッフ向け」から来たとき：母国語の質問のボタンを先に目に入れる */
 .roles button.pick { border-color: var(--accent); animation: rise var(--t-slow) var(--ease) both, ring calc(var(--t-slow) * 2) ease-out 3; animation-delay: calc(var(--i, 0) * 55ms), calc(var(--t-slow) + var(--t)); }
@@ -241,3 +236,9 @@ section.card.session .report { background: none; }
 
 .msg .uncited { text-decoration: underline dotted; text-decoration-thickness: 2px; text-underline-offset: 4px; }
 #own-err, #own-total { overflow-wrap: anywhere; }
+
+/* 資料の一覧：グループ名は、押すと開閉するボタン */
+.doclist .grp { padding: 0; }
+.doclist .grp-btn { display: flex; align-items: baseline; gap: 2px; width: 100%; min-height: 44px; padding: 4px 6px; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; }
+.doclist .grp-btn::after { content: "＋"; margin-left: auto; font-size: 14px; }
+.doclist .grp-btn[aria-expanded="true"]::after { content: "－"; }

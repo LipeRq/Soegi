@@ -20,7 +20,7 @@
 <main class="wrap">
   <h1 class="vt-knowledge">社内ナレッジ検索（外国人スタッフ向けを含む）</h1>
   <p class="lead">手順書・規則・見積書をもとに、根拠の箇所を付けて、質問した言語で答えます。</p>
-  <p class="notice plain demo-note">デモ用の架空データです。入力内容は保存しません。質問への回答に、外部のAIサービスを使います。</p>
+  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。回答に外部のAIサービスを使います。</p>
 
   <div class="tabs" role="tablist" aria-label="画面の切り替え">
     <button type="button" role="tab" id="tab-ask" aria-selected="true">質問する</button>
@@ -50,7 +50,7 @@
           <input type="text" id="q" maxlength="500" placeholder="何語でも質問できます（例：Bagaimana cara mengambil cuti?）" aria-label="質問">
           <button type="submit" class="primary" id="ask-btn">聞く</button>
         </form>
-        <p class="small-note">安全・衛生・体調に関わる質問には、答えと一緒に「必ずリーダーに確認」を出します。資料に無いことは「見当たりません」と答えます。労務・在留資格の判断はしません。</p>
+        <p class="small-note">安全・衛生・体調の質問には「必ずリーダーに確認」を付けます。資料に無いことは「見当たりません」と答えます。</p>
       </section>
 
       <!-- 根拠：資料を開くまでは点線の枠だけ。開くと白い紙になる（.open は knowledge.js が付ける） -->
@@ -114,7 +114,7 @@
   </div>
 
 </main>
-<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・人物はすべて架空です。</div></footer>
 <script src="/vendor/exceljs.min.js"></script>
 <script src="/vendor/jszip.min.js"></script>
 <script type="module" src="/js/knowledge.js"></script>

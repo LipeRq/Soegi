@@ -20,7 +20,7 @@
 <main class="wrap">
   <h1 class="vt-monthly">売上の表から、月次の報告書をつくる</h1>
   <p class="lead">売上の表（CSV）を入れると、合計・前年との比較・上位の顧客や商品をまとめた、A4・1枚の報告書ができます。計算はすべてプログラムで行います。</p>
-  <p class="notice plain demo-note">デモ用の架空データです。入力内容は保存しません。売上の計算はプログラムで行い、コメントを付けるときだけ、外部のAIサービスを使います。</p>
+  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。AIを使うのは、コメントを付けるときだけです。</p>
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>売上を<wbr>入れる</li>
     <li><span class="n">2</span>確かめる</li>
@@ -29,14 +29,14 @@
 
   <section class="card load" id="step1">
     <h2><b class="no">1</b>　売上のCSVを入れる</h2>
-    <p class="small-note company">架空の食品加工会社「さくらんぼ食品（仮）」の2年分（2024年10月〜2026年9月）の見本で試せます。顧客・商品・金額はすべて架空です。</p>
+    <p class="small-note company">架空の食品会社「さくらんぼ食品（仮）」の2年分の見本で試せます。</p>
     <div class="row">
       <button type="button" id="sample">見本（架空の2年分）を使う</button>
       <label class="btn" for="file">CSVを選ぶ</label>
       <input type="file" id="file" class="vh" accept=".csv,.txt,text/csv">
       <a href="/samples/monthly/sales-sample.csv" download>見本のCSVをダウンロード</a>
     </div>
-    <p class="small-note">列は「日付,顧客,商品,数量,金額」。文字コードは UTF-8 でも Shift_JIS でも読めます。ファイルは画面の中だけで計算し、送信しません（AIのコメントを付けるときだけ、集計した数字を送ります）。</p>
+    <p class="small-note">列は「日付,顧客,商品,数量,金額」。ファイルは送信せず、画面の中だけで計算します。</p>
     <div class="loaded" id="loaded" hidden>
       <p class="okline" id="loadinfo" role="status"></p>
       <div class="mapgrid" id="mapgrid"></div>
@@ -94,7 +94,7 @@
   </section>
 
 </main>
-<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・人物はすべて架空です。</div></footer>
 <script type="module" src="/js/monthly.js"></script>
 </body>
 </html>

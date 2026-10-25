@@ -69,7 +69,7 @@ async function run(body, text, shownStars, lang = '') {
 
 function show(r, sec, text, st) {
   const lang = LANG_LABEL[r.language] ?? r.language;
-  setPhase(r.cached ? '用意した例なので、前に作った下書きをそのまま出しています（AIは呼んでいません）。' : '下書きができました。', 'done');
+  setPhase(r.cached ? '例文なので、作り置きの下書きを出しています（AIは使っていません）。' : '下書きができました。', 'done');
   // 固定の文はサーバーが返したものを出す（星の数と食い違わない）
   $('rv-must').hidden = !r.mustCheck;
   if (r.mustCheck) $('rv-must').textContent = r.mustCheckText;

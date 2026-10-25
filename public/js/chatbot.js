@@ -15,18 +15,10 @@ const ORDER = Object.keys(MOCK); // ボタンの並び順（右の見本へ移�
 
 // ---- 見本のサイト（小さなブラウザの窓） ------------------------------------------------
 
-/** 文字の無い、形だけの部品（ロゴ・メニュー・写真の場所）。サイトについての新しい説明は足さない */
-const blocks = (n) => Array.from({ length: n }, () => h('i'));
-
 function mockPage(p, m) {
-  // 見出しと文は、上から順に出す（文字ははじめから全文。打ち込みの演出はしない＝「（架空）」が遅れて出ることがない）
-  const txt = stagger(h('div', { class: 'txt' },
-    h('h2', {}, m.title), ...m.lines.map((l) => h('p', {}, l)),
-    h('div', { class: 'acts', 'aria-hidden': 'true' }, blocks(2))));
-  return h('div', { class: 'page in', dataset: { profile: p } },
-    h('div', { class: 'site-hd', 'aria-hidden': 'true' }, h('span', { class: 'logo' }, blocks(2)), h('span', { class: 'nav' }, blocks(4))),
-    h('div', { class: 'hero' }, txt, h('div', { class: 'pic', 'aria-hidden': 'true' }, blocks(3))),
-    h('div', { class: 'cards', 'aria-hidden': 'true' }, [0, 1, 2].map(() => h('div', { class: 'sk' }, blocks(3)))));
+  // 見出しと文だけを出す（形だけの飾りの部品は置かない）
+  const txt = stagger(h('div', { class: 'txt' }, h('h2', {}, m.title), ...m.lines.map((l) => h('p', {}, l))));
+  return h('div', { class: 'page in', dataset: { profile: p } }, h('div', { class: 'hero' }, txt));
 }
 
 /** 前の見本を、横へ送り出してから消す。動きを減らす設定では、すぐ消す */

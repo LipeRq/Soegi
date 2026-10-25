@@ -20,7 +20,7 @@
 <main class="wrap">
   <h1 class="vt-receipt">レシートを読み取って、Excelにまとめる</h1>
   <p class="lead">撮ったレシートを読み取り、いまお使いのExcelの様式に入れます。AIは読むだけで、チェックは仕組みで行い、最後は人が確かめます。</p>
-  <p class="notice plain demo-note">デモ用の架空データです。入力内容は保存しません。レシートを読み取るときに、外部のAIサービスを使います。</p>
+  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。レシートの読み取りだけ、外部のAIサービスを使います。</p>
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>撮る・<wbr>読み込む</li>
     <li><span class="n">2</span>確かめる</li>
@@ -65,11 +65,10 @@
     <div class="key">
       <div class="legend" aria-label="色の意味">
         <span><i class="r"></i>要確認（赤）：数字や番号が合わない・空</span>
-        <span><i class="y"></i>注意（黄）：読み取りに自信がない・日付が不自然・重複の疑い</span>
+        <span><i class="y"></i>注意（黄）：読み取りに自信がない・重複の疑いなど</span>
       </div>
-      <p class="small-note">黄色は「AIを鵜呑みにしない」ための目印です。AIが自信のない箇所を自分で申告し、プログラムが合計や登録番号の形を確かめています。会計ソフトに取り込むファイルには、勘定科目の欄の「確定」に印を付けたレシートだけを出します。</p>
+      <p class="small-note">赤と黄の行は、人が確かめてください。会計ソフトに取り込むファイルには、「確定」に印を付けたレシートだけが入ります。</p>
     </div>
-    <p class="small-note scroll-hint">表は横に送れます。右に「品目」「勘定科目（候補）」があります。「確かめる点」は、いつも右端に出ています。</p>
     <div class="tablewrap">
       <table class="stack" id="tbl">
         <thead><tr>
@@ -89,8 +88,9 @@
 
   <div id="step3" hidden>
     <section class="card">
-      <h2><b class="no">3</b>　Excelにする<small>（会計ソフトに取り込むファイルも作れます）</small></h2>
+      <h2><b class="no">3</b>　Excelにする</h2>
       <!-- 様式の見本（小さな表）は飾り。列の名前とシートの名前は receipt-xlsx.js と同じにしてある -->
+      <details class="fmt"><summary>形式を選ぶ（標準・仕訳・会計ソフトに取り込む）</summary>
       <h3 class="opts-h">Excel で見る</h3>
       <div class="opts" role="radiogroup" aria-label="Excelの様式">
         <label class="opt">
@@ -148,6 +148,7 @@
           </span>
         </label>
       </div>
+      </details>
       <ul class="notice warn" id="style-cautions" hidden></ul>
       <p class="small-note" id="style-note"></p>
       <!-- 会計ソフトの形式で出さないレシート・確かめてほしいレシート。ダウンロードのボタンより先に出しておく -->
@@ -163,14 +164,14 @@
         <p class="made" id="made" role="status" hidden></p>
       </div>
 
-      <p class="notice plain mt12">電子帳簿保存法のスキャナ保存の要件を満たす仕組みではありません。原本の保存は今までどおりお願いします。</p>
+      <p class="notice plain mt12">電子帳簿保存法の要件は満たしません。原本の保存は今までどおりお願いします。</p>
     </section>
 
   </div>
 
   <dialog id="zoom"><img alt="レシートの拡大"></dialog>
 </main>
-<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・人物はすべて架空です。</div></footer>
 <script src="/vendor/exceljs.min.js"></script>
 <script type="module" src="/js/receipt.js"></script>
 </body>

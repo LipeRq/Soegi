@@ -20,7 +20,7 @@
 <main class="wrap">
   <h1 class="vt-inn">宿の多言語対応</h1>
   <p class="lead">台湾・英語・韓国語の問い合わせに、宿のルールどおりの返信の下書きを出します。宿の情報に無いことは書かず、送る前に確かめる点も出します。</p>
-  <p class="notice plain demo-note">デモ用の架空データです。入力内容は保存しません。返信の下書きに、外部のAIサービスを使います。</p>
+  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。返信の下書きに外部のAIサービスを使います。</p>
   <div class="heads">
     <p class="notice warn draft"><b>下書きです。</b>送る前に必ずスタッフが確認します。</p>
   </div>
@@ -64,7 +64,6 @@
     <h2><b class="no">2</b>　下書きを確かめる</h2>
     <div class="phaseline"><p class="phase" id="phase" aria-live="polite"></p></div>
     <div class="stats" id="stats"></div>
-    <p class="notice warn draft"><b>下書きです。</b>送る前に必ずスタッフが確認します。</p>
     <div id="r-warn"></div>
     <!-- 左＝お客さまの言葉、まん中＝スタッフ用の日本語、右＝送る前に確かめる点。番号の順（①→④）は変えない -->
     <div class="quad" id="quad">
@@ -75,7 +74,7 @@
         <div class="copyrow"><button type="button" class="small" id="copy-reply">下書きをコピー</button></div>
       </div>
       <div class="box ja2"><h3>③ 返信の日本語訳（中身を確かめるため）</h3><p id="r-replyja"></p></div>
-      <div class="box check" id="r-checkbox"><h3>④ 要確認（送る前に確かめる点）</h3><ul id="r-check"></ul><p class="rule-note" id="r-rule-note" hidden>「決まりで必ず表示」の点は、AIが見落としても、プログラムが必ず出します。</p></div>
+      <div class="box check" id="r-checkbox"><h3>④ 要確認（送る前に確かめる点）</h3><ul id="r-check"></ul><p class="rule-note" id="r-rule-note" hidden>「決まりで必ず表示」の点は、プログラムが必ず出します。</p></div>
     </div>
     <p class="small-note" id="r-used"></p>
   </section>
@@ -136,13 +135,13 @@
         </div>
         <div class="box ja2"><h3>③ 返信の日本語訳（中身を確かめるため）</h3><p id="rv-reply-ja"></p></div>
         <div class="box points"><h3>④ 口コミの指摘</h3><ul id="rv-points"></ul></div>
-        <div class="box check" id="rv-checkbox"><h3>⑤ 要確認（送る前に確かめる点）</h3><ul id="rv-check"></ul><p class="rule-note" id="rv-rule-note" hidden>「決まりで必ず表示」の点は、AIが見落としても、プログラムが必ず出します。</p></div>
+        <div class="box check" id="rv-checkbox"><h3>⑤ 要確認（送る前に確かめる点）</h3><ul id="rv-check"></ul><p class="rule-note" id="rv-rule-note" hidden>「決まりで必ず表示」の点は、プログラムが必ず出します。</p></div>
       </div>
       <p class="small-note" id="rv-used"></p>
     </section>
   </div>
 </main>
-<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・人物はすべて架空です。</div></footer>
 <script type="module" src="/js/inn.js"></script>
 </body>
 </html>

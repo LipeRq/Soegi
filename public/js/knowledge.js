@@ -42,6 +42,11 @@ function scrollWithin(sc, el, pad = 8) {
 
 // ---- 資料の一覧と、根拠の表示 ------------------------------------------------------------
 
+function setGroup(toggle, items, open) {
+  toggle.setAttribute('aria-expanded', String(open));
+  for (const li of items) li.hidden = !open;
+}
+
 async function loadDocs() {
   const res = await fetch('/data/sakuranbo.json');
   const data = await res.json();
@@ -50,12 +55,21 @@ async function loadDocs() {
   for (const [type, label] of Object.entries(TYPE_LABEL)) {
     const ds = docs.filter((d) => d.type === type);
     if (!ds.length) continue;
-    list.append(h('li', { class: 'grp' }, h('span', {}, label), h('span', { class: 'n' }, `（${ds.length}）`)));
+    // 件数の多いグループ（過去の見積書）は、最初は閉じておく。見出しを押すと開く
+    const folded = ds.length > 8;
+    const items = [];
+    const toggle = h('button', { type: 'button', class: 'grp-btn', 'aria-expanded': String(!folded), onclick: () => setGroup(toggle, items, toggle.getAttribute('aria-expanded') !== 'true') },
+      h('span', {}, label), h('span', { class: 'n' }, `（${ds.length}）`));
+    list.append(h('li', { class: 'grp' }, toggle));
     for (const d of ds) {
       const [name, sub] = splitParen(d.title);
-      list.append(h('li', {}, h('button', { type: 'button', dataset: { doc: d.id }, onclick: () => showDoc(d.id) },
-        h('span', { class: 't' }, name), sub ? h('small', {}, sub) : null)));
+      const li = h('li', { dataset: { grp: type } }, h('button', { type: 'button', dataset: { doc: d.id }, onclick: () => showDoc(d.id) },
+        h('span', { class: 't' }, name), sub ? h('small', {}, sub) : null));
+      li.hidden = folded;
+      items.push(li);
+      list.append(li);
     }
+    toggle.items = items;
   }
   stagger(list);
 }
@@ -88,6 +102,12 @@ function showDoc(docId, sectionId = null, quote = '', opts = {}) {
     b.setAttribute('aria-current', String(on));
     if (on) current = b;
   });
+  // 閉じているグループの資料を開くときは、グループも開く
+  if (current) {
+    const g = current.closest('li')?.dataset.grp;
+    const t = g && [...document.querySelectorAll('#doclist .grp-btn')].find((x) => x.items?.includes(current.closest('li')));
+    if (t && t.getAttribute('aria-expanded') !== 'true') setGroup(t, t.items, true);
+  }
   document.querySelectorAll('.cites button').forEach((b) => b.setAttribute('aria-pressed', String(b === chip)));
   const box = clear($('evidence'));
   // 資料の名前は、中を動かしても上に残す（どの資料の話かを見失わないように）
@@ -294,8 +314,6 @@ for (const ex of EXAMPLES) {
   roles.append(h('button', { type: 'button', class: fromForeign && ex.lang ? 'pick' : null, onclick: () => ask(ex.q, ex.role) },
     h('small', {}, h('b', {}, who), gloss ? h('span', {}, gloss) : null), h('span', { class: 'q', lang: ex.lang ?? null }, ex.q)));
 }
-roles.append(h('button', { type: 'button', class: 'to-admin', onclick: () => setTab('admin', true) },
-  h('small', {}, h('b', {}, '社長')), h('span', { class: 'q' }, '管理画面を開く（よく聞かれた質問）')));
 stagger(roles);
 
 // ---- 管理画面 --------------------------------------------------------------------------

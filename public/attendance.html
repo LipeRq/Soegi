@@ -18,14 +18,9 @@
   <nav><a href="/">デモの選択へ</a></nav>
 </div></header>
 <main class="wrap">
-  <!-- 労務の2つの画面の切り替え（打刻の集計／シフト表のチェック） -->
-  <nav class="switch" aria-label="労務のデモ">
-    <a href="/attendance.html" aria-current="page">打刻の集計</a>
-    <a href="/shift.html">シフト表のチェック</a>
-  </nav>
   <h1 class="vt-attendance">打刻データから、残業時間を集計する</h1>
   <p class="lead">残業時間の集計がすぐ終わり、上限に近い人が月の途中で分かります。計算はプログラムで行い、AIは写真の読み取りだけに使います。</p>
-  <p class="notice plain demo-note">デモ用の架空データです。入力内容は保存しません。残業の計算はプログラムで行い、タイムカードの写真を読み取るときだけ、外部のAIサービスを使います。</p>
+  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。計算はプログラムで行い、写真の読み取りだけ外部のAIサービスを使います。</p>
 
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>撮る・<wbr>読み込む</li>
@@ -47,7 +42,7 @@
         <button type="button" id="sample">サンプル（架空の5人×1ヶ月）を使う</button>
         <a href="/sample/attendance-sample-2026-09.csv" download>サンプルCSVをダウンロード</a>
       </div>
-      <p class="small-note">列は「氏名,日付,出勤,退勤,休憩分」。文字コードはUTF-8でもShift_JISでも読めます。ファイルは画面の中だけで処理し、送信しません。</p>
+      <p class="small-note">列は「氏名,日付,出勤,退勤,休憩分」。ファイルは送信せず、画面の中だけで処理します。</p>
       <div id="mapbox" hidden>
         <p id="csvinfo" class="small-note" role="status"></p>
         <div class="mapgrid" id="mapgrid"></div>
@@ -157,7 +152,7 @@
   </section>
 
 </main>
-<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・宿・人物はすべて架空です。実在する会社のデータは使っていません。</div></footer>
+<footer class="site"><div class="wrap">ソエギ デモ ／ 登場する会社・人物はすべて架空です。</div></footer>
 <script src="/vendor/exceljs.min.js"></script>
 <script type="module" src="/js/attendance.js"></script>
 </body>

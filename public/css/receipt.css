@@ -203,3 +203,10 @@ h2 small { display: inline-block; font-family: var(--sans); font-size: 14px; fon
   .opt:has(input:checked) { transform: none; }
   .exportbar #export { flex: 1 1 100%; }
 }
+
+/* 形式の選択は、押したときだけ開く（標準のままでもダウンロードできる） */
+details.fmt { margin: 6px 0 10px; }
+details.fmt > summary { display: inline-flex; align-items: center; min-height: 44px; padding: 6px 16px; border: 1.5px solid var(--accent); border-radius: var(--r-pill); color: var(--accent-ink); font-weight: 700; cursor: pointer; list-style: none; }
+details.fmt > summary::-webkit-details-marker { display: none; }
+details.fmt > summary::after { content: "＋"; margin-left: 8px; }
+details.fmt[open] > summary::after { content: "－"; }
