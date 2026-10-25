@@ -1,6 +1,5 @@
 import { api, getPass, setPass, ApiError } from './common.js';
-import { reduced, shake, spotlight } from './motion.js';
-import { startLive } from './index-live.js';
+import { reduced, shake } from './motion.js';
 
 const gate = document.getElementById('gate');
 const err = document.getElementById('gate-err');
@@ -53,5 +52,3 @@ logout.addEventListener('click', () => { setPass(''); pending = null; show(false
 // すでに入力済みなら、そのまま確認して進む
 if (getPass()) check(getPass()).catch(() => show(false));
 
-spotlight('.tile');
-startLive();

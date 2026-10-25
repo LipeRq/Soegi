@@ -10,27 +10,17 @@
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="/css/index.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<title>ソエギ デモ</title>
+<title>ソエギのデモ</title>
 </head>
 <body>
 <header class="site"><div class="wrap">
-  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a><span class="sub">AIで「探す・答える・訳す」を体験する</span>
+  <a class="brand" href="/"><b>ソエギ</b><small>デモ</small></a>
   <nav><a href="https://withsoegi.jp/">ソエギのサイトへ</a></nav>
 </div></header>
 <main class="wrap">
   <div class="hero">
-    <h1><span class="nb">変わる時代に、</span><span class="nb">ITで寄り添い続けます</span></h1>
-    <p class="verbs">AIが<span class="roll" aria-hidden="true"><span><b>探す</b><b>答える</b><b>訳す</b><b>探す</b></span></span><span class="sr">探す・答える・訳す</span>を、お手伝いします。</p>
-    <nav class="jump" aria-label="デモへ移動">
-      <a class="btn" href="/receipt.html" data-lock>経理：レシート → Excel</a>
-      <a class="btn" href="/attendance.html" data-lock>労務：残業の集計</a>
-      <a class="btn" href="/monthly.html" data-lock>数字：売上CSV → 月次1枚</a>
-      <a class="btn" href="/knowledge.html" data-lock>社内ナレッジ検索</a>
-      <a class="btn" href="/knowledge.html#foreign" data-lock>外国人スタッフ向け</a>
-      <a class="btn" href="/inn.html">宿の多言語対応</a>
-      <a class="btn" href="/inn.html#review">宿の口コミ返信</a>
-      <a class="btn" href="/chatbot.html">サイトのチャットボット</a>
-    </nav>
+    <h1>ソエギのデモ</h1>
+    <p class="lead">実際に動くものを、試せます。登場する会社・人物は、すべて架空です。入力した内容は保存しません。</p>
   </div>
 
   <section class="gate" id="gate" hidden>
@@ -43,156 +33,36 @@
   </section>
 
   <div id="menu">
-    <p class="livenote"><a href="/samples-site/">Webサイト制作の見本（5種類）はこちら</a>　下のタイルは、それぞれのデモの動きの見本です（架空データ）。押すと、実際に試せます。</p>
-
-    <section class="wall" aria-labelledby="w1">
-      <header class="wallhead reveal">
-        <span class="tag">① 手入力の壁</span>
-        <h2 id="w1">月末月初の入力と集計</h2>
-        <p>小さく始めて、数字で確かめる。まずはここから信用していただきます。</p>
-      </header>
-      <div class="bento">
-        <a class="tile w4" href="/receipt.html" data-lock>
-          <h3 class="vt-receipt">経理：レシート → Excel</h3>
-          <p>撮ったレシートを読み取り、いまお使いの様式のExcelに</p>
-          <div class="live rc" id="live-rc" aria-hidden="true">
-            <div class="paper scanning">
-              <b>領 収 書</b>
-              <span id="rc-payee">山の駅 売店</span>
-              <span id="rc-item">飲料・菓子</span>
-              <em id="rc-total">¥1,200</em>
-            </div>
-            <div class="sheet">
-              <table class="mini">
-                <thead><tr><th>支払先</th><th class="n">合計</th><th>勘定科目（候補）</th><th>確かめる点</th></tr></thead>
-                <tbody>
-                  <tr><td>さくら文具店</td><td class="n">1,980</td><td>事務用品費</td><td></td></tr>
-                  <tr><td>みどり食堂</td><td class="n">1,760</td><td>会議費</td><td></td></tr>
-                  <tr><td>あおぞらガソリンスタンド</td><td class="n">6,200</td><td>車両費（燃料）</td><td><span class="chip r">要確認</span></td></tr>
-                  <tr><td>山の駅 売店</td><td class="n">1,200</td><td>福利厚生費</td><td><span class="chip y">注意</span></td></tr>
-                </tbody>
-              </table>
-              <div class="prog"><i id="rc-prog"></i></div>
-              <div class="pl"><span>読み取り</span><span><b id="rc-cnt">4</b> / 4 枚</span></div>
-            </div>
-          </div>
-          <span class="go">試す</span>
-        </a>
-        <a class="tile w2" href="/attendance.html" data-lock>
-          <h3 class="vt-attendance">労務：打刻データ → 残業の集計</h3>
-          <p>上限に近い人が、月の途中で分かる</p>
-          <div class="live ot play" id="live-ot" aria-hidden="true">
-            <div class="zr"><b>青木</b><div class="zone"><i class="grow orange w-aoki"></i></div><span class="alert">87:05</span></div>
-            <div class="zr"><b>伊藤</b><div class="zone"><i class="grow yellow w-ito"></i></div><span>49:05</span></div>
-            <div class="zr"><b>遠藤</b><div class="zone"><i class="grow none w-endo"></i></div><span>11:30</span></div>
-            <div class="zlab"><span></span><div><span class="z45">45</span><span class="z80">80</span><span class="z100">100時間</span></div><span></span></div>
-            <p class="otnote"><span class="chip o ringing">橙</span> 青木さん：80時間以上・6日連続の勤務</p>
-          </div>
-          <span class="go">試す</span>
-        </a>
-        <a class="tile w6" href="/monthly.html" data-lock>
-          <h3 class="vt-monthly">数字：売上CSV → 月次レポート1枚</h3>
-          <p>CSVを入れると、A4・1枚の月次報告ができる。比べる前年は、必ず並べて見せる</p>
-          <div class="live rc od mo" id="live-mo" aria-hidden="true">
-            <div class="said"><b>2026年9月の売上（架空）</b><span><strong>127.2万円</strong>　前年同月比 －16.9% ↓ 減</span></div>
-            <div class="sheet"><table class="mini">
-              <thead><tr><th>顧客</th><th class="n">今月</th><th class="n">前年同月との差</th></tr></thead>
-              <tbody>
-                <tr><td>やまびこスーパー（仮）</td><td class="n">49.8万円</td><td class="n">－6,140円</td></tr>
-                <tr><td>温泉旅館みずき（仮）</td><td class="n">40.7万円</td><td class="n up">↑ ＋22万円</td></tr>
-                <tr><td>月山ストア（仮）</td><td class="n">0円</td><td class="n down">↓ －30.6万円</td></tr>
-              </tbody>
-            </table>
-            <p class="rpnote"><span class="chip y">注意</span> 月山ストア（仮）は、前年同月にあった取引がありません</p></div>
-          </div>
-          <span class="go">試す</span>
-        </a>
-      </div>
+    <section class="group" aria-labelledby="g1">
+      <h2 id="g1">入力と集計の手間を減らす</h2>
+      <ul class="demos">
+        <li><div><h3>レシートを読み取って、Excelにまとめる</h3><p>撮ったレシートを読み取り、いまお使いの様式のExcelに入れます。</p></div><a class="btn primary" href="/receipt.html" data-lock>試す</a></li>
+        <li><div><h3>打刻データから、残業時間を集計する</h3><p>月の途中で、上限に近い人が分かります。</p></div><a class="btn primary" href="/attendance.html" data-lock>試す</a></li>
+        <li><div><h3>売上の表から、月次の報告書をつくる</h3><p>CSVを入れると、前年と並べたA4・1枚の報告書ができます。</p></div><a class="btn primary" href="/monthly.html" data-lock>試す</a></li>
+      </ul>
     </section>
 
-    <section class="wall" aria-labelledby="w2">
-      <header class="wallhead reveal">
-        <span class="tag">② 知識の壁</span>
-        <h2 id="w2">「あれどこ？」が社長に集中する</h2>
-        <p>手順・単価・判断が、ベテランや社長の頭の中にしかない。人が辞めると消えます。</p>
-      </header>
-      <div class="bento">
-        <a class="tile w6" href="/knowledge.html" data-lock>
-          <h3 class="vt-knowledge">社内ナレッジ検索</h3>
-          <p>架空の食品加工会社の手順書・見積書から、根拠付きで答える</p>
-          <div class="live kb2" id="live-kb" aria-hidden="true">
-            <div class="chat">
-              <span class="role" id="kb-role">社長の質問</span>
-              <div class="b u" id="kb-q">去年、やまびこスーパー（仮）向けに出したラ・フランスジャムの単価は？</div>
-              <div class="b a"><span id="kb-a">420円（税抜）です。見積書 No.2025-031 の1行目です。</span>
-                <span class="chip w" id="kb-safe" hidden>要確認：必ずリーダーに確認</span>
-                <span class="cite" id="kb-cite">見積書 No.2025-031</span>
-              </div>
-            </div>
-            <div class="doc">
-              <span class="doclbl">根拠の箇所</span>
-              <b id="kb-doc">見積書 No.2025-031（やまびこスーパー（仮）・2025年9月）</b>
-              <p id="kb-l0">件名：秋の果物フェア向け</p>
-              <p class="hit"><mark id="kb-l1">ラ・フランスジャム 150g｜単価 420円｜数量 600個</mark></p>
-              <p id="kb-l2">ドライラ・フランス 40g｜単価 390円｜数量 300個</p>
-            </div>
-          </div>
-          <span class="go">試す</span>
-        </a>
-      </div>
+    <section class="group" aria-labelledby="g2">
+      <h2 id="g2">社内の資料に答えさせる</h2>
+      <ul class="demos">
+        <li><div><h3>社内ナレッジ検索</h3><p>手順書や見積書をもとに、根拠をつけて答えます。</p></div><a class="btn primary" href="/knowledge.html" data-lock>試す</a></li>
+      </ul>
     </section>
 
-    <section class="wall" aria-labelledby="w3">
-      <header class="wallhead reveal">
-        <span class="tag">③ 言葉の壁</span>
-        <h2 id="w3">外国人のお客さんとスタッフ</h2>
-        <p>山形は、外国人旅行者も外国人労働者も過去最多。対応できる人も仕組みも足りていません。</p>
-      </header>
-      <div class="bento">
-        <a class="tile w2" href="/knowledge.html#foreign" data-lock>
-          <h3>外国人スタッフ向け（社内ナレッジ検索）</h3>
-          <p>母国語の答え＋やさしい日本語＋手順書の箇所</p>
-          <div class="live chat" id="live-fs" aria-hidden="true">
-            <span class="role" id="fs-role">ベトナム人スタッフの質問</span>
-            <div class="b u" id="fs-q">Tôi muốn xin nghỉ phép có lương, phải làm thế nào?</div>
-            <div class="b a">
-              <span id="fs-a">Khi muốn nghỉ phép có lương, bạn hãy nộp "Đơn xin nghỉ" (休暇届) cho trưởng nhóm ít nhất 3 ngày trước ngày muốn nghỉ.</span>
-              <span class="easy"><small>やさしい日本語</small><span id="fs-e">ゆうきゅうきゅうかを つかう ときは、やすみたい ひの 3にち まえまでに「きゅうかとどけ」を はんちょうに だします。</span></span>
-              <span class="chip w" id="fs-safe" hidden>必ずリーダーに確認</span>
-              <span class="cite" id="fs-cite">就業規則（抜粋）有給休暇の申請</span>
-            </div>
-          </div>
-          <span class="go">試す</span>
-        </a>
-        <a class="tile w2" href="/inn.html">
-          <h3 class="vt-inn">宿の多言語対応</h3>
-          <p>台湾・英語・韓国語の問い合わせに、返信の下書き</p>
-          <div class="live chat" id="live-inn" aria-hidden="true">
-            <div class="langs"><span class="on">繁体字</span><span>English</span><span>한국어</span></div>
-            <div class="b u" id="inn-q">小孩對雞蛋過敏，晚餐可以處理嗎？</div>
-            <span class="ja"><small>日本語訳（スタッフ用）</small><span id="inn-j">子どもが卵アレルギーですが、夕食は対応してもらえますか？</span></span>
-            <div class="b a">
-              <small>返信の下書き</small>
-              <span id="inn-a">如果您能在抵達前3天告知，我們會商量是否能夠對應。</span>
-              <span class="checks" id="inn-c"><span class="chip w">要確認：アレルギーの具体的な対応</span><span class="chip w">要確認：空室</span></span>
-            </div>
-          </div>
-          <span class="go">試す</span>
-        </a>
-        <a class="tile w2" href="/chatbot.html">
-          <h3 class="vt-chatbot">サイトのチャットボット</h3>
-          <p>サイトの内容どおりに、何語でも答える</p>
-          <div class="live chat site" id="live-bot" aria-hidden="true">
-            <span class="url">withsoegi.jp</span>
-            <div class="page"><b>削減できた時間を、数字で確かめてから続ける。</b><i></i><i></i></div>
-            <div class="b u" id="bot-q">料金はいくら？</div>
-            <div class="b a"><span id="bot-a">お試し導入は、1業務・1ヶ月で5万円（税抜）です。</span>
-              <span class="cite link" id="bot-l">料金</span>
-            </div>
-          </div>
-          <span class="go">試す</span>
-        </a>
-      </div>
+    <section class="group" aria-labelledby="g3">
+      <h2 id="g3">外国語の問い合わせに答える</h2>
+      <ul class="demos">
+        <li><div><h3>外国人スタッフ向けの案内</h3><p>母国語とやさしい日本語で、手順書の該当箇所も示します。</p></div><a class="btn primary" href="/knowledge.html#foreign" data-lock>試す</a></li>
+        <li><div><h3>宿の多言語対応</h3><p>台湾・英語・韓国語の問い合わせに、返信の下書きを出します。口コミへの返信にも使えます。</p></div><a class="btn primary" href="/inn.html">試す</a></li>
+        <li><div><h3>サイトのチャットボット</h3><p>サイトに書いてある内容どおりに、何語でも答えます。</p></div><a class="btn primary" href="/chatbot.html">試す</a></li>
+      </ul>
+    </section>
+
+    <section class="group" aria-labelledby="g4">
+      <h2 id="g4">ホームページの見本</h2>
+      <ul class="demos">
+        <li><div><h3>ホームページの見本（5種類）</h3><p>会社やお店の紹介ページの見本です。</p></div><a class="btn" href="/samples-site/">見る</a></li>
+      </ul>
     </section>
 
     <button class="link" id="logout" type="button" hidden>パスワードを入れ直す</button>
