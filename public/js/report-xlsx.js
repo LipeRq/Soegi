@@ -8,7 +8,7 @@ const border = { top: thin, left: thin, bottom: thin, right: thin };
 
 export function buildReportWorkbook(ExcelJS, f, spoken = '') {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'ソエギ デモ';
+  wb.creator = 'Nodus Consulting デモ';
   const ws = wb.addWorksheet('日報', { pageSetup: { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 1 } });
   ws.getColumn(1).width = 18; ws.getColumn(2).width = 64;
   const t = ws.addRow(['日報']); ws.mergeCells('A1:B1');

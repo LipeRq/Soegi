@@ -26,7 +26,7 @@ function setDate(cell, iso) {
  */
 export function buildReceiptWorkbook(ExcelJS, rows, checks, opts = {}) {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'ソエギ デモ';
+  wb.creator = 'Nodus Consulting デモ';
   if (opts.style === 'journal') addJournal(wb, rows, checks, opts.creditAccount || '現金');
   else if (opts.style === 'office') addOffice(wb, rows, checks, opts.creditAccount || '現金');
   else addStandard(wb, rows, checks);

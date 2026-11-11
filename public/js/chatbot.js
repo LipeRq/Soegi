@@ -7,7 +7,7 @@ import { mountEstimate } from './estimate-ui.js';
 const $ = (id) => document.getElementById(id);
 
 const MOCK = {
-  soegi: { url: 'withsoegi.jp', title: '削減できた時間を、数字で確かめてから続ける。', lines: ['ソエギ（山形）— 仕事の流れを伺って、AIとITで仕組みを整え、社内に根付かせます。', '料金・進め方・情報の取り扱い・よくあるご質問を載せています。'] },
+  soegi: { url: 'withsoegi.jp', title: '削減できた時間を、数字で確かめてから続ける。', lines: ['Nodus Consulting（山形）— 仕事の流れを伺って、AIとITで仕組みを整え、社内に根付かせます。', '料金・進め方・情報の取り扱い・よくあるご質問を載せています。'] },
   koumuten: { url: 'yamanami-juken.example（架空）', title: 'やまなみ住建（架空）', lines: ['外壁・屋根の塗装、水まわりのリフォーム。山形市・上山市・天童市など。', '見積りは無料です。'] },
   yado: { url: 'yukiakari-so.example（架空）', title: '蔵王温泉 ゆきあかり荘（仮）', lines: ['客室12室の家族経営の宿。硫黄泉の大浴場と、貸切風呂が2つ。', 'ご宿泊・アクセス・よくあるご質問'] },
 };

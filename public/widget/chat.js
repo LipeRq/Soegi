@@ -1,4 +1,4 @@
-/* ソエギ サイトのチャットボット（埋め込み用）
+/* Nodus Consulting サイトのチャットボット（埋め込み用）
  * 使い方：サイトの </body> の前に1行貼る
  *   <script src="https://demo.withsoegi.jp/widget/chat.js" data-profile="soegi" data-mobile-offset="76" defer></script>
  *   data-mobile-offset：スマホ幅（640px未満）で、画面下に固定のバーがあるときに上へずらす高さ（px）
@@ -14,7 +14,7 @@
   const MAX = 300;
   const mobileOffset = Math.min(200, Math.max(0, Number(script && script.dataset.mobileOffset) || 0));
 
-  const NAMES = { soegi: 'ソエギ', koumuten: 'やまなみ住建（架空）', yado: 'ゆきあかり荘（仮）' };
+  const NAMES = { soegi: 'Nodus Consulting', koumuten: 'やまなみ住建（架空）', yado: 'ゆきあかり荘（仮）' };
   const SUGGEST = {
     soegi: ['料金はいくら？', 'うちは従業員10人の工務店だけど、何ができる？', '補助金の申請書を書いてくれる？', 'Do you support companies outside Yamagata?'],
     koumuten: ['外壁塗装はいくらくらい？', '見積りは無料？', '雨漏りは今日来てもらえる？', 'Can you renovate a kitchen?'],

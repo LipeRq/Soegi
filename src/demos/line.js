@@ -1,6 +1,6 @@
 // LINE で答える（デモ用の架空の公式アカウント）。Worker の POST /line/webhook。
 // 署名を確かめたらすぐ 200 を返し、AI への問い合わせと返信は ctx.waitUntil で後から行う。返信は応答メッセージだけ。
-// 保存するのは、モード（宿／ソエギ）だけ。利用者IDはハッシュにして、24時間で消える。本文はログにも出さない。
+// 保存するのは、モード（宿／Nodus）だけ。利用者IDはハッシュにして、24時間で消える。本文はログにも出さない。
 import { HttpError } from '../http.js';
 import { allowPerDay, sha256Hex } from '../guard.js';
 import { answerSite } from './sitechat.js';

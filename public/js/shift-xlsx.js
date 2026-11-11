@@ -42,7 +42,7 @@ const border = { top: thin, left: thin, bottom: thin, right: thin };
  */
 export function buildShiftWorkbook(ExcelJS, { grid, result, settings, title = '' }) {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'ソエギ デモ';
+  wb.creator = 'Nodus Consulting デモ';
   const { days, problems, people, cellFlags, dayFlags, bandCount } = result;
   const red = problems.filter((p) => p.level === 'red').length;
   const yellow = problems.length - red;

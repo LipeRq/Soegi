@@ -10,7 +10,7 @@ const dur = (min) => min / 1440; // Excelの時間は「日」単位
 
 export function buildAttendanceWorkbook(ExcelJS, period, settings) {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'ソエギ デモ';
+  wb.creator = 'Nodus Consulting デモ';
   const used = new Set();
 
   // 一覧

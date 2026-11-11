@@ -184,7 +184,7 @@ export function mountEstimate(box, opts) {
     const table = (pairs) => h('table', {}, h('tbody', {}, pairs.map(([a, b]) => h('tr', {}, h('th', { scope: 'row' }, a), h('td', {}, b)))));
     document.querySelectorAll('.takeaway').forEach((el) => el.remove());
     const sheet = h('div', { class: 'takeaway' },
-      h('header', {}, h('b', {}, 'ソエギ'), h('span', {}, t.title), h('span', { class: 'tk-date' }, t.date)),
+      h('header', {}, h('b', {}, 'Nodus Consulting'), h('span', {}, t.title), h('span', { class: 'tk-date' }, t.date)),
       h('p', { class: 'tk-disclaimer' }, t.disclaimer),
       h('p', { class: 'tk-meta' }, `デモ：${t.demoName}　／　業種：${t.industry || '—'}`),
       h('div', { class: 'tk-cols' },
@@ -197,7 +197,7 @@ export function mountEstimate(box, opts) {
       h('section', {}, h('h3', {}, '料金'), h('p', {}, t.pricing)),
       h('footer', {},
         h('img', { src: QR_SRC, alt: 'withsoegi.jp のQRコード', width: 72, height: 72 }),
-        h('div', {}, h('b', {}, 'ソエギ（山形）'), h('span', {}, 'withsoegi.jp'), h('span', {}, `${t.contact.tel} ／ ${t.contact.mail}`))));
+        h('div', {}, h('b', {}, 'Nodus Consulting（山形）'), h('span', {}, 'withsoegi.jp'), h('span', {}, `${t.contact.tel} ／ ${t.contact.mail}`))));
     document.body.append(sheet);
     printBtn.disabled = true;
     // QR が描けるまで待ってから印刷する（長くても1.5秒。読めなければ文字の連絡先だけで印刷する）

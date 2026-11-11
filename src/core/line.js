@@ -11,7 +11,7 @@ export const STALE_MS = 10 * 60 * 1000; // これより古い通知（再生）�
 
 export const MODES = {
   inn: { label: '宿のデモ', text: '宿のデモ' },
-  site: { label: 'ソエギの案内', text: 'ソエギの案内' },
+  site: { label: 'Nodusの案内', text: 'Nodusの案内' },
 };
 
 const enc = new TextEncoder();
@@ -50,11 +50,11 @@ export function readEvents(body) {
   return out;
 }
 
-/** 「宿のデモ」「ソエギの案内」などの切り替えの言葉。それ以外は質問 */
+/** 「宿のデモ」「Nodusの案内」などの切り替えの言葉。それ以外は質問 */
 export function parseCommand(text) {
   const t = String(text ?? '').normalize('NFKC').replace(/\s+/g, '').toLowerCase();
   if (/^(宿のデモ|宿|ゆきあかり荘?)$/.test(t)) return { type: 'mode', mode: 'inn' };
-  if (/^(ソエギの案内|ソエギ|会社の案内|会社)$/.test(t)) return { type: 'mode', mode: 'site' };
+  if (/^(Nodusの案内|Nodus|ソエギの案内|ソエギ|会社の案内|会社)$/i.test(t)) return { type: 'mode', mode: 'site' };
   if (/^(ヘルプ|help|使い方|はじめ|メニュー)$/.test(t)) return { type: 'help' };
   return null;
 }
@@ -77,17 +77,17 @@ export const textMessage = (text) => {
   return { type: 'text', text: chars.length > TEXT_MAX ? `${chars.slice(0, TEXT_MAX - 1).join('')}…` : chars.join('') };
 };
 
-/** AIの答えの中の URL は、ソエギのサイトのもの以外は出さない（LINE では URL が自動でリンクになる） */
+/** AIの答えの中の URL は、Nodus Consultingのサイトのもの以外は出さない（LINE では URL が自動でリンクになる） */
 export const stripUrls = (t) => String(t).replace(/https?:\/\/[^\s\u3000）)」』、。]+/g, (u) => (/^https:\/\/(www\.)?withsoegi\.jp(\/|$)/.test(u) ? u : '（リンクは省略）'));
 
 /** 最初のあいさつ（友だち追加）。何を送り、何を覚えるかを、先に正直に言う */
 export function greeting(aiName) {
   return [
     textMessage([
-      'ソエギのデモです。',
+      'Nodus Consultingのデモです。',
       `・入力した文章は保存しません。答えは外部のAI（${aiName}）が作ります。`,
       '・名前や電話番号は送らないでください。',
-      '・「宿のデモ」か「ソエギの案内」かの選択だけ、24時間だけ覚えます（利用者IDは、そのまま残さずハッシュにします）。',
+      '・「宿のデモ」か「Nodusの案内」かの選択だけ、24時間だけ覚えます（利用者IDは、そのまま残さずハッシュにします）。',
       '',
       '下の札で、試したいほうを選んでください。',
     ].join('\n')),
@@ -118,5 +118,5 @@ export const NOTICE = {
   tooLong: `質問は${QUESTION_MAX}文字までにしてください。`,
   limit: `本日の質問は${LINE_PER_DAY}回までです。続きはお電話かメールでお問い合わせください。`,
   failed: 'うまく答えられませんでした。少し時間をおいて、もう一度お試しください。',
-  modeSet: { inn: 'モードを「宿のデモ」にしました。宿への問い合わせを、そのまま送ってください（例：送迎はありますか？）。答えは宿のスタッフが確認する前の「下書き」です。', site: 'モードを「ソエギの案内」にしました。ソエギについて聞いてみてください（例：料金はいくら？）。' },
+  modeSet: { inn: 'モードを「宿のデモ」にしました。宿への問い合わせを、そのまま送ってください（例：送迎はありますか？）。答えは宿のスタッフが確認する前の「下書き」です。', site: 'モードを「Nodusの案内」にしました。Nodus Consultingについて聞いてみてください（例：料金はいくら？）。' },
 };

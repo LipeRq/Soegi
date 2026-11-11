@@ -45,7 +45,8 @@ test('イベントの読み取り：友だち追加・文字・文字以外。�
 
 test('切り替えの言葉', () => {
   assert.deepEqual(parseCommand('宿のデモ'), { type: 'mode', mode: 'inn' });
-  assert.deepEqual(parseCommand(' ソエギの案内 '), { type: 'mode', mode: 'site' });
+  assert.deepEqual(parseCommand(' Nodusの案内 '), { type: 'mode', mode: 'site' });
+  assert.deepEqual(parseCommand('ソエギの案内'), { type: 'mode', mode: 'site' }); // 旧名も受け付ける
   assert.deepEqual(parseCommand('ｈｅｌｐ'), { type: 'help' });
   assert.equal(parseCommand('宿の送迎はありますか'), null);
   assert.equal(parseCommand('料金はいくら？'), null);
@@ -54,7 +55,7 @@ test('切り替えの言葉', () => {
 test('返信の組み立て：札は最後のメッセージに。長い文は切る。# のリンクは出さない。下書きの印を必ず付ける', () => {
   const msgs = withQuickReply([textMessage('a'), textMessage('b')]);
   assert.equal(msgs[0].quickReply, undefined);
-  assert.deepEqual(msgs[1].quickReply.items.map((i) => i.action.label), ['宿のデモ', 'ソエギの案内']);
+  assert.deepEqual(msgs[1].quickReply.items.map((i) => i.action.label), ['宿のデモ', 'Nodusの案内']);
   assert.ok(msgs[1].quickReply.items.every((i) => i.action.label.length <= 20 && i.action.type === 'message'));
   assert.equal(textMessage('あ'.repeat(6000)).text.length, TEXT_MAX);
   assert.equal(withQuickReply(Array(8).fill(textMessage('x'))).length, 5);
@@ -73,9 +74,9 @@ test('返信の組み立て：札は最後のメッセージに。長い文は�
 test('応答：あいさつ・モードの切り替えを覚える・質問に答える・文字以外・長すぎ・1日20回', async () => {
   const u = 'Uresp';
   const follow = await respond(ENV, { kind: 'follow', replyToken: 'r', userId: u });
-  assert.match(follow[0].text, /ソエギのデモです/);
+  assert.match(follow[0].text, /Nodus Consultingのデモです/);
   assert.equal(follow.at(-1).quickReply.items.length, 2);
-  // 何も選んでいないときは「ソエギの案内」
+  // 何も選んでいないときは「Nodusの案内」
   const a = await respond(ENV, { kind: 'text', replyToken: 'r', userId: u, text: '料金はいくら？' });
   assert.equal(a[0].type, 'text');
   assert.ok(a.at(-1).quickReply);
@@ -94,7 +95,7 @@ test('応答：あいさつ・モードの切り替えを覚える・質問に�
   const v = 'Ulimit';
   for (let i = 0; i < 20; i += 1) assert.doesNotMatch((await respond(ENV, { kind: 'text', replyToken: 'r', userId: v, text: `質問${i}` }))[0].text, /本日の質問は20回まで/);
   assert.match((await respond(ENV, { kind: 'text', replyToken: 'r', userId: v, text: '質問21' }))[0].text, /本日の質問は20回まで/);
-  assert.match((await respond(ENV, { kind: 'text', replyToken: 'r', userId: v, text: 'ソエギの案内' }))[0].text, /モードを「ソエギの案内」/);
+  assert.match((await respond(ENV, { kind: 'text', replyToken: 'r', userId: v, text: 'Nodusの案内' }))[0].text, /モードを「Nodusの案内」/);
 });
 
 test('AI が失敗したら「うまく答えられませんでした」（本文は返さない）', async () => {
@@ -164,7 +165,7 @@ test('レビューで直したこと：署名はバイト列のまま・古い�
     assert.equal((await post(`{"events":[],"pad":"${'a'.repeat(70000)}"}`)).status, 413);
     assert.equal((await post('{}', { 'content-length': '99999999' })).status, 413);
   } finally { globalThis.fetch = realFetch; }
-  // URL は、ソエギのサイトのもの以外は出さない
+  // URL は、Nodus Consultingのサイトのもの以外は出さない
   const m = siteAnswerMessages({ answer: '詳しくは https://evil.example/login や https://withsoegi.jp/#price をどうぞ。', found: true, links: [], consult: null });
   assert.doesNotMatch(m[0].text, /evil/);
   assert.match(m[0].text, /（リンクは省略）/);
@@ -195,6 +196,6 @@ test('レビューで直したこと：同時に届いた回数は順に数え�
   // 切り替えは別の上限（100回）
   const w = 'Uswitch';
   let last;
-  for (let i = 0; i < 101; i += 1) last = await respond(counting, { kind: 'text', replyToken: 'r', userId: w, text: i % 2 ? '宿のデモ' : 'ソエギの案内' });
+  for (let i = 0; i < 101; i += 1) last = await respond(counting, { kind: 'text', replyToken: 'r', userId: w, text: i % 2 ? '宿のデモ' : 'Nodusの案内' });
   assert.match(last[0].text, /本日の質問は20回まで/);
 });

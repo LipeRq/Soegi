@@ -78,7 +78,7 @@ const dateCell = (cell, iso) => { if (iso) { cell.value = toExcelDate(iso); cell
 
 export function buildOrderWorkbook(ExcelJS, rows) {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'ソエギ デモ';
+  wb.creator = 'Nodus Consulting デモ';
   const ws = wb.addWorksheet('受注一覧', { views: [{ state: 'frozen', ySplit: 1 }] });
   ws.columns = ORDER_COLUMNS.map(([header, width]) => ({ header, width }));
   styleHeader(ws.getRow(1));

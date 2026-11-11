@@ -198,7 +198,7 @@ const colLetter = (n) => { let s = ''; for (let x = n; x > 0; x = Math.floor((x 
 export function buildRecordWorkbook(ExcelJS, key) {
   const rec = RECORDS[key];
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'ソエギ';
+  wb.creator = 'Nodus Consulting';
   const ws = wb.addWorksheet('1週間の記録', {
     views: [{ state: 'frozen', ySplit: 3 }],
     pageSetup: { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
@@ -210,7 +210,7 @@ export function buildRecordWorkbook(ExcelJS, key) {
   // 1行目：使い方。2行目：補足。3行目：見出し
   const widthSum = cols.reduce((t, c) => t + c.width, 0);
   const line1 = 'お試しの前の1週間、これを付けてください。1件1行。分は大まかで構いません。';
-  const line2 = [DEMOS[key].name, rec.hint, rec.sheetNote ?? '2枚目「まとめ」に、試算（御社の場合）に入れる数字が出ます。', 'この表はソエギに送らなくても構いません。'].filter(Boolean).join('　');
+  const line2 = [DEMOS[key].name, rec.hint, rec.sheetNote ?? '2枚目「まとめ」に、試算（御社の場合）に入れる数字が出ます。', 'この表はNodusに送らなくても構いません。'].filter(Boolean).join('　');
   ws.mergeCells(`A1:${last}1`);
   ws.getCell('A1').value = line1;
   ws.getCell('A1').font = { bold: true, size: 13 };

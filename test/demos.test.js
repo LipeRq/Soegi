@@ -174,7 +174,7 @@ test('チャット：リンクは決めた一覧からだけ。答えられな�
   assert.ok(nf.consult);
 });
 
-test('チャット：ソエギ版の知識に料金（pricing.js）が入り、宿版は宿の情報から作られる', () => {
+test('チャット：Nodus版の知識に料金（pricing.js）が入り、宿版は宿の情報から作られる', () => {
   const ps = loadProfiles();
   const price = ps.soegi.sections.find((s) => s.id === 'price').text;
   assert.match(price, /社内ナレッジ検索.*初期 15万円＋月5万円/);

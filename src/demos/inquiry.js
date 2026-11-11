@@ -74,7 +74,7 @@ const encWord = (s) => `=?UTF-8?B?${b64(s)}?=`;
 export function rawMail({ from, to, replyTo, subject, text }) {
   const id = `<${crypto.randomUUID()}@${from.split('@')[1]}>`;
   return [
-    `From: ${encWord('ソエギ お問い合わせフォーム')} <${from}>`,
+    `From: ${encWord('Nodus Consulting お問い合わせフォーム')} <${from}>`,
     `To: ${to}`,
     ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
     `Subject: ${encWord(subject)}`,
