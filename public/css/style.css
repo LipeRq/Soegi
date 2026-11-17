@@ -112,6 +112,9 @@ section.card, .stat, .quad .box { animation: rise var(--t-slow) var(--ease) both
 header.site .wrap { display: flex; align-items: center; gap: 12px; padding-top: 14px; padding-bottom: 10px; flex-wrap: wrap; }
 .brand { text-decoration: none; color: var(--ink); display: inline-flex; align-items: center; gap: 8px; line-height: 1.2; min-height: 44px; }
 .brand b { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .12em; }
+/* 屋号のロゴ：画像（img/nodus-wordmark.png）を形の型にして、文字色で塗る */
+.brand b.wordmark { display: block; width: 150px; height: 25px; letter-spacing: 0; background: currentColor; -webkit-mask: url(/img/nodus-wordmark.png) left center / contain no-repeat; mask: url(/img/nodus-wordmark.png) left center / contain no-repeat; }
+@media (forced-colors: active) { .brand b.wordmark { background: CanvasText; } }
 .brand small { font-size: 12px; font-weight: 700; color: #fff; background: var(--accent); border-radius: var(--r-pill); padding: 2px 10px; letter-spacing: .04em; }
 header.site .sub { color: var(--ink-2); font-size: 14px; }
 header.site nav { margin-left: auto; font-size: 14px; display: flex; flex-wrap: wrap; gap: 0 16px; }
