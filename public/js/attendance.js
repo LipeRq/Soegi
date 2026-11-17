@@ -378,7 +378,7 @@ function renderPhotoDiff() {
     clear(box).append(
       // 判定は目安（安全の表示）。表より先に、動かさずに出す
       h('p', { class: 'notice plain' }, '判定は目安です。法的な判断は、社労士の先生にご確認ください。'),
-      h('p', { class: 'small-note' }, '表を直すたびに、同じ計算で集計し直します（AIは計算しません）。'),
+      h('p', { class: 'small-note' }, '表を直すたびに、同じ計算で集計し直します（計算はプログラムだけで行います）。'),
       h('table', { class: 'diff' },
         h('thead', {}, h('tr', {}, h('th', {}, '氏名・月'), h('th', {}, '時間外（直す前 → 直した後）'), h('th', {}, '判定（直す前 → 直した後）'))),
         body),

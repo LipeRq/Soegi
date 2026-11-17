@@ -85,7 +85,7 @@ export default {
       if (e instanceof HttpError) return err(e.status, e.message, cors);
       if (e instanceof AIError) return err(502, e.message, cors);
       if (e instanceof Error && e.message.startsWith('schema:')) {
-        return err(502, 'AIの答えの形が崩れました。もう一度お試しください', cors);
+        return err(502, '答えの形が崩れました。もう一度お試しください', cors);
       }
       return err(500, '内部エラーが発生しました', cors);
     }

@@ -7,7 +7,7 @@ import { BANDS, KIND_LABEL, PROBLEM_KINDS, normCode, worstOf } from './shift-che
 const T = (v) => (typeof v === 'string' && /^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
 const LEVEL_FILL = { red: COLORS.red, yellow: COLORS.yellow };
 const LEVEL_TEXT = { red: '要確認', yellow: '注意' };
-export const SHIFT_NOTE = 'デモ用の架空データです。シフト表は画面の中だけで読み、送信・保存しません（AIは使いません）。';
+export const SHIFT_NOTE = 'デモ用の架空データです。シフト表は画面の中だけで読み、送信・保存しません（外部のサービスは使いません）。';
 
 /** ExcelJS のマスの値 → 文字・数・日付（数式は結果、リッチテキストは文字だけ） */
 export function cellValue(v) {
@@ -59,7 +59,7 @@ export function buildShiftWorkbook(ExcelJS, { grid, result, settings, title = ''
   if (!problems.length) list.addRow(['', '', null, '', '見つかった問題はありません']);
   list.addRow([]);
   list.addRow([`${ym(grid.period)}${title ? `　${title}` : ''}：要確認（赤）${red}件／注意（黄）${yellow}件`]);
-  list.addRow(['※ 判定はすべてプログラムが行います（AIは使いません）。人数は1時間ごとに、その1時間ずっといる人を数えます。']);
+  list.addRow(['※ 判定はすべてプログラムが行います（外部のサービスは使いません）。人数は1時間ごとに、その1時間ずっといる人を数えます。']);
   list.addRow(['※ 勤務と勤務の間の時間は参考の表示です。法的な判断は、社会保険労務士にご確認ください。']);
   list.addRow([SHIFT_NOTE]);
 

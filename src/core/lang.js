@@ -44,13 +44,13 @@ const T = {
   laborEasy: 'きゅうりょうの けいさんや ビザの ことは、ここでは こたえられません。かいしゃの たんとうの ひとに そうだん して ください。',
   translated: {
     ja: '',
-    en: 'This is a translation by AI. Check important points with the Japanese original and your leader.',
-    vi: 'Đây là bản dịch của AI. Hãy kiểm tra những điều quan trọng với bản gốc tiếng Nhật và trưởng nhóm.',
-    id: 'Ini terjemahan AI. Periksa hal penting dengan teks asli bahasa Jepang dan pemimpin Anda.',
-    zh: '這是AI的翻譯。重要的事情請以日文原文為準，並向組長確認。',
-    ko: '이것은 AI 번역입니다. 중요한 내용은 일본어 원문과 리더에게 확인하세요.',
+    en: 'This is a machine translation. Check important points with the Japanese original and your leader.',
+    vi: 'Đây là bản dịch máy. Hãy kiểm tra những điều quan trọng với bản gốc tiếng Nhật và trưởng nhóm.',
+    id: 'Ini terjemahan mesin. Periksa hal penting dengan teks asli bahasa Jepang dan pemimpin Anda.',
+    zh: '這是機器翻譯。重要的事情請以日文原文為準，並向組長確認。',
+    ko: '이것은 기계 번역입니다. 중요한 내용은 일본어 원문과 리더에게 확인하세요.',
   },
-  translatedJa: 'AIの翻訳です。大事なことは日本語の原文と上司で確認してください。',
+  translatedJa: '機械翻訳です。大事なことは日本語の原文と上司で確認してください。',
 };
 
 export function fixed(key, lang) {

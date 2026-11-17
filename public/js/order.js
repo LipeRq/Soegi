@@ -279,7 +279,7 @@ async function readOne(o, n) {
   try {
     phase(n, '画像を縮めて、向きを直しています');
     const { base64 } = await toJpeg(o.sheet.file);
-    phase(n, 'AIが発注元・納品日・明細を読んでいます');
+    phase(n, '発注元・納品日・明細を読み取っています');
     applyResult(o, await api('/api/order', { image: base64, sample: o.sample }));
     phase(n, '商品マスタと照らし合わせています');
   } catch (e) {

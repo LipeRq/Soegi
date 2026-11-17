@@ -27,7 +27,7 @@ export function safeSheetName(name, used) {
   return n;
 }
 
-export const DISCLAIMER = 'デモ用の架空データです。入力内容は保存しません。読み取り・下書きには外部のAIサービスを使います。';
+export const DISCLAIMER = 'デモ用の架空データです。入力内容は保存しません。読み取り・下書きには、外部の読み取り・文章作成サービスを使います。';
 
 /** YYYY-MM-DD → Excelの日付（UTCの0時。表示のずれを避けるため） */
 export function toExcelDate(iso) {

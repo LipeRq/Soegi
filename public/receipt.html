@@ -19,8 +19,8 @@
 </div></header>
 <main class="wrap">
   <h1 class="vt-receipt">レシートを読み取って、Excelにまとめる</h1>
-  <p class="lead">撮ったレシートを読み取り、いまお使いのExcelの様式に入れます。AIは読むだけで、チェックは仕組みで行い、最後は人が確かめます。</p>
-  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。レシートの読み取りだけ、外部のAIサービスを使います。</p>
+  <p class="lead">撮ったレシートを読み取り、いまお使いのExcelの様式に入れます。読み取りは自動で、チェックは仕組みで行い、最後は人が確かめます。</p>
+  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。レシートの読み取りだけ、外部の読み取りサービスを使います。</p>
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>撮る・<wbr>読み込む</li>
     <li><span class="n">2</span>確かめる</li>
@@ -83,7 +83,7 @@
       <button type="button" id="retry" hidden>読めなかった分をもう一度読み取る</button>
       <span id="summary" class="small-note"></span>
     </div>
-    <p class="small-note">勘定科目はAIの「候補」です。決めるのは人です。</p>
+    <p class="small-note">勘定科目は、自動で出した「候補」です。決めるのは人です。</p>
   </section>
 
   <div id="step3" hidden>

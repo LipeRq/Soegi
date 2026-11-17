@@ -67,7 +67,7 @@ test('返信の組み立て：札は最後のメッセージに。長い文は�
   const inn = innDraftMessages({ reply: 'Pick-up is free.', needsCheck: [{ point: 'バスの時刻' }], warnings: ['約束の表現を確かめてください。'] });
   assert.match(inn[0].text, /【デモ】これは、宿のスタッフが確認してから送る「下書き」です。/);
   assert.match(inn[0].text, /確かめる点：\n・バスの時刻/);
-  assert.match(greeting('DeepSeek')[0].text, /保存しません。答えは外部のAI（DeepSeek）が作ります/);
+  assert.match(greeting('DeepSeek')[0].text, /保存しません。答えは外部の文章作成サービス（DeepSeek）が作ります/);
   assert.match(greeting('DeepSeek')[0].text, /名前や電話番号は送らないでください/);
 });
 

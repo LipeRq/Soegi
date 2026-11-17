@@ -21,7 +21,7 @@ let records = [];
 let calc = null;
 let ai = null; // {lines:[{text, source}], dropped}
 let seq = 0;
-const AI_LABEL = 'AIのコメントを付ける（任意）';
+const AI_LABEL = '自動のコメントを付ける（任意）';
 
 /** 今日（日本の日付）。締まった月は、今月より前 */
 const today = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
@@ -178,10 +178,10 @@ function renderMovers() {
 
 function renderPoints() {
   const lines = ai ? mergeLines(ai.lines, fixedLines(calc)) : fixedLines(calc).map((text) => ({ text, source: 'fixed' }));
-  clear($('points')).append(...lines.map((l) => h('li', {}, l.text, l.source === 'ai' ? h('span', { class: 'badge gray ai' }, 'AI') : null)));
+  clear($('points')).append(...lines.map((l) => h('li', {}, l.text, l.source === 'ai' ? h('span', { class: 'badge gray ai' }, '自動') : null)));
   const meta = $('aimeta');
   if (!ai) meta.textContent = '上の文は、計算した数字からプログラムが作った決まった文です。';
-  else meta.textContent = `「AI」の付いた文は、AIが書いた文です（数字はプログラムが埋めました。原因を言い切るものではありません）。${ai.dropped.length ? `AIの文のうち${ai.dropped.length}行は、数字が残っていたなどの理由で捨てて、決まった文に置き換えました。` : ''}`;
+  else meta.textContent = `「自動」の付いた文は、自動で書いた文です（数字はプログラムが埋めました。原因を言い切るものではありません）。${ai.dropped.length ? `自動で書いた文のうち${ai.dropped.length}行は、数字が残っていたなどの理由で捨てて、決まった文に置き換えました。` : ''}`;
 }
 
 /** 月・列の対応・ファイルが変わったら、返事待ちのAIは捨てる（別の月の文を、いまの1枚に載せない） */

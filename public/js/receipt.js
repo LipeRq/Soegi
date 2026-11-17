@@ -155,7 +155,7 @@ async function readOne(row, n) {
   try {
     phase(n, '写真を縮めて、向きを直しています');
     const { base64 } = await toJpeg(row.file);
-    phase(n, 'AIが日付・支払先・金額を読んでいます');
+    phase(n, '日付・支払先・金額を読み取っています');
     applyResult(row, await api('/api/receipt', { image: base64 }));
     phase(n, '合計と登録番号を確かめています');
   } catch (e) {

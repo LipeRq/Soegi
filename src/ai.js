@@ -37,16 +37,16 @@ async function postJson(url, headers, body) {
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch {
-    throw new AIError('AIサービスに接続できませんでした');
+    throw new AIError('外部のサービスに接続できませんでした');
   }
   if (!res.ok) {
     // 応答本文は記録・返却しない
-    throw new AIError(`AIサービスがエラーを返しました（${res.status}）`, res.status);
+    throw new AIError(`外部のサービスがエラーを返しました（${res.status}）`, res.status);
   }
   try {
     return await res.json();
   } catch {
-    throw new AIError('AIサービスの応答を解釈できませんでした');
+    throw new AIError('外部のサービスの応答を解釈できませんでした');
   }
 }
 
@@ -83,7 +83,7 @@ async function callDeepSeek(env, { tool, system, userText, imageBase64, maxToken
   if (typeof args === 'string') return parseJson(args);
   // ツール呼び出しにならなかった場合は本文のJSONを拾う
   if (typeof msg?.content === 'string') return parseJson(msg.content);
-  throw new AIError('AIの応答に結果がありませんでした');
+  throw new AIError('外部のサービスの応答に結果がありませんでした');
 }
 
 function parseJson(text) {
@@ -95,7 +95,7 @@ function parseJson(text) {
     if (s >= 0 && e > s) {
       try { return JSON.parse(t.slice(s, e + 1)); } catch { /* fallthrough */ }
     }
-    throw new AIError('AIの応答がJSONではありませんでした');
+    throw new AIError('外部のサービスの応答がJSONではありませんでした');
   }
 }
 
@@ -140,8 +140,8 @@ async function postClaude(env, body) {
 }
 
 function checkStop(data) {
-  if (data?.stop_reason === 'refusal') throw new AIError('AIが答えられませんでした。内容を変えてお試しください');
-  if (data?.stop_reason === 'max_tokens') throw new AIError('AIの応答が長くなりすぎて途中で切れました');
+  if (data?.stop_reason === 'refusal') throw new AIError('答えられませんでした。内容を変えてお試しください');
+  if (data?.stop_reason === 'max_tokens') throw new AIError('答えが長くなりすぎて途中で切れました');
 }
 
 // 強制のツール呼び出し（tool_choice）は Sonnet 5.5 などで 400 になるので、構造化出力で決まった形のJSONを受け取る。
@@ -164,7 +164,7 @@ async function callClaude(env, { tool, system, userText, imageBase64, maxTokens 
   });
   checkStop(data);
   const text = (Array.isArray(data?.content) ? data.content : []).filter((b) => b?.type === 'text' && typeof b.text === 'string').map((b) => b.text).join('');
-  if (!text.trim()) throw new AIError('AIの応答に結果がありませんでした');
+  if (!text.trim()) throw new AIError('外部のサービスの応答に結果がありませんでした');
   return parseJson(text);
 }
 
@@ -191,7 +191,7 @@ export async function askWithDocuments(env, { system, docs, question, maxTokens 
   const data = await postClaude(env, { model: env.CLAUDE_MODEL || 'claude-sonnet-5-5', max_tokens: maxTokens + THINK_ROOM, system, output_config: { effort: 'low' }, messages: [{ role: 'user', content }] });
   checkStop(data);
   const blocks = (Array.isArray(data?.content) ? data.content : []).filter((b) => b?.type === 'text' && typeof b.text === 'string');
-  if (!blocks.length) throw new AIError('AIの応答に結果がありませんでした');
+  if (!blocks.length) throw new AIError('外部のサービスの応答に結果がありませんでした');
   const citations = blocks.flatMap((b) => (Array.isArray(b.citations) ? b.citations : []).filter((c) => c?.type === 'char_location'));
   const u = data.usage;
   return {

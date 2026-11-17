@@ -91,7 +91,7 @@ export function buildAttendanceWorkbook(ExcelJS, period, settings) {
     '休日労働＝法定休日の労働時間（日またぎは出勤した日で判定）',
     '週40時間超は月〜日で数えた参考表示（法定休日を除き、1日の所定分まで）',
     `判定：黄＝時間外が月${LIMITS.yellowOver / 60}時間超／橙＝時間外＋休日労働が月${LIMITS.orange / 60}時間以上／赤＝同${LIMITS.red / 60}時間以上`,
-    '計算はプログラムで行っています（AIは使っていません）。同じ入力なら毎回同じ結果です。',
+    '計算はプログラムで行っています（外部のサービスは使っていません）。同じ入力なら毎回同じ結果です。',
   ].forEach((t) => st.addRow([t]));
   st.addRow([]);
   st.addRow([NOTE]);

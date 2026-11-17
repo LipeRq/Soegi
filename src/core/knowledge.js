@@ -68,7 +68,7 @@ export function finalizeKnowledgeAnswer(docs, v, question) {
   const { valid, invalid } = verifyCitations(docs, v.citations);
   const found = v.found && valid.length > 0;
   const notes = [];
-  if (v.found && !valid.length) notes.push('AIが示した根拠を資料の中で確かめられなかったため、答えを出していません。');
+  if (v.found && !valid.length) notes.push('示された根拠を資料の中で確かめられなかったため、答えを出していません。');
   else if (invalid) notes.push(`資料の中で確かめられなかった根拠を${invalid}件、表示から外しました。`);
 
   const answer = found ? v.answer : fixed('notFound', lang);

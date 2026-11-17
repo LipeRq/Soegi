@@ -89,7 +89,7 @@ export function finalizeOwnAnswer(docs, ai, question) {
   const found = Boolean(text) && valid.length > 0 && !saidNone;
   const notes = [];
   // 引用が1つも付かなかった答え（資料に無い）には、注意は付けない。引用はあったが確かめられなかったときだけ知らせる
-  if (text && !valid.length && invalid) notes.push('AIが示した根拠を資料の中で確かめられなかったため、答えを出していません。');
+  if (text && !valid.length && invalid) notes.push('示された根拠を資料の中で確かめられなかったため、答えを出していません。');
   else if (invalid) notes.push(`資料の中で確かめられなかった根拠を${invalid}件、表示から外しました。`);
 
   // 引用の付いていない文（AIが資料以外から足したかもしれない）は、印を付けて知らせる

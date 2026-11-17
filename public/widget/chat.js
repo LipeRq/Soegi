@@ -95,9 +95,9 @@
   const form = el('form', { onsubmit: (e) => { e.preventDefault(); ask(input.value); } }, input, send);
   const close = el('button', { class: 'x', type: 'button', 'aria-label': '閉じる', onclick: () => toggle(false) }, '×');
   const panel = el('div', { class: 'panel', id: 'soegi-chat-panel', role: 'dialog', 'aria-label': 'サイトの質問窓口', hidden: true },
-    el('div', { class: 'hd' }, el('div', {}, title, el('small', {}, 'AIが、このサイトの内容をもとにお答えします')), close),
+    el('div', { class: 'hd' }, el('div', {}, title, el('small', {}, 'このサイトの内容をもとに、自動でお答えします')), close),
     log, sug, form,
-    el('p', { class: 'ft' }, '入力内容は保存しません。名前や電話番号などの個人情報は入力しないでください。AIの答えは間違えることがあります。大事なことはお問い合わせください。'));
+    el('p', { class: 'ft' }, '入力内容は保存しません。名前や電話番号などの個人情報は入力しないでください。自動の答えは間違えることがあります。大事なことはお問い合わせください。'));
   const wrap = el('div', { class: 'root' }, panel, fab);
   wrap.style.setProperty('--mo', `${mobileOffset}px`);
   root.append(wrap);

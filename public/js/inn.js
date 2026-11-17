@@ -136,7 +136,7 @@ async function run(body, inquiryText, inquiryLang = '') {
 
 function show(r, sec, inquiryText, st) {
   const lang = LANG_LABEL[r.language] ?? r.language;
-  setPhase(r.cached ? '例文なので、作り置きの下書きを出しています（AIは使っていません）。' : '下書きができました。', 'done');
+  setPhase(r.cached ? '例文なので、作り置きの下書きを出しています（外部のサービスは使っていません）。' : '下書きができました。', 'done');
   for (const s of Object.values(st)) s.b.classList.remove('wait');
   st.time.v.textContent = sec.toFixed(1);
   st.lang.v.textContent = lang;

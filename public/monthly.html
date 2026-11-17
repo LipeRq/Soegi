@@ -20,7 +20,7 @@
 <main class="wrap">
   <h1 class="vt-monthly">売上の表から、月次の報告書をつくる</h1>
   <p class="lead">売上の表（CSV）を入れると、合計・前年との比較・上位の顧客や商品をまとめた、A4・1枚の報告書ができます。計算はすべてプログラムで行います。</p>
-  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。AIを使うのは、コメントを付けるときだけです。</p>
+  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。外部の文章作成サービスを使うのは、コメントを付けるときだけです。</p>
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>売上を<wbr>入れる</li>
     <li><span class="n">2</span>確かめる</li>
@@ -56,10 +56,10 @@
     <h2><b class="no">2</b>　確かめる・1枚にする<small>（この1枚は、A4で印刷できます）</small></h2>
     <div class="row actions">
       <button type="button" class="primary btn-xl" id="print">この1枚を印刷（A4）</button>
-      <button type="button" id="ai">AIのコメントを付ける（任意）</button>
+      <button type="button" id="ai">自動のコメントを付ける（任意）</button>
     </div>
     <!-- 安全の表示：AIに送る内容を、ボタンの近くで先に言う -->
-    <p class="notice plain" id="ai-note">コメントを付けるときだけ、<b>集計した数字・顧客名・商品名</b>（売上の明細は送りません）を外部のAIサービスに送ります。AIの文に数字は書かせず、数字はプログラムが埋めます。</p>
+    <p class="notice plain" id="ai-note">コメントを付けるときだけ、<b>集計した数字・顧客名・商品名</b>（売上の明細は送りません）を外部の文章作成サービスに送ります。自動で作る文に数字は書かせず、数字はプログラムが埋めます。</p>
     <p class="err" id="aierr" role="alert"></p>
 
     <article class="sheet" id="sheet" aria-label="月次レポート1枚">

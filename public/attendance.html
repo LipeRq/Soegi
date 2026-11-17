@@ -19,8 +19,8 @@
 </div></header>
 <main class="wrap">
   <h1 class="vt-attendance">打刻データから、残業時間を集計する</h1>
-  <p class="lead">残業時間の集計がすぐ終わり、上限に近い人が月の途中で分かります。計算はプログラムで行い、AIは写真の読み取りだけに使います。</p>
-  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。計算はプログラムで行い、写真の読み取りだけ外部のAIサービスを使います。</p>
+  <p class="lead">残業時間の集計がすぐ終わり、上限に近い人が月の途中で分かります。計算はプログラムで行い、外部のサービスは写真の読み取りだけに使います。</p>
+  <p class="notice plain demo-note">架空のデータです。入力内容は保存しません。計算はプログラムで行い、写真の読み取りだけ、外部の読み取りサービスを使います。</p>
 
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>撮る・<wbr>読み込む</li>
@@ -62,12 +62,12 @@
         <button type="button" class="primary" id="readphotos" disabled>読み取る</button>
       </div>
       <ul class="pfiles" id="pfiles"></ul>
-      <p class="small-note">AIは写真を読んで表にするだけで、計算はしません。架空の、または本人のタイムカードだけをお使いください。写真は保存しません。</p>
+      <p class="small-note">読み取りのサービスは、写真を読んで表にするだけで、計算はしません。架空の、または本人のタイムカードだけをお使いください。写真は保存しません。</p>
       <div class="progress" id="pprog" hidden><div id="pbar"></div></div>
       <p id="ptext" class="small-note" role="status"></p>
       <div id="photobox" hidden>
         <!-- 安全の表示：表より先に、動かさずに出す -->
-        <p class="notice warn">計算の前に、下の表を写真と見比べて、必ず確かめてください。AIが自信を持って読み違えることもあります（色の付いていない行も見てください）。赤の行は計算に入りません。</p>
+        <p class="notice warn">計算の前に、下の表を写真と見比べて、必ず確かめてください。自動の読み取りは、自信を持って読み違えることもあります（色の付いていない行も見てください）。赤の行は計算に入りません。</p>
         <div class="legend" aria-label="色の意味">
           <span><i class="r"></i>要確認（赤）：空・読めない時刻や休憩・対象の月（締め日で決まる）の外・24時以降の出勤・24時間を超える勤務。計算に入りません</span>
           <span><i class="y"></i>注意（黄）：二重打刻・読み取りに自信がない（手書きの修正・にじみ）・日またぎ・16時間超・休憩が勤務より長い・外出か戻りが空や読めない・同じ日が2行</span>

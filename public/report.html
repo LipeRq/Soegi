@@ -19,8 +19,8 @@
 </div></header>
 <main class="wrap">
   <h1 class="vt-report">音声日報 → 報告書</h1>
-  <p class="lead">現場で話すだけで、日報の形になります。話に出てこなかった項目は、推測で埋めずに「聞き返し」として出します。日報の文は決まった型で作り、AIは話した言葉から項目を取り出すだけです。</p>
-  <p class="notice plain demo-note">デモ用の架空データです。入力内容は保存しません。項目の取り出しに、外部のAIサービスを使います。</p>
+  <p class="lead">現場で話すだけで、日報の形になります。話に出てこなかった項目は、推測で埋めずに「聞き返し」として出します。日報の文は決まった型で作り、外部のサービスは、話した言葉から項目を取り出すだけです。</p>
+  <p class="notice plain demo-note">デモ用の架空データです。入力内容は保存しません。項目の取り出しに、外部の文章読み取りサービスを使います。</p>
   <nav class="steps" aria-label="進み具合"><ol>
     <li aria-current="step"><span class="n">1</span>話す・<wbr>入れる</li>
     <li><span class="n">2</span>足りない所を<wbr>埋める</li>
@@ -31,7 +31,7 @@
     <h2><b class="no">1</b>　話す・入れる</h2>
     <p class="small-note company">架空の工務店・介護事業所の例で試せます。人も会社も架空です。</p>
     <!-- 安全の表示：マイクを使う前に、動かさずに出す -->
-    <p class="notice warn" id="voice-notice"><b>音声の文字起こしは、お使いのブラウザ・スマホの機能（Google・Apple など）で行われます。</b>Nodusのサーバーには文字だけが届き、保存しません。日報の項目の取り出しには、外部のAIサービスを使います。名前・電話番号・住所は話さないでください。</p>
+    <p class="notice warn" id="voice-notice"><b>音声の文字起こしは、お使いのブラウザ・スマホの機能（Google・Apple など）で行われます。</b>Nodusのサーバーには文字だけが届き、保存しません。日報の項目の取り出しには、外部の文章読み取りサービスを使います。名前・電話番号・住所は話さないでください。</p>
     <div class="row">
       <button type="button" id="mic" class="mic" aria-pressed="false" hidden><span class="dot" aria-hidden="true"></span><span id="mic-label">話す（マイクを使う）</span></button>
       <button type="button" id="ex1">話した例を入れる（外壁塗装の現場）</button>
@@ -59,7 +59,7 @@
       <h3>聞き返し（話に出てこなかった項目）</h3>
       <ul id="asklist"></ul>
     </div>
-    <div class="extra" id="extra" hidden><h3>AIからの確認</h3><ul id="extralist"></ul></div>
+    <div class="extra" id="extra" hidden><h3>確認したいこと</h3><ul id="extralist"></ul></div>
     <form class="fields" id="form" autocomplete="off">
       <label data-f="date">日付<input type="date" id="f-date"></label>
       <label data-f="site">現場・訪問先<input type="text" id="f-site" maxlength="80"></label>

@@ -88,7 +88,7 @@ test('Excel：受注一覧・取引先別・納品日別・要確認', async () 
   const rev = wb.getWorksheet('要確認');
   assert.equal(rev.getCell('A2').value, 'O-01');
   let text = ''; rev.eachRow((r) => { text += `${r.getCell(1).value}\n`; });
-  assert.match(text, /AIは注文書を読むだけ/);
+  assert.match(text, /外部のサービスは注文書を読むだけ/);
 });
 
 test('CSV：見出し・CRLF・引用符・式にならない', () => {

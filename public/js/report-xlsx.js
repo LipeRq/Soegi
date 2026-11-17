@@ -42,7 +42,7 @@ export function buildReportWorkbook(ExcelJS, f, spoken = '') {
     r.getCell(2).value = safeText(r.getCell(2).value);
   }
   ws.addRow([]);
-  ws.addRow(['※ 日報の文はプログラムの型で作っています。AIは話した言葉から項目を取り出すだけです。送る前に、人が確かめてください。']);
+  ws.addRow(['※ 日報の文はプログラムの型で作っています。外部のサービスは、話した言葉から項目を取り出すだけです。送る前に、人が確かめてください。']);
   ws.addRow([DISCLAIMER]);
   return wb;
 }

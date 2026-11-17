@@ -87,7 +87,7 @@ function addStandard(wb, rows, checks) {
   totalRow.font = { bold: true };
   totalRow.eachCell((cell) => { cell.fill = fill(COLORS.gray); });
   sum.addRow([]);
-  sum.addRow(['※ 勘定科目はAIの候補を人が確認したものです。最終的な判断は税理士・経理担当者が行ってください。']);
+  sum.addRow(['※ 勘定科目は自動で出した候補を人が確認したものです。最終的な判断は税理士・経理担当者が行ってください。']);
   sum.addRow([DISCLAIMER]);
 }
 
@@ -110,7 +110,7 @@ function addJournal(wb, rows, checks, credit) {
   });
   ws.autoFilter = { from: 'A1', to: `E${Math.max(rows.length + 1, 2)}` };
   ws.addRow([]);
-  ws.addRow(['※ 色付きのセルは要確認です（詳細は「要確認」シート）。借方科目はAIの候補を人が確認したものです。']);
+  ws.addRow(['※ 色付きのセルは要確認です（詳細は「要確認」シート）。借方科目は自動で出した候補を人が確認したものです。']);
   ws.addRow([DISCLAIMER]);
 }
 

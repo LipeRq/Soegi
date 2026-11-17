@@ -154,7 +154,7 @@ export function buildOrderWorkbook(ExcelJS, rows) {
   }
   if (!flagged.length) rev.addRow(['', '', '要確認の行はありません']);
   rev.addRow([]);
-  rev.addRow(['※ 商品の照合・数量の検算・納品日の確認はプログラムが行い、AIは注文書を読むだけです。最後は人が確かめてください。']);
+  rev.addRow(['※ 商品の照合・数量の検算・納品日の確認はプログラムが行い、外部のサービスは注文書を読むだけです。最後は人が確かめてください。']);
   rev.addRow([DISCLAIMER]);
   return wb;
 }
