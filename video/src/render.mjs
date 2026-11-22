@@ -18,80 +18,36 @@ mkdirSync(path.join(out, 'check'), { recursive: true });
 
 // ---- 設定 ----
 const brandRaw = JSON.parse(readFileSync(path.join(root, 'brand.json'), 'utf8'));
-const svg = readFileSync(path.join(root, 'assets', 'yamagata.svg'), 'utf8');
 const brand = {
   ...brandRaw,
   // CSS の mask は file:// の画像を読めないため、データURLにして渡す
   wordmarkUrl: brandRaw.wordmark ? 'data:image/png;base64,' + readFileSync(path.resolve(root, brandRaw.wordmark)).toString('base64') : null,
-  mapViewBox: svg.match(/viewBox="([^"]+)"/)[1],
-  mapPath: svg.match(/ d="([^"]+)"/)[1],
-  mapPin: '0.504,0.487', // 県のほぼ中央（面積の重心）。市町村を指さないようにする
 };
-const edl = JSON.parse(readFileSync(path.join(here, 'edl.json'), 'utf8'));
-const recFile = (name) => pathToFileURL(path.join(root, 'assets', 'rec', name, 'last.png')).href;
-
+brand.japan = JSON.parse(readFileSync(path.join(root, 'assets', 'japan.json'), 'utf8')); // 日本地図（src/make-japan.py でつくる）
+// 場面の並び（秒）。切り替えは BGM の拍（0.5秒）にそろえる
 const V30 = [
-  { id: 's1', start: 0, end: 3 }, { id: 's2', start: 3, end: 8 },
-  // レシートの場面（id: 'receipt'）は、本番の読み取りが直るまで社内検索（'knowledge'）に替えている
-  { id: 'knowledge', start: 8, end: 13 }, { id: 'inn', start: 13, end: 18 },
-  { id: 's5', start: 18, end: 23 }, { id: 's6', start: 23, end: 27 }, { id: 's7', start: 27, end: 30 },
+  { id: 's1', start: 0, end: 3 }, { id: 's2', start: 3, end: 6.5 },
+  { id: 'receipt', start: 6.5, end: 11 }, { id: 'search', start: 11, end: 15.5 }, { id: 'inquiry', start: 15.5, end: 20 },
+  { id: 's5', start: 20, end: 24 }, { id: 'japan', start: 24, end: 27 }, { id: 's7', start: 27, end: 30 },
 ];
 // BGMの流れ（場面に合わせる）
 const V30_MUSIC = [
-  { from: 0, to: 3, mode: 'intro' }, { from: 3, to: 8, mode: 'groove' }, { from: 8, to: 23, mode: 'full' },
-  { from: 23, to: 27, mode: 'break' }, { from: 27, to: 30, mode: 'outro' },
+  { from: 0, to: 3, mode: 'intro' }, { from: 3, to: 6.5, mode: 'groove' }, { from: 6.5, to: 24, mode: 'full' },
+  { from: 24, to: 27, mode: 'break' }, { from: 27, to: 30, mode: 'outro' },
 ];
 const FORMATS = {
   v30: { format: 'v', size: [1080, 1920], duration: 30, scenes: V30, music: V30_MUSIC },
   v15: { format: 'v', size: [1080, 1920], duration: 15, scenes: [
-    { id: 's1', start: 0, end: 2 }, { id: 'knowledge', start: 2, end: 6 }, { id: 'inn', start: 6, end: 10 },
-    { id: 's7', start: 10, end: 15, opt: { lead: '山形で、訪問してお手伝いします' } },
-  ], music: [{ from: 0, to: 2, mode: 'intro' }, { from: 2, to: 10, mode: 'full' }, { from: 10, to: 15, mode: 'outro' }] },
+    { id: 's1', start: 0, end: 2 }, { id: 'receipt', start: 2, end: 5 }, { id: 'search', start: 5, end: 8 }, { id: 'inquiry', start: 8, end: 11 },
+    { id: 's7', start: 11, end: 15, opt: { lead: '山形を中心に、全国の企業を支援' } },
+  ], music: [{ from: 0, to: 2, mode: 'intro' }, { from: 2, to: 11, mode: 'full' }, { from: 11, to: 15, mode: 'outro' }] },
   sq30: { format: 'sq', size: [1080, 1080], duration: 30, scenes: V30, music: V30_MUSIC },
 };
 const THUMBS = {
-  v30: { format: 'v', size: [1080, 1920], opt: { shot: recFile('knowledge') } },
-  v15: { format: 'v', size: [1080, 1920], opt: { hook: true, dark: true, shot: recFile('inn') } },
-  sq30: { format: 'sq', size: [1080, 1080], opt: { shot: recFile('knowledge') } },
+  v30: { format: 'v', size: [1080, 1920], opt: {} },
+  v15: { format: 'v', size: [1080, 1920], opt: { hook: true, dark: true } },
+  sq30: { format: 'sq', size: [1080, 1080], opt: {} },
 };
-
-// ---- 録画のコマを、動画の時刻に割り当てる ----
-function clipFrames(name, seconds) {
-  const segs = edl[name]?.[String(seconds)];
-  if (!segs) return null;
-  const log = JSON.parse(readFileSync(path.join(root, 'assets', 'rec', name, 'log.json'), 'utf8'));
-  const at = (t) => {
-    let f = log.frames[0];
-    for (const x of log.frames) { if (x.t <= t) f = x; else break; }
-    return pathToFileURL(path.join(root, 'assets', 'rec', name, 'frames', f.file)).href;
-  };
-  const XF = Math.round(0.13 * FPS); // つなぎ目で重ねるコマ数
-  const list = [];
-  segs.forEach(([s0, s1, d], si) => {
-    const n = Math.round(d * FPS);
-    for (let k = 0; k < n; k++) {
-      const src = s0 + (s1 - s0) * (k / n);
-      const item = { a: at(src) };
-      if (si > 0 && k < XF) {
-        const [p0, p1] = segs[si - 1];
-        item.b = item.a; item.a = at(p1 + (k / FPS) * ((p1 - p0) / segs[si - 1][2])); item.mix = (k + 1) / (XF + 1);
-      }
-      list.push(item);
-    }
-  });
-  return list;
-}
-
-function clipsAt(f, t) {
-  const res = {};
-  for (const s of f.scenes) {
-    if (!(s.id in f._clips) || t < s.start || t >= s.end) continue;
-    const list = f._clips[s.id];
-    if (!list) continue;
-    res[s.id] = list[Math.min(list.length - 1, Math.max(0, Math.floor((t - s.start) * FPS + 1e-6)))];
-  }
-  return res;
-}
 
 async function openStage(browser, size, planObj) {
   const page = await browser.newPage({ viewport: { width: size[0], height: size[1] }, deviceScaleFactor: 1 });
@@ -119,8 +75,6 @@ function makeAudio(key, f, cues) {
 
 async function renderVideo(browser, key) {
   const f = FORMATS[key];
-  f._clips = {};
-  for (const s of f.scenes) if (['receipt', 'knowledge', 'inn'].includes(s.id)) f._clips[s.id] = clipFrames(s.id, s.end - s.start);
   const planObj = { format: f.format, duration: f.duration, scenes: f.scenes, brand };
   const dir = path.join(work, key);
   rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
@@ -133,7 +87,7 @@ async function renderVideo(browser, key) {
     if (w === 0) cues = c;
     for (let i = w; i < total; i += WORKERS) {
       const t = i / FPS;
-      await page.evaluate(([t, c]) => window.renderAt(t, c), [t, clipsAt(f, t)]);
+      await page.evaluate((t) => window.renderAt(t), t);
       await page.screenshot({ path: path.join(dir, `${String(i).padStart(5, '0')}.png`) });
     }
     await page.close();

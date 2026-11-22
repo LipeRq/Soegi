@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>Nodus Consulting SNS動画の舞台</title>
+<!-- 書体：BIZ UDPGothic（日本語）、Noto Sans KR／TC（韓国語・繁体字）。すべて SIL OFL 1.1 -->
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-kr/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-tc/700.css">
 <style>
-/* 書体：BIZ UDPGothic（@fontsource/biz-udpgothic、SIL OFL 1.1） */
 @font-face { font-family: "BIZ UDPGothic"; src: url(../node_modules/@fontsource/biz-udpgothic/files/biz-udpgothic-japanese-400-normal.woff2); font-weight: 400; }
 @font-face { font-family: "BIZ UDPGothic"; src: url(../node_modules/@fontsource/biz-udpgothic/files/biz-udpgothic-japanese-700-normal.woff2); font-weight: 700; }
 @font-face { font-family: "BIZ UDPGothic"; src: url(../node_modules/@fontsource/biz-udpgothic/files/biz-udpgothic-latin-400-normal.woff2); font-weight: 400; unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+2122; }
@@ -13,13 +15,17 @@
 /* 色は withsoegi.jp（css/site.css）に合わせる。光る演出（ぼかし・発光）は使わない */
 :root {
   --paper: #E9EEED; --surface: #FFFFFF; --ink: #1B2428; --ink-2: #44525A; --ink-3: #5A676E;
-  --line: #D5DDDF; --accent: #1A6D73; --accent-soft: #DCF0F0; --accent-bright: #3FA3A9; --leaf: #2E7652;
+  --line: #D5DDDF; --sunk: #EEF2F1; --accent: #1A6D73; --accent-soft: #DCF0F0; --accent-bright: #3FA3A9;
+  --leaf: #2E7652; --leaf-soft: #E2EFE7; --warn-bg: #FFF4C7; --warn-ink: #6B4E00; --warn-line: #E0B400;
   --dx: 0px; --dy: 0px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--paper); overflow: hidden; }
 body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature-settings: "palt" 1; -webkit-font-smoothing: antialiased; }
 #stage { position: relative; overflow: hidden; background: var(--paper); }
+[lang="ko"] { font-family: "Noto Sans KR", sans-serif; }
+[lang="zh-Hant"] { font-family: "Noto Sans TC", sans-serif; }
+[lang="en"] { font-family: "BIZ UDPGothic", sans-serif; }
 
 /* 背景：ゆっくり流れる点の格子と、大きな輪 */
 .bg { position: absolute; inset: 0; }
@@ -48,24 +54,62 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .ico { flex: none; width: 92px; height: 92px; border-radius: 22px; background: var(--accent-soft); display: grid; place-items: center; }
 .ico svg { width: 56px; height: 56px; fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 
-/* デモの画面：ブラウザの窓の形 */
-.win { position: absolute; border-radius: 26px; overflow: hidden; background: #fff; box-shadow: 0 2px 4px rgba(29,35,39,.10), 0 40px 70px -30px rgba(29,35,39,.45); transform-origin: 50% 100%; }
-.win .bar { height: var(--barh); background: #F4F7F7; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; padding: 0 22px; color: var(--ink-3); font-size: calc(var(--barh) * .4); }
-.win .bar i { width: calc(var(--barh) * .22); height: calc(var(--barh) * .22); border-radius: 50%; background: var(--line); flex: none; }
-.win .bar .addr { margin-left: 8px; flex: 1; height: calc(var(--barh) * .62); border-radius: 999px; background: #fff; border: 1px solid var(--line); display: flex; align-items: center; padding: 0 16px; gap: 8px; }
-.win .bar svg { width: 1em; height: 1em; fill: none; stroke: var(--ink-3); stroke-width: 2.2; }
-.win .scr { position: relative; overflow: hidden; }
-.win .zoom { position: absolute; inset: 0; }
-.win .zoom img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.win .zoom img.b { opacity: 0; }
-.tapr { position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 6px solid var(--accent); opacity: 0; }
-.tapd { position: absolute; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(26,109,115,.35); opacity: 0; }
-.chip { position: absolute; transform-origin: 50% 100%; background: var(--accent); color: #fff; font-weight: 700; border-radius: 18px; padding: 16px 28px; white-space: nowrap; box-shadow: 0 16px 30px -14px rgba(16,74,79,.6); }
-.chip::after { content: ""; position: absolute; left: 50%; margin-left: -14px; border: 14px solid transparent; }
-.chip.down::after { top: 100%; border-top-color: var(--accent); }
-.chip.up { transform-origin: 50% 0; }
-.chip.up::after { bottom: 100%; border-bottom-color: var(--accent); }
-.note { position: absolute; color: var(--ink-3); line-height: 1.3; }
+/* できることの場面：850×780 の絵（正方形の版では縮める） */
+.ill { position: absolute; width: 850px; height: 780px; transform-origin: 0 0; }
+.ill > * { position: absolute; }
+.eff { position: absolute; display: inline-flex; align-items: center; gap: 16px; background: var(--leaf-soft); color: var(--leaf); font-weight: 700; border-radius: 999px; white-space: nowrap; }
+.eff svg { width: 1.1em; height: 1.1em; fill: none; stroke: var(--leaf); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.imgnote { position: absolute; color: var(--ink-3); line-height: 1.3; }
+.etag { display: inline-block; background: var(--accent); color: #fff; font-weight: 700; border-radius: 10px; padding: 4px 12px; font-size: 22px; }
+
+/* レシート */
+.rcpt { width: 200px; height: 262px; background: #fff; padding: 22px 20px; box-shadow: 0 2px 3px rgba(0,0,0,.08), 0 18px 28px -14px rgba(29,35,39,.35);
+  clip-path: polygon(0 0, 100% 0, 100% 96%, 90% 100%, 80% 96%, 70% 100%, 60% 96%, 50% 100%, 40% 96%, 30% 100%, 20% 96%, 10% 100%, 0 96%); }
+.rcpt b { display: block; font-size: 24px; text-align: center; margin-bottom: 16px; white-space: nowrap; }
+.rcpt i { display: block; height: 10px; border-radius: 5px; background: var(--line); margin: 12px 0; }
+.rcpt i.s { width: 60%; }
+.rcpt p { margin-top: 18px; border-top: 2px dashed var(--line); padding-top: 12px; font-size: 26px; font-weight: 700; display: flex; justify-content: space-between; }
+.scan { left: -10px; width: 690px; height: 6px; border-radius: 3px; background: var(--accent); }
+.scanlbl { font-size: 26px; }
+.down { width: 0; height: 0; border-left: 26px solid transparent; border-right: 26px solid transparent; border-top: 30px solid var(--ink-3); }
+.sheet { left: 0; top: 345px; width: 850px; overflow: hidden; }
+.sheet .row { position: relative; display: grid; grid-template-columns: 120px 300px 170px 260px; height: 74px; align-items: center; font-size: 30px; border-top: 1px solid var(--line); z-index: 0; }
+.sheet .row > span { padding: 0 18px; white-space: nowrap; }
+.sheet .row > span.num { text-align: right; font-variant-numeric: tabular-nums; }
+.sheet .head { background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 26px; height: 60px; border-top: 0; }
+.sheet .xl { position: absolute; right: 18px; top: 14px; }
+.rowmk::before { content: ""; position: absolute; inset: 0; background: var(--warn-bg); z-index: -1; transform-origin: left center; transform: scaleX(var(--mk, 0)); }
+.warn { display: inline-block; background: var(--warn-line); color: #3d2c00; border-radius: 8px; font-size: 22px; font-weight: 700; padding: 2px 10px; }
+.callout { background: var(--ink); color: #fff; font-weight: 700; font-size: 32px; border-radius: 16px; padding: 14px 24px; white-space: nowrap; display: flex; align-items: center; gap: 12px; }
+.callout svg { width: 1.2em; height: 1.2em; fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* 資料さがし */
+.doc { width: 200px; height: 250px; background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 2px 3px rgba(0,0,0,.06), 0 18px 28px -14px rgba(29,35,39,.3); }
+.doc b { display: block; font-size: 26px; margin-bottom: 14px; }
+.doc i { display: block; height: 10px; border-radius: 5px; background: var(--line); margin: 13px 0; }
+.doc i.s { width: 55%; }
+.q { background: var(--accent-soft); color: var(--ink); font-size: 36px; font-weight: 700; border-radius: 26px 26px 6px 26px; padding: 22px 28px; white-space: nowrap; }
+.lens { width: 130px; height: 130px; }
+.lens svg { width: 100%; height: 100%; fill: rgba(255,255,255,.35); stroke: var(--ink); stroke-width: 7; stroke-linecap: round; }
+.bigdoc { left: 0; top: 375px; width: 850px; padding: 24px 30px; }
+.bigdoc .t1 { font-size: 24px; color: var(--ink-3); }
+.bigdoc .t2 { font-size: 32px; font-weight: 700; margin: 4px 0 14px; }
+.bigdoc .hit { position: relative; display: inline-block; font-size: 32px; padding: 4px 6px; z-index: 0; }
+.bigdoc .hit::before { content: ""; position: absolute; inset: 0; background: #FFE58A; z-index: -1; transform-origin: left center; transform: scaleX(var(--mk, 0)); }
+.ans { left: 150px; top: 590px; width: 700px; padding: 26px 32px; border: 4px solid var(--accent); border-radius: 26px 26px 26px 6px; background: #fff; }
+.ans .t1 { font-size: 44px; font-weight: 700; }
+.ans .t2 { font-size: 26px; color: var(--accent); font-weight: 700; margin-top: 8px; display: flex; align-items: center; gap: 10px; }
+
+/* 外国語の問い合わせ */
+.msg { width: 560px; padding: 18px 24px; background: #fff; border-radius: 22px; }
+.msg .lang { display: inline-block; font-size: 22px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 8px; padding: 2px 10px; margin-bottom: 8px; }
+.msg p { font-size: 30px; line-height: 1.35; white-space: nowrap; }
+.draft { left: 250px; top: 420px; width: 600px; padding: 24px 28px; border: 4px solid var(--accent); }
+.draft h4 { font-size: 24px; color: var(--accent); margin-bottom: 10px; }
+.draft p { font-size: 30px; line-height: 1.4; min-height: 42px; white-space: nowrap; }
+.draft .ja { font-size: 24px; color: var(--ink-3); margin-top: 10px; }
+.plane { width: 90px; height: 90px; }
+.plane svg { width: 100%; height: 100%; fill: var(--accent); }
 
 /* 進め方 */
 .step { position: absolute; display: flex; align-items: center; gap: 34px; }
@@ -77,11 +121,18 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .conn { position: absolute; background: var(--accent); transform-origin: 0 0; }
 .chk { fill: none; stroke: var(--leaf); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
 
-.map path { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-.map path.fill { fill: var(--accent-soft); stroke: none; }
-.pin { position: absolute; width: 84px; height: 112px; margin: -112px 0 0 -42px; }
-.pin svg { width: 100%; height: 100%; }
-.ripple { position: absolute; width: 60px; height: 22px; margin: -11px 0 0 -30px; border-radius: 50%; border: 4px solid var(--accent); opacity: 0; }
+/* 日本地図 */
+.jp path { fill: #DCE4E3; stroke: #fff; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.jp path.home { fill: var(--accent); }
+.jp rect { fill: none; stroke: var(--ink-3); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.dark .jp path { fill: rgba(255,255,255,.16); stroke: var(--ink); }
+.dark .jp path.home { fill: var(--accent-bright); }
+.wave { position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 4px solid var(--accent); opacity: 0; }
+.thumb .jp path:not(.home) { fill: #C6D4D3; }
+.thring { position: absolute; border-radius: 50%; border: 5px solid var(--accent); }
+.dark .thring { border-color: var(--accent-bright); }
+.homedot { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: #fff; border: 7px solid var(--accent); }
+.homelbl { position: absolute; background: var(--ink); color: #fff; font-weight: 700; border-radius: 12px; padding: 8px 16px; white-space: nowrap; }
 
 .wordmark { background: var(--ink); -webkit-mask: var(--wm) left center / contain no-repeat; mask: var(--wm) left center / contain no-repeat; }
 .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; background: var(--accent); color: #fff; font-weight: 700; border-radius: 999px; }
@@ -105,21 +156,22 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .v .s2 h2 { position: absolute; left: 80px; top: 400px; font-size: 64px; font-weight: 700; }
 .v .s2 .card { position: absolute; left: 80px; width: 850px; height: 188px; display: flex; align-items: center; gap: 36px; padding: 0 40px; font-size: 64px; font-weight: 700; }
 .v .s2 .c1 { top: 560px; } .v .s2 .c2 { top: 778px; } .v .s2 .c3 { top: 996px; }
-.v .demo .big { position: absolute; left: 80px; top: 300px; font-size: 74px; }
-.v .demo .win { left: 105px; top: 548px; width: 800px; --barh: 58px; }
-.v .demo .scr { height: 837px; }
-.v .demo .chip { font-size: 44px; }
-.v .demo .note { left: 80px; top: 1462px; font-size: 29px; }
-.v .s5 h2 { position: absolute; left: 80px; top: 330px; font-size: 64px; font-weight: 700; }
+.v .feat .big { position: absolute; left: 80px; top: 300px; font-size: 74px; }
+.v .feat .ill { left: 80px; top: 530px; }
+.v .feat .eff { left: 80px; top: 1335px; height: 92px; padding: 0 34px; font-size: 44px; }
+.v .feat .imgnote { left: 80px; top: 1452px; font-size: 28px; }
+.v .s5 .big { position: absolute; left: 80px; top: 300px; font-size: 70px; }
 .v .s5 .step { left: 80px; width: 850px; height: 200px; }
-.v .s5 .st1 { top: 470px; } .v .s5 .st2 { top: 740px; } .v .s5 .st3 { top: 1010px; }
+.v .s5 .st1 { top: 560px; } .v .s5 .st2 { top: 820px; } .v .s5 .st3 { top: 1080px; }
 .v .s5 .t { font-size: 64px; } .v .s5 .t small { font-size: 44px; }
-.v .s5 .conn { left: 120px; top: 570px; width: 8px; height: 540px; }
-.v .s5 .stamp { left: 690px; top: 455px; width: 190px; height: 190px; font-size: 60px; }
-.v .s5 .chkw { position: absolute; left: 800px; top: 1050px; width: 120px; height: 120px; }
-.v .s6 .map { position: absolute; left: 340px; top: 300px; height: 660px; }
-.v .s6 .big { position: absolute; left: 80px; top: 1040px; font-size: 76px; }
-.v .s6 .rep { position: absolute; left: 80px; top: 1300px; font-size: 42px; color: var(--ink-2); }
+.v .s5 .conn { left: 120px; top: 660px; width: 8px; height: 520px; }
+.v .s5 .stamp { left: 690px; top: 545px; width: 190px; height: 190px; font-size: 60px; }
+.v .s5 .chkw { position: absolute; left: 790px; top: 1120px; width: 120px; height: 120px; }
+.v .japan .big { position: absolute; left: 80px; top: 300px; font-size: 74px; }
+.v .japan .jp { position: absolute; left: 160px; top: 530px; height: 760px; }
+.v .japan .sub { position: absolute; left: 80px; top: 1330px; font-size: 46px; font-weight: 700; }
+.v .japan .rep { position: absolute; left: 80px; top: 1410px; font-size: 36px; color: var(--ink-2); }
+.v .japan .homelbl { font-size: 32px; }
 .v .s7 .lead { position: absolute; left: 80px; top: 400px; font-size: 56px; font-weight: 700; }
 .v .s7 .wordmark { position: absolute; left: 80px; top: 540px; width: 800px; height: 132px; }
 .v .s7 .tag { position: absolute; left: 80px; top: 720px; font-size: 52px; color: var(--ink-2); }
@@ -132,8 +184,7 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .v .thumb.dark .sub { color: var(--accent-bright); }
 .v .thumb .wordmark { position: absolute; left: 80px; top: 760px; width: 520px; height: 86px; }
 .v .thumb.dark .wordmark { background: #fff; }
-.v .thumb .win { left: 150px; top: 920px; width: 780px; --barh: 56px; transform: rotate(-4deg); }
-.v .thumb .scr { height: 816px; }
+.v .thumb .jp { position: absolute; left: 260px; top: 900px; height: 820px; }
 
 /* ---------- 正方形（1080×1080）：中央揃え。四方72px ---------- */
 .sq #stage { width: 1080px; height: 1080px; }
@@ -144,97 +195,127 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .sq .s2 h2 { position: absolute; left: 0; right: 0; top: 110px; font-size: 58px; font-weight: 700; }
 .sq .s2 .card { position: absolute; left: 150px; width: 780px; height: 170px; display: flex; align-items: center; gap: 32px; padding: 0 36px; font-size: 60px; font-weight: 700; text-align: left; }
 .sq .s2 .c1 { top: 260px; } .sq .s2 .c2 { top: 470px; } .sq .s2 .c3 { top: 680px; }
-.sq .demo .big { position: absolute; left: 0; right: 0; top: 60px; font-size: 60px; }
-.sq .demo .win { left: 240px; top: 250px; width: 600px; --barh: 44px; }
-.sq .demo .scr { height: 628px; }
-.sq .demo .chip { font-size: 36px; padding: 12px 22px; }
-.sq .demo .note { left: 0; right: 0; top: 960px; font-size: 26px; }
-.sq .s5 h2 { position: absolute; left: 0; right: 0; top: 150px; font-size: 58px; font-weight: 700; }
+.sq .feat .big { position: absolute; left: 0; right: 0; top: 64px; font-size: 56px; }
+.sq .feat .ill { left: 234px; top: 222px; transform: scale(.72); text-align: left; }
+.sq .feat .eff { left: 50%; top: 808px; height: 76px; padding: 0 30px; font-size: 36px; }
+.sq .feat .imgnote { left: 0; right: 0; top: 910px; font-size: 24px; }
+.sq .s5 .big { position: absolute; left: 0; right: 0; top: 90px; font-size: 56px; }
 .sq .s5 .step { top: 330px; width: 296px; height: 380px; flex-direction: column; justify-content: flex-start; padding-top: 30px; gap: 26px; }
 .sq .s5 .st1 { left: 72px; } .sq .s5 .st2 { left: 392px; } .sq .s5 .st3 { left: 712px; }
 .sq .s5 .t { font-size: 44px; } .sq .s5 .t small { font-size: 34px; }
 .sq .s5 .conn { left: 220px; top: 400px; width: 640px; height: 8px; }
-.sq .s5 .stamp { left: 210px; top: 640px; width: 150px; height: 150px; font-size: 48px; }
-.sq .s5 .chkw { position: absolute; left: 815px; top: 640px; width: 110px; height: 110px; }
-.sq .s6 .map { position: absolute; left: 395px; top: 70px; height: 520px; }
-.sq .s6 .big { position: absolute; left: 0; right: 0; top: 640px; font-size: 64px; }
-.sq .s6 .rep { position: absolute; left: 0; right: 0; top: 880px; font-size: 36px; color: var(--ink-2); }
+.sq .s5 .stamp { left: 210px; top: 660px; width: 150px; height: 150px; font-size: 48px; }
+.sq .s5 .chkw { position: absolute; left: 815px; top: 660px; width: 110px; height: 110px; }
+.sq .japan .big { position: absolute; left: 0; right: 0; top: 60px; font-size: 56px; }
+.sq .japan .jp { position: absolute; left: 290px; top: 225px; height: 550px; }
+.sq .japan .sub { position: absolute; left: 0; right: 0; top: 810px; font-size: 42px; font-weight: 700; }
+.sq .japan .rep { position: absolute; left: 0; right: 0; top: 885px; font-size: 32px; color: var(--ink-2); }
+.sq .japan .homelbl { font-size: 26px; }
 .sq .s7 .wordmark { position: absolute; left: 210px; top: 190px; width: 660px; height: 110px; -webkit-mask-position: center; mask-position: center; }
 .sq .s7 .tag { position: absolute; left: 0; right: 0; top: 350px; font-size: 46px; color: var(--ink-2); }
 .sq .s7 .btnwrap { position: absolute; left: 0; right: 0; top: 480px; }
 .sq .s7 .btn { height: 128px; padding: 0 48px; font-size: 52px; }
 .sq .s7 .url { position: absolute; left: 0; right: 0; top: 690px; font-size: 104px; }
-.sq .thumb .big { position: absolute; left: 0; right: 0; top: 110px; font-size: 92px; }
-.sq .thumb .sub { position: absolute; left: 0; right: 0; top: 380px; font-size: 50px; font-weight: 700; color: var(--accent); }
-.sq .thumb .wordmark { position: absolute; left: 290px; top: 480px; width: 500px; height: 82px; -webkit-mask-position: center; mask-position: center; }
-.sq .thumb .win { left: 230px; top: 640px; width: 620px; --barh: 44px; transform: rotate(-4deg); }
-.sq .thumb .scr { height: 649px; }
+.sq .thumb .big { position: absolute; left: 72px; right: 0; top: 110px; font-size: 88px; text-align: left; }
+.sq .thumb .sub { position: absolute; left: 72px; top: 370px; font-size: 48px; font-weight: 700; color: var(--accent); text-align: left; }
+.sq .thumb .wordmark { position: absolute; left: 72px; top: 470px; width: 480px; height: 80px; }
+.sq .thumb .jp { position: absolute; left: 600px; top: 470px; height: 640px; }
 </style>
 </head>
 <body>
 <div id="stage"></div>
 <script>
-// 場面の部品。文字は brand（brand.json）と、この中の決まった文だけ。
+// 場面の部品。文字は brand（brand.json）と、この中の決まった文だけ。データはすべて架空（サイトの見本と同じ店・会社）。
 // 動かす要素は class="a" と data-fx（動き方）・data-in（場面の始まりから何秒）・data-dur（何秒かけて）。
 // data-sfx を付けた要素は、出る時刻に効果音を鳴らす（setup() が一覧にして返す）。
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const NOTE = '画面は架空のデータです（待ち時間は短く編集）';
-const LOCK = '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const IMGNOTE = '※イメージです。データは架空です';
 const ICONS = {
   doc: '<svg viewBox="0 0 48 48"><path class="a" data-fx="draw" data-dur="0.6" pathLength="1" d="M12 5h17l8 8v30H12z M29 5v8h8 M18 22h13 M18 29h13 M18 36h8"/></svg>',
-  clock: '<svg viewBox="0 0 48 48"><circle class="a" data-fx="draw" data-dur="0.6" pathLength="1" cx="24" cy="24" r="17"/><path class="a" data-fx="draw" data-dur="0.5" pathLength="1" d="M24 13v11l7 5"/></svg>',
+  search: '<svg viewBox="0 0 48 48"><path class="a" data-fx="draw" data-dur="0.6" pathLength="1" d="M21 7a14 14 0 1 1 0 28a14 14 0 1 1 0-28z M31 31l10 10"/></svg>',
   chat: '<svg viewBox="0 0 48 48"><path class="a" data-fx="draw" data-dur="0.6" pathLength="1" d="M6 9h24v16H16l-6 5v-5H6z M34 17h8v16h-4v5l-6-5H20v-4"/></svg>',
 };
+const DOWN = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v10M7.5 12.5L12 17l4.5-4.5"/></svg>';
+const PERSON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>';
 const lines = (arr, t0, step = 0.12, sfx = '') => arr.map((l, i) => `<span class="ln"><span class="a" data-fx="line" data-in="${(t0 + i * step).toFixed(2)}"${i === 0 && sfx ? ` data-sfx="${sfx}"` : ''}>${l}</span></span>`).join('');
 
-// デモの場面の時刻（場面の長さ 5秒／4秒 で変える）。tap：例文を押す所、zoom：拡大の開始、chip：吹き出し
-const DEMO_T = {
-  knowledge: { 5: { tap: 0.75, zoom: 3.2, chip: 3.55 }, 4: { tap: 0.66, zoom: 2.45, chip: 2.8 } },
-  inn: { 5: { tap: 0.75, zoom: 3.3, chip: 3.65 }, 4: { tap: 0.55, zoom: 2.6, chip: 2.95 } },
-};
-const DEMO_LOOK = {
-  knowledge: { head: ['過去の見積書から、', '<span class="mk a" data-fx="mark" data-in="0.7">根拠付き</span>で答える。'], zx: 0.5, zy: 0.66, zs: 1.32, tx: 0.45, ty: 0.29, chip: '根拠の行に、印', dir: 'down', cx: 0.5, cy: 0.38 },
-  inn: { head: ['返信の下書きは、自動で。', '確認は、<span class="em mk a" data-fx="mark" data-in="0.7">人が。</span>'], zx: 0.5, zy: 0.34, zs: 1.3, tx: 0.45, ty: 0.3, chip: '送る前の確認点', dir: 'up', cx: 0.5, cy: 0.86 },
-};
-function demoScene(id, f, b, opt) {
-  const L = DEMO_LOOK[id]; const T = DEMO_T[id][opt.dur >= 5 ? 5 : 4];
-  return `<div class="big">${lines(L.head, 0.12)}</div>
-    <div class="win a" data-fx="device" data-in="0.2" data-dur="0.8" data-sfx="rise">
-      <div class="bar"><i></i><i></i><i></i><div class="addr">${LOCK}demo.withsoegi.jp</div></div>
-      <div class="scr">
-        <div class="zoom a" data-fx="zoom" data-in="${T.zoom}" data-dur="0.75" data-zx="${L.zx}" data-zy="${L.zy}" data-zs="${L.zs}" data-clip="${id}" data-sfx="zoom"><img class="a0"><img class="b"></div>
-        <div class="tapd a" data-fx="tapd" data-in="${T.tap - 0.15}" data-dur="0.5" style="left:${L.tx * 100}%;top:${L.ty * 100}%"></div>
-        <div class="tapr a" data-fx="ripple" data-in="${T.tap}" data-dur="0.55" data-sfx="tap" style="left:${L.tx * 100}%;top:${L.ty * 100}%"></div>
-        <div class="chip ${L.dir} a" data-fx="chip" data-in="${T.chip}" data-dur="0.5" data-sfx="pop" style="left:${L.cx * 100}%;top:${L.cy * 100}%">${L.chip}</div>
-      </div>
-    </div>
-    <p class="note a" data-fx="fade" data-in="0.5">${NOTE}</p>`;
+// 「できること」の場面。T(x)：4.5秒の場面で設計した時刻を、場面の長さに合わせて縮める
+function feat(head, ill, eff, opt) {
+  const k = Math.min(1, opt.dur / 4.5);
+  const T = (x) => (x * k).toFixed(2);
+  return `<div class="big">${lines(head, 0.1)}</div>
+    <div class="ill">${ill(T)}</div>
+    <div class="eff a" data-fx="effpop" data-in="${T(2.9)}" data-dur="0.5" data-sfx="check">${DOWN}${eff}</div>
+    <p class="imgnote a" data-fx="fade" data-in="0.4">${IMGNOTE}</p>`;
 }
 
 const SCENES = {
   s1: () => `<div class="clock a" data-fx="clock" data-in="0.0" data-dur="1.35" data-from="18:00" data-to="22:47" data-sfx="ticks"><small>月末の夜</small><span class="v">18<span class="colon">:</span>00</span></div>
     <div class="big">${lines(['月末、また'], 0.2)}<span class="ln free"><span class="a" data-fx="slam" data-in="0.62" data-dur="0.5" data-sfx="slam"><span class="em">夜まで</span>事務作業？</span></span></div>`,
-  s2: () => `<h2>${lines(['こんな手間、ありませんか'], 0.05)}</h2>
-    <div class="card c1 a" data-fx="pop" data-in="0.45" data-out="4.55" data-sfx="pop"><span class="ico">${ICONS.doc}</span>見積書の単価さがし</div>
-    <div class="card c2 a" data-fx="pop" data-in="1.45" data-out="4.62" data-sfx="pop"><span class="ico">${ICONS.clock}</span>残業の集計</div>
-    <div class="card c3 a" data-fx="pop" data-in="2.45" data-out="4.69" data-sfx="pop"><span class="ico">${ICONS.chat}</span>外国語の問い合わせ</div>`,
-  receipt: (f, b, opt) => demoScene('receipt', f, b, opt),
-  knowledge: (f, b, opt) => demoScene('knowledge', f, b, opt),
-  inn: (f, b, opt) => demoScene('inn', f, b, opt),
-  s5: () => `<h2>${lines(['進め方は、3ステップ'], 0.05)}</h2>
-    <div class="conn a" data-fx="${'grow'}" data-in="0.5" data-dur="2.2"></div>
-    <div class="step st1 a" data-fx="pop" data-in="0.35" data-sfx="pop"><span class="n">1</span><span class="t">無料相談<small>60分</small></span></div>
-    <div class="stamp a" data-fx="stamp" data-in="0.85" data-dur="0.4" data-sfx="stamp">無料</div>
-    <div class="step st2 a" data-fx="pop" data-in="1.35" data-sfx="pop"><span class="n">2</span><span class="t">お試し1ヶ月<small>5万円（税抜）</small></span></div>
-    <div class="step st3 a" data-fx="pop" data-in="2.35" data-sfx="pop"><span class="n">3</span><span class="t">結果を見て、<br class="sqbr">決める</span></div>
-    <svg class="chkw" viewBox="0 0 60 60"><path class="chk a" data-fx="draw" data-in="2.75" data-dur="0.4" data-sfx="check" pathLength="1" d="M12 31l12 12 24-26"/></svg>`,
-  s6: (f, b) => {
-    const [vx, vy, vw, vh] = b.mapViewBox.split(' ').map(Number);
-    return `<div class="mapwrap"><svg class="map" viewBox="${b.mapViewBox}"><path class="fill a" data-fx="fade" data-in="0.9" d="${b.mapPath}"/><path class="a" data-fx="draw" data-in="0.05" data-dur="1.2" data-sfx="draw" pathLength="1" d="${b.mapPath}"/></svg></div>
-    <div class="ripple a" data-fx="ring" data-in="1.45" data-dur="0.9" data-pin="${b.mapPin}"></div>
-    <div class="pin a" data-fx="drop" data-in="1.05" data-dur="0.5" data-sfx="drop" data-pin="${b.mapPin}"><svg viewBox="0 0 60 80"><path d="M30 78C30 78 4 46 4 28a26 26 0 0 1 52 0c0 18-26 50-26 50z" fill="#1A6D73"/><circle cx="30" cy="28" r="10" fill="#fff"/></svg></div>
-    <div class="big">${lines(['山形で、', '訪問してお手伝いします'], 0.55)}</div>
-    <p class="rep a" data-fx="rise" data-in="1.3">${esc(b.rep)}</p>`;
+  s2: (f, b, opt) => {
+    const o = opt.dur - 0.45;
+    return `<h2>${lines(['こんな手間、ありませんか'], 0.05)}</h2>
+    <div class="card c1 a" data-fx="pop" data-in="0.4" data-out="${o.toFixed(2)}" data-sfx="pop"><span class="ico">${ICONS.doc}</span>レシートの入力</div>
+    <div class="card c2 a" data-fx="pop" data-in="1.1" data-out="${(o + 0.07).toFixed(2)}" data-sfx="pop"><span class="ico">${ICONS.search}</span>社内の資料さがし</div>
+    <div class="card c3 a" data-fx="pop" data-in="1.8" data-out="${(o + 0.14).toFixed(2)}" data-sfx="pop"><span class="ico">${ICONS.chat}</span>外国語の問い合わせ</div>`;
+  },
+  // レシート → Excel：読み取り → 表に1行ずつ → 1行は要確認（人が確かめる）
+  receipt: (f, b, opt) => feat(['レシートの写真から、', '<span class="mk a" data-fx="mark" data-in="0.8">Excelの表</span>へ。'], (T) => {
+    const rc = [['さくら文具店', '1,980', -5, 10], ['みどり食堂', '1,760', 3, 225], ['山の駅 売店', '1,200', -2, 440]];
+    const rows = [['11/04', 'さくら文具店', '1,980', '事務用品費'], ['11/06', 'みどり食堂', '1,760', '会議費'], ['11/09', 'あおぞらGS', '6,200', '車両費'], ['11/12', '山の駅 売店', '1,200', '']];
+    return rc.map(([n, v, r, x], i) => `<div class="rcpt a" data-fx="move" data-from="-420,40" data-in="${T(0.15 + i * 0.15)}" data-dur="${T(0.6)}" ${i === 0 ? 'data-sfx="rise"' : ''} style="left:${x}px;top:${i === 1 ? 22 : 8}px;rotate:${r}deg"><b>${n}</b><i></i><i class="s"></i><i></i><p><span>計</span><span>¥${v}</span></p></div>`).join('')
+      + `<div class="scan a" data-fx="scan" data-y0="0" data-y1="285" data-in="${T(0.85)}" data-dur="${T(0.7)}" data-sfx="scan"></div>
+      <div class="callout scanlbl a" data-fx="pop" data-in="${T(0.9)}" data-dur="0.4" data-out="${T(1.75)}" style="left:690px;top:120px">読み取り</div>
+      <div class="down a" data-fx="fade" data-in="${T(1.3)}" style="left:300px;top:300px"></div>
+      <div class="sheet card a" data-fx="rise" data-in="${T(1.25)}" data-dur="${T(0.5)}">
+        <div class="row head"><span>日付</span><span>支払先</span><span class="num">金額</span><span>科目（候補）</span></div>
+        ${rows.map((r, i) => `<div class="row ${i === 3 ? 'rowmk a' : ''}" ${i === 3 ? `data-fx="mark" data-in="${T(2.65)}"` : ''}>${r.map((c, j) => `<span class="${j === 2 ? 'num ' : ''}a" data-fx="type" data-nocaret="1" data-text="${c}" data-in="${T(1.6 + i * 0.27)}" data-dur="${T(0.25)}" ${j === 0 ? 'data-sfx="tick"' : ''}></span>`).join('')}</div>`).join('')}
+      </div>
+      <span class="warn a" data-fx="pop" data-in="${T(2.75)}" data-dur="0.4" style="left:640px;top:${345 + 60 + 74 * 3 + 22}px">要確認</span>
+      <div class="callout a" data-fx="pop" data-in="${T(3.0)}" data-dur="0.45" data-sfx="pop" style="left:430px;top:${345 + 60 + 74 * 4 + 22}px">${PERSON}最後は人が確認</div>`;
+  }, '入力の手間を減らす', opt),
+  // 社内の資料さがし：質問 → 資料を探す → 見積書の行に印 → 根拠付きの答え
+  search: (f, b, opt) => feat(['社内の資料から、', '<span class="mk a" data-fx="mark" data-in="0.8">根拠付き</span>で答える。'], (T) => {
+    const docs = [['手順書', -4, 0], ['就業規則', 3, 150], ['見積書', -2, 300]];
+    return docs.map(([n, r, x], i) => `<div class="doc a" data-fx="move" data-from="-380,30" data-in="${T(0.1 + i * 0.12)}" data-dur="${T(0.55)}" ${i === 0 ? 'data-sfx="rise"' : ''} style="left:${x}px;top:${95 + (i % 2) * 12}px;rotate:${r}deg"><b>${n}</b><i></i><i class="s"></i><i></i><i></i><i class="s"></i></div>`).join('')
+      + `<div class="q a" data-fx="pop" data-in="${T(0.45)}" data-dur="0.45" data-sfx="pop" style="left:330px;top:-10px">去年のジャムの単価は？</div>
+      <div class="lens a" data-fx="path" data-path="20,150;170,130;330,160;380,150" data-in="${T(0.85)}" data-dur="${T(0.9)}" data-sfx="scan" style="left:0;top:0"><svg viewBox="0 0 60 60"><circle cx="25" cy="25" r="17"/><path d="M38 38l15 15"/></svg></div>
+      <div class="bigdoc card a" data-fx="rise" data-in="${T(1.75)}" data-dur="${T(0.5)}"><p class="t1">過去の見積書</p><p class="t2">見積書 No.2025-031（やまびこスーパー（仮））</p><span class="hit a" data-fx="mark" data-in="${T(2.1)}">ラ・フランスジャム 150g｜単価 420円</span></div>
+      <div class="ans a" data-fx="pop" data-in="${T(2.45)}" data-dur="0.5" data-sfx="pop"><p class="t1">420円（税抜）です。</p><p class="t2"><span class="etag">根拠</span>見積書 No.2025-031 の1行目</p></div>`;
+  }, '探す時間を短く', opt),
+  // 外国語の問い合わせ：3つの言語の問い合わせ → 返信の下書き → スタッフが確認 → 送る
+  inquiry: (f, b, opt) => feat(['外国語の問い合わせに、', '<span class="mk a" data-fx="mark" data-in="0.8">返信の下書き</span>。'], (T) => {
+    const msgs = [['英語', 'en', 'Do you have a pick-up service?'], ['繁体字（台湾）', 'zh-Hant', '晚餐可以對應雞蛋過敏嗎？'], ['韓国語', 'ko', '가족탕은 예약이 필요한가요?']];
+    return msgs.map(([l, lang, t], i) => `<div class="msg card a" data-fx="move" data-from="-300,0" data-in="${T(0.15 + i * 0.25)}" data-dur="${T(0.55)}" ${i === 0 ? 'data-sfx="pop"' : ''} style="left:0;top:${i * 134}px"><span class="lang">${l}</span><p lang="${lang}">${t}</p></div>`).join('')
+      + `<div class="draft card a" data-fx="rise" data-in="${T(1.05)}" data-dur="${T(0.45)}">
+        <h4>返信の下書き（英語）</h4>
+        <p lang="en" class="a" data-fx="type" data-nocaret="1" data-text="Thank you for your inquiry." data-in="${T(1.35)}" data-dur="${T(0.55)}" data-sfx="type"></p>
+        <p lang="en" class="a" data-fx="type" data-nocaret="1" data-text="We offer a free pick-up from" data-in="${T(1.85)}" data-dur="${T(0.55)}"></p>
+        <p class="ja a" data-fx="fade" data-in="${T(2.3)}">日本語訳つき：中身をその場で確かめられる</p>
+      </div>
+      <div class="callout a" data-fx="pop" data-in="${T(2.55)}" data-dur="0.45" data-sfx="stamp" style="left:250px;top:690px">${CHECK}スタッフが確認して送る</div>
+      <div class="plane a" data-fx="fly" data-in="${T(3.0)}" data-dur="${T(0.8)}" data-sfx="send" style="left:740px;top:690px"><svg viewBox="0 0 24 24"><path d="M2 11l20-9-7 20-3-8z"/></svg></div>`;
+  }, '返信までの時間を短く', opt),
+  s5: (f, b, opt) => `<div class="big">${lines(['削減できた時間を、', '<span class="mk a" data-fx="mark" data-in="0.7">数字で確かめて</span>から。'], 0.05)}</div>
+    <div class="conn a" data-fx="grow" data-in="0.45" data-dur="1.5"></div>
+    <div class="step st1 a" data-fx="pop" data-in="0.3" data-sfx="pop"><span class="n">1</span><span class="t">無料相談<small>60分</small></span></div>
+    <div class="stamp a" data-fx="stamp" data-in="0.65" data-dur="0.4" data-sfx="stamp">無料</div>
+    <div class="step st2 a" data-fx="pop" data-in="0.95" data-sfx="pop"><span class="n">2</span><span class="t">お試し1ヶ月<small>5万円（税抜）</small></span></div>
+    <div class="step st3 a" data-fx="pop" data-in="1.6" data-sfx="pop"><span class="n">3</span><span class="t">数字を見て、<br class="sqbr">決める</span></div>
+    <svg class="chkw" viewBox="0 0 60 60"><path class="chk a" data-fx="draw" data-in="2.0" data-dur="0.4" data-sfx="check" pathLength="1" d="M12 31l12 12 24-26"/></svg>`,
+  // 山形を中心に、全国へ：山形が光り（色が付き）、波が広がって全国の県に順に色が付く。実績に見えないよう、都市の点や線は描かない
+  japan: (f, b, opt) => {
+    const j = b.japan; const [, , vw, vh] = j.viewBox.split(' ').map(Number);
+    const ok = j.okinawaBox;
+    return `<div class="big">${lines(['山形を中心に、', '<span class="mk a" data-fx="mark" data-in="0.6">全国の企業</span>をご支援します'], 0.05)}</div>
+    <svg class="jp map" viewBox="${j.viewBox}">${j.prefs.map((p) => `<path class="a ${p.name === 'Yamagata' ? 'home' : ''}" data-fx="${p.name === 'Yamagata' ? 'homepop' : 'wavefill'}" data-dist="${p.dist}" data-in="${p.name === 'Yamagata' ? 0.25 : 0.55}" d="${p.d}"/>`).join('')}
+      <rect class="a" data-fx="fade" data-in="0.2" x="${ok[0]}" y="${ok[1]}" width="${ok[2] - ok[0]}" height="${ok[3] - ok[1]}"/></svg>
+    ${[0, 0.45, 0.9].map((d, i) => `<div class="wave a" data-fx="ring" data-in="${(0.55 + d).toFixed(2)}" data-dur="1.4" data-pin="${(j.yamagata[0] / vw).toFixed(4)},${(j.yamagata[1] / vh).toFixed(4)}" ${i === 0 ? 'data-sfx="wave"' : ''}></div>`).join('')}
+    <div class="homedot a" data-fx="pop" data-in="0.3" data-dur="0.4" data-sfx="drop" data-pin="${(j.yamagata[0] / vw).toFixed(4)},${(j.yamagata[1] / vh).toFixed(4)}"></div>
+    <div class="homelbl a" data-fx="pop" data-in="0.45" data-dur="0.4" data-pin="${(j.yamagata[0] / vw).toFixed(4)},${(j.yamagata[1] / vh).toFixed(4)}" data-off="-170,-95">山形</div>
+    <p class="sub a" data-fx="rise" data-in="1.2">県内は訪問、県外はオンライン</p>
+    <p class="rep a" data-fx="rise" data-in="1.45">${esc(b.rep)}</p>`;
   },
   s7: (f, b, opt = {}) => {
     const o = opt.lead ? 0.4 : 0;
@@ -244,12 +325,16 @@ const SCENES = {
     <div class="btnwrap"><span class="btn a" data-fx="btn" data-in="${0.55 + o}" data-dur="0.45" data-press="${1.85 + o * 1.6}" data-sfx="pop"><span class="pulse a" data-fx="pulse" data-in="${2.0 + o * 1.6}"></span>まずは無料相談（60分）から<span class="ptr a" data-fx="ptr" data-in="${1.45 + o * 1.6}" data-press="${1.85 + o * 1.6}" data-sfx="click" data-sfxoff="0.4"></span></span></div>
     <p class="url a" data-fx="type" data-in="${0.95 + o * 1.2}" data-dur="0.55" data-text="${esc(b.url)}" data-sfx="type"></p>`;
   },
-  thumb: (f, b, opt = {}) => `<div class="big">${opt.hook ? '月末、また<br><span class="em">夜まで</span>事務作業？' : '事務の手間を、<br><span class="em">ITで</span>減らすお手伝い'}</div>
-    <p class="sub">山形で訪問・無料相談60分</p>
+  thumb: (f, b, opt = {}) => {
+    const j = b.japan;
+    return `<div class="big">${opt.hook ? '月末、また<br><span class="em">夜まで</span>事務作業？' : '事務の手間を、<br><span class="em">ITで</span>減らすお手伝い'}</div>
+    <p class="sub">山形から全国へ・無料相談60分</p>
     ${b.wordmarkUrl ? `<div class="wordmark" role="img" aria-label="${esc(b.name)}"></div>` : `<p class="sub">${esc(b.name)}</p>`}
-    ${opt.shot ? `<div class="win"><div class="bar"><i></i><i></i><i></i><div class="addr">${LOCK}demo.withsoegi.jp</div></div><div class="scr"><div class="zoom"><img src="${opt.shot}"></div></div></div>` : ''}`,
+    <svg class="jp map" viewBox="${j.viewBox}">${j.prefs.map((p) => `<path class="${p.name === 'Yamagata' ? 'home' : ''}" d="${p.d}"/>`).join('')}</svg>
+    ${[[150, 0.6], [300, 0.35], [480, 0.18]].map(([w, o]) => `<div class="thring" data-pin="${(j.yamagata[0] / +j.viewBox.split(' ')[2]).toFixed(4)},${(j.yamagata[1] / +j.viewBox.split(' ')[3]).toFixed(4)}" style="width:${w}px;height:${w}px;margin:${-w / 2}px 0 0 ${-w / 2}px;opacity:${o}"></div>`).join('')}`;
+  },
 };
-const DEMO = new Set(['receipt', 'knowledge', 'inn']);
+const FEAT = new Set(['receipt', 'search', 'inquiry']);
 const DARK = new Set(['s1']);
 
 let plan = null;
@@ -259,36 +344,41 @@ const E = {
   cubic: (k) => 1 - Math.pow(1 - k, 3),
   back: (k) => { const c1 = 2.0, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); },
   inout: (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2),
-  bounce: (k) => { const n = 7.5625, d = 2.75; if (k < 1 / d) return n * k * k; if (k < 2 / d) return n * (k -= 1.5 / d) * k + 0.75; if (k < 2.5 / d) return n * (k -= 2.25 / d) * k + 0.9375; return n * (k -= 2.625 / d) * k + 0.984375; },
 };
 const WIPE = 0.34; // 切り替えの帯が横切る時間の半分
+const mixc = (a, b, k) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * k)).join(',')})`;
 
-window.setup = (p) => {
+window.setup = async (p) => {
   plan = p;
   document.body.className = p.format === 'sq' ? 'sq' : 'v';
   const b = p.brand;
   if (b.wordmarkUrl) document.documentElement.style.setProperty('--wm', `url("${b.wordmarkUrl}")`);
   const stage = document.getElementById('stage');
   const sq = p.format === 'sq';
-  const W = sq ? 1080 : 1080, H = sq ? 1080 : 1920;
   stage.innerHTML = `<div class="bg"><div class="dots"></div>
       <div class="blob" id="blob1" style="width:${sq ? 620 : 900}px;height:${sq ? 620 : 900}px"></div>
       <div class="ring" id="ring1" style="width:${sq ? 760 : 1100}px;height:${sq ? 760 : 1100}px"></div>
       <div class="ring" id="ring2" style="width:${sq ? 300 : 420}px;height:${sq ? 300 : 420}px"></div></div>`
     + p.scenes.map((s, i) => {
       const dur = s.end - s.start;
-      const cls = `scene ${s.id} ${DEMO.has(s.id) ? 'demo' : ''} ${DARK.has(s.id) || s.opt?.dark ? 'dark' : ''} ${s.opt?.lead ? 'withlead' : ''}`;
+      const cls = `scene ${s.id} ${FEAT.has(s.id) ? 'feat' : ''} ${DARK.has(s.id) || s.opt?.dark ? 'dark' : ''} ${s.opt?.lead ? 'withlead' : ''}`;
       return `<section class="${cls}" data-i="${i}">${SCENES[s.id](p.format, b, { ...(s.opt || {}), dur })}</section>`;
     }).join('')
     + '<div class="wipe w2" id="wipe2"></div><div class="wipe w1" id="wipe1"></div>';
-  // 地図のピンの位置（地図の中の割合 → 画面の座標）。測るあいだだけ場面を表示する
+  // 測るあいだと、書体を読み込むあいだだけ、すべての場面を表示する
   document.querySelectorAll('.scene').forEach((el) => { el.style.display = 'block'; });
+  await Promise.all([document.fonts.load('700 30px "Noto Sans KR"', '가족탕은 예약이 필요한가요?'), document.fonts.load('700 30px "Noto Sans TC"', '晚餐可以對應雞蛋過敏嗎？')]);
+  await document.fonts.ready;
+  // 地図の上の印の位置（地図の中の割合 → 画面の座標）
   document.querySelectorAll('[data-pin]').forEach((el) => {
     const svg = el.parentElement.querySelector('svg.map');
     const r = svg.getBoundingClientRect(); const st = stage.getBoundingClientRect();
     const [px, py] = el.dataset.pin.split(',').map(Number);
-    el.style.left = `${r.left - st.left + r.width * px}px`; el.style.top = `${r.top - st.top + r.height * py}px`;
+    const [ox, oy] = (el.dataset.off || '0,0').split(',').map(Number);
+    el.style.left = `${r.left - st.left + r.width * px + ox}px`; el.style.top = `${r.top - st.top + r.height * py + oy}px`;
   });
+  // 効果の札は、正方形では中央に置く
+  if (sq) document.querySelectorAll('.eff').forEach((el) => { el.style.marginLeft = `${-el.offsetWidth / 2}px`; });
   document.querySelectorAll('.scene').forEach((el) => { el.style.display = 'none'; });
   // 効果音の一覧
   const cues = [];
@@ -297,7 +387,7 @@ window.setup = (p) => {
     el.querySelectorAll('[data-sfx]').forEach((a) => cues.push({ t: +(s.start + +(a.dataset.in || 0) + +(a.dataset.sfxoff || 0)).toFixed(3), sfx: a.dataset.sfx, scene: s.id }));
     if (s.start > 0) cues.push({ t: +(s.start - 0.3).toFixed(3), sfx: 'whoosh', scene: s.id });
   });
-  return document.fonts.ready.then(() => cues.sort((x, y) => x.t - y.t));
+  return cues.sort((x, y) => x.t - y.t);
 };
 
 function animate(a, lt, t) {
@@ -317,6 +407,27 @@ function animate(a, lt, t) {
       a.style.transform = `translateX(${-exit * 140}px) translateY(${(1 - E.expo(k)) * 60}px) scale(${0.82 + 0.18 * e})`;
       break;
     }
+    case 'effpop': { const e = E.back(k); a.style.opacity = clamp(k * 3); a.style.transform = `scale(${0.6 + 0.4 * e})`; a.style.transformOrigin = plan.format === 'sq' ? '50% 50%' : '0 50%'; break; }
+    case 'move': {
+      const [fx0, fy0] = a.dataset.from.split(',').map(Number); const e = E.expo(k);
+      a.style.opacity = clamp(k * 3); a.style.transform = `translate(${(1 - e) * fx0}px, ${(1 - e) * fy0}px)`; break;
+    }
+    case 'scan': {
+      const y = +a.dataset.y0 + (+a.dataset.y1 - +a.dataset.y0) * E.inout(k);
+      a.style.opacity = lt < t0 ? 0 : Math.min(1, Math.sin(Math.PI * k) * 3); a.style.transform = `translateY(${y}px)`; break;
+    }
+    case 'path': {
+      const pts = a.dataset.path.split(';').map((p) => p.split(',').map(Number));
+      const e = E.inout(k) * (pts.length - 1); const i = Math.min(pts.length - 2, Math.floor(e)); const f = e - i;
+      const x = pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f; const y = pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f;
+      a.style.opacity = lt < t0 ? 0 : (k < 1 ? 1 : Math.max(0, 1 - (lt - t0 - dur) / 0.25));
+      a.style.transform = `translate(${x}px, ${y}px)`; break;
+    }
+    case 'fly': {
+      const e = E.inout(k);
+      a.style.opacity = lt < t0 ? 0 : (k < 0.15 ? k / 0.15 : 1 - Math.max(0, (k - 0.7) / 0.3));
+      a.style.transform = `translate(${e * 160}px, ${-e * 520}px) rotate(${-e * 12}deg) scale(${1 - e * 0.4})`; break;
+    }
     case 'slam': {
       const e = E.back(k); a.style.opacity = clamp(k * 4);
       a.style.transform = `scale(${1.5 - 0.5 * e})`; a.style.transformOrigin = '0 70%';
@@ -328,25 +439,19 @@ function animate(a, lt, t) {
       a.style.transform = sq ? `scaleX(${e})` : `scaleY(${e})`; break;
     }
     case 'stamp': { const e = E.back(k); a.style.opacity = clamp(k * 3); a.style.transform = `rotate(${-28 + 16 * e}deg) scale(${1.8 - 0.8 * e})`; break; }
-    case 'device': {
-      const e = E.expo(k); const fl = Math.sin(t * 1.7) * 6 * e;
-      a.style.opacity = clamp(k * 3);
-      a.style.transform = `perspective(1600px) translateY(${(1 - e) * 260 + fl}px) rotateX(${(1 - e) * 22}deg) scale(${0.92 + 0.08 * e})`;
-      break;
+    case 'homepop': {
+      const e = E.back(clamp((lt - t0) / 0.5)); a.style.transformBox = 'fill-box'; a.style.transformOrigin = '50% 50%';
+      a.style.transform = `scale(${lt < t0 ? 0.001 : 0.5 + 0.5 * e})`; break;
     }
-    case 'zoom': {
-      const e = E.inout(k); const s = 1 + (+a.dataset.zs - 1) * e;
-      a.style.transformOrigin = `${a.dataset.zx * 100}% ${a.dataset.zy * 100}%`; a.style.transform = `scale(${s})`;
-      break;
+    case 'wavefill': {
+      // 山形から近い県ほど早く色が付く。付いた直後だけ少し濃くして、波が通ったように見せる
+      const base = [220, 228, 227], hit = [120, 190, 195], rest = [196, 226, 226];
+      const st = t0 + (+a.dataset.dist) * 1.3; const w = clamp((lt - st) / 0.25); const back = clamp((lt - st - 0.25) / 0.6);
+      const dark = a.closest('.dark');
+      if (dark) break;
+      a.style.fill = back > 0 ? mixc(hit, rest, E.cubic(back)) : mixc(base, hit, w); break;
     }
-    case 'tapd': a.style.opacity = lt < t0 ? 0 : Math.sin(Math.PI * k) * 1; a.style.transform = `scale(${0.6 + 0.4 * E.expo(k)})`; break;
-    case 'ripple': a.style.opacity = lt < t0 ? 0 : (1 - k) * 0.9; a.style.transform = `scale(${0.3 + 1.0 * E.expo(k)})`; break;
-    case 'chip': { const e = E.back(k); a.style.opacity = clamp(k * 3); a.style.transform = `translate(-50%, ${a.classList.contains('down') ? '-100%' : '0'}) scale(${0.5 + 0.5 * e})`; break; }
-    case 'drop': {
-      const e = E.bounce(k); a.style.opacity = clamp(k * 5);
-      a.style.transform = `translateY(${(e - 1) * 260}px)`; break;
-    }
-    case 'ring': { const n = lt < t0 ? -1 : ((lt - t0) % dur) / dur; a.style.opacity = n < 0 ? 0 : (1 - n) * 0.85; a.style.transform = `scale(${1 + n * 2.6})`; break; }
+    case 'ring': { const n = lt < t0 ? -1 : ((lt - t0) % dur) / dur; a.style.opacity = n < 0 ? 0 : (1 - n) * 0.85; a.style.transform = `scale(${1 + n * 5})`; break; }
     case 'wipe': { const e = E.expo(k); a.style.clipPath = `inset(0 ${(1 - e) * 100}% 0 0)`; break; }
     case 'btn': {
       const e = E.back(k); const press = +a.dataset.press; const pk = clamp((lt - press) / 0.22);
@@ -363,6 +468,7 @@ function animate(a, lt, t) {
     }
     case 'type': {
       const text = a.dataset.text; const n = Math.round(text.length * clamp((lt - t0) / dur));
+      if (a.dataset.nocaret) { const v = text.slice(0, n); if (a.textContent !== v) a.textContent = v; break; }
       const blink = lt < t0 ? 0 : (lt - t0 < dur + 0.2 ? 1 : (Math.floor((lt - t0) * 2.2) % 2 ? 0 : 1));
       a.innerHTML = esc(text.slice(0, n)) + `<span class="caret" style="opacity:${blink}"></span>`;
       break;
@@ -379,9 +485,8 @@ function animate(a, lt, t) {
   }
 }
 
-// t 秒の画面にする。clips：{ knowledge: { a, b, mix }, inn: {...} }（画像のパス）
-window.renderAt = async (t, clips = {}) => {
-  const waits = [];
+// t 秒の画面にする
+window.renderAt = async (t) => {
   const st = document.documentElement.style;
   st.setProperty('--dx', `${(t * 18) % 44}px`); st.setProperty('--dy', `${(t * 26) % 44}px`);
   const sq = plan.format === 'sq'; const W = 1080, H = sq ? 1080 : 1920;
@@ -411,16 +516,7 @@ window.renderAt = async (t, clips = {}) => {
     if (!on) return;
     const lt = t - s.start;
     el.querySelectorAll('.a').forEach((a) => animate(a, lt, t));
-    const zoom = el.querySelector('.zoom[data-clip]');
-    if (zoom && clips[zoom.dataset.clip]) {
-      const c = clips[zoom.dataset.clip];
-      const [ia, ib] = zoom.querySelectorAll('img');
-      if (ia.getAttribute('src') !== c.a) { ia.src = c.a; waits.push(ia.decode().catch(() => {})); }
-      if (c.b) { if (ib.getAttribute('src') !== c.b) { ib.src = c.b; waits.push(ib.decode().catch(() => {})); } ib.style.opacity = c.mix; }
-      else ib.style.opacity = 0;
-    }
   });
-  await Promise.all(waits);
   return true;
 };
 </script>

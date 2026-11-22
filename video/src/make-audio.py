@@ -371,6 +371,10 @@ SFX = {
     'drop': (sfx_drop, 0.55, 0.0),
     'type': (sfx_type, 0.5, 0.0),
     'click': (sfx_click, 0.65, 0.0),
+    'scan': (lambda: sfx_whoosh(0.7, 900, 5000), 0.22, 0.0),
+    'tick': (sfx_tick, 0.45, 0.2),
+    'send': (lambda: sfx_whoosh(0.6, 700, 6000), 0.4, 0.3),
+    'wave': (lambda: sfx_whoosh(1.2, 120, 700), 0.45, 0.0),
 }
 
 
