@@ -1,0 +1,14 @@
+{
+  "name": "nodus-sns-video",
+  "private": true,
+  "type": "module",
+  "description": "SNS告知動画（縦30秒・縦15秒・正方形30秒・サムネイル）を HTML → Playwright → ffmpeg で書き出す",
+  "scripts": {
+    "receipts": "node src/make-receipts.mjs",
+    "record": "node src/record-demo.mjs",
+    "render": "node src/render.mjs"
+  },
+  "devDependencies": {
+    "@fontsource/biz-udpgothic": "5.3.0"
+  }
+}
