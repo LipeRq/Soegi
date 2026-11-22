@@ -127,6 +127,30 @@ const scripts = {
     await page.waitForTimeout(2000);
     mark('check');
   },
+  // 社内ナレッジ検索：社長の例文（見積書の単価）を押す → 答え → 根拠の見積書
+  async knowledge({ page, start, mark }) {
+    if (!process.env.DEMO_PASS) throw new Error('DEMO_PASS が要ります');
+    await page.goto(`${BASE}/knowledge.html`, { waitUntil: 'networkidle' });
+    await page.evaluate(() => document.fonts.ready);
+    if (!page.url().includes('knowledge')) throw new Error('合言葉の画面に戻されました: ' + page.url());
+    const ex = page.locator('#roles button', { hasText: 'ラ・フランスジャム' }).first();
+    await ex.scrollIntoViewIfNeeded();
+    await smoothScrollTo(page, await ex.evaluate((el) => el.getBoundingClientRect().top + scrollY - 90), 10);
+    await page.waitForTimeout(800); // 例文の札が順に出る動きを待つ
+    await start();
+    mark('ready');
+    await page.waitForTimeout(1200);
+    mark('click');
+    await ex.click();
+    await page.waitForSelector('#chatlog .msg.bot:not(.wait) .cites button', { timeout: 120000 });
+    mark('answer');
+    await page.waitForTimeout(3500); // 答えの文字が出そろうまで
+    mark('answer-done');
+    await page.locator('#chatlog .msg.bot:not(.wait) .cites button').last().click();
+    mark('cite');
+    await page.waitForTimeout(3500);
+    mark('evidence');
+  },
 };
 
 const which = process.argv.slice(2);

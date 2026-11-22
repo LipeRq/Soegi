@@ -46,6 +46,7 @@ DEMO_PASS=<合言葉> node src/record-demo.mjs   # demo.withsoegi.jp を操作�
 npm run render                               # 動画とサムネイル → out/
 ```
 
+- 使っている録画（`assets/rec/knowledge`・`assets/rec/inn`）はリポジトリに入っている。名前・URLを変えるだけなら、撮り直さなくてよい。
 - 録画を撮り直したら、`assets/rec/<名前>/log.json` の `marks`（操作の時刻）を見て、`src/edl.json` の使う区間を直す。
 - 合言葉はファイルに書かず、環境変数で渡す。
 - Playwright は、この環境に入っているものを使う（`src/pw.mjs`）。
@@ -60,6 +61,17 @@ npm run render                               # 動画とサムネイル → out/
 | `src/record-demo.mjs` | デモの録画 |
 | `src/make-receipts.mjs` | 架空のレシート画像（店・番号は架空。登録番号は実在しない `T0000000000001` の形） |
 | `assets/yamagata.svg` | 山形県の輪郭（Natural Earth の行政区画データから作成。パブリックドメイン） |
+
+## レシートの場面について
+
+当初はレシート → Excel の場面にする予定でした。2026-11-22 に本番（demo.withsoegi.jp）の読み取りが、外部サービスの 400 エラーで動かなかったため、社内ナレッジ検索（見積書の単価）の場面に替えています。
+
+本番が直ったら、次の手順でレシートの場面に戻せます。
+
+1. `DEMO_PASS=<合言葉> node src/record-demo.mjs receipt` で録る。
+2. `src/edl.json` の `receipt` に、使う区間を書く（`"5"` と `"4"` の2つ）。
+3. `src/render.mjs` の場面の `knowledge` を `receipt` に戻す。`src/stage.html` の困りごとのカード（「見積書の単価さがし」）も「レシートの入力」に戻す。
+4. `npm run render`。投稿文（`posts.md`）も直す。
 
 ## 縦動画の決まり
 

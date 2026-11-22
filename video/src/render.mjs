@@ -29,13 +29,14 @@ const edl = JSON.parse(readFileSync(path.join(here, 'edl.json'), 'utf8'));
 
 const V30 = [
   { id: 's1', start: 0, end: 3 }, { id: 's2', start: 3, end: 8 },
-  { id: 'receipt', start: 8, end: 13 }, { id: 'inn', start: 13, end: 18 },
+  // レシートの場面（id: 'receipt'）は、本番の読み取りが直るまで社内検索（'knowledge'）に替えている
+  { id: 'knowledge', start: 8, end: 13 }, { id: 'inn', start: 13, end: 18 },
   { id: 's5', start: 18, end: 23 }, { id: 's6', start: 23, end: 27 }, { id: 's7', start: 27, end: 30 },
 ];
 const FORMATS = {
   v30: { format: 'v', size: [1080, 1920], duration: 30, scenes: V30 },
   v15: { format: 'v', size: [1080, 1920], duration: 15, scenes: [
-    { id: 's1', start: 0, end: 2 }, { id: 'receipt', start: 2, end: 6 }, { id: 'inn', start: 6, end: 10 },
+    { id: 's1', start: 0, end: 2 }, { id: 'knowledge', start: 2, end: 6 }, { id: 'inn', start: 6, end: 10 },
     { id: 's7', start: 10, end: 15, opt: { lead: '山形で、訪問してお手伝いします' } },
   ] },
   sq30: { format: 'sq', size: [1080, 1080], duration: 30, scenes: V30 },
@@ -94,7 +95,7 @@ async function openStage(browser, size, planObj) {
 async function renderVideo(browser, key) {
   const f = FORMATS[key];
   f._clips = {};
-  for (const s of f.scenes) if (s.id === 'receipt' || s.id === 'inn') f._clips[s.id] = clipFrames(s.id, s.end - s.start);
+  for (const s of f.scenes) if (['receipt', 'knowledge', 'inn'].includes(s.id)) f._clips[s.id] = clipFrames(s.id, s.end - s.start);
   const planObj = { format: f.format, duration: f.duration, scenes: f.scenes, brand };
   const dir = path.join(work, key);
   rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });

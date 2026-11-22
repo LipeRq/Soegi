@@ -1,3 +1,1 @@
 node_modules/
-# 録画のコマ（撮り直せる）。仕上がりの動画は out/ に置く
-assets/rec/

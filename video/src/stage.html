@@ -111,11 +111,13 @@ const NOTE = '画面は架空のデータです（待ち時間は短く編集）
 const SCENES = {
   s1: () => `<div class="big"><span class="a" data-in="0.1">月末、また</span><br><span class="a" data-in="0.45"><span class="em">夜まで</span>事務作業？</span></div>`,
   s2: () => `<h2 class="a" data-in="0.05">こんな手間、ありませんか</h2>
-    <div class="card c1 a" data-in="0.5"><i></i>レシートの入力</div>
+    <div class="card c1 a" data-in="0.5"><i></i>見積書の単価さがし</div>
     <div class="card c2 a" data-in="1.8"><i></i>残業の集計</div>
     <div class="card c3 a" data-in="3.1"><i></i>外国語の問い合わせ</div>`,
   receipt: () => `<div class="big a" data-in="0.05">レシートの写真が、<br>Excelの表に。</div>
     <div class="shot a" data-in="0.25" data-clip="receipt"><img class="a0"><img class="b"></div><p class="note a" data-in="0.25">${NOTE}</p>`,
+  knowledge: () => `<div class="big a" data-in="0.05">過去の見積書から、<br>根拠付きで答える。</div>
+    <div class="shot a" data-in="0.25" data-clip="knowledge"><img class="a0"><img class="b"></div><p class="note a" data-in="0.25">${NOTE}</p>`,
   inn: () => `<div class="big a" data-in="0.05">返信の下書きは、自動で。<br>確認は、<span class="em">人が。</span></div>
     <div class="shot a" data-in="0.25" data-clip="inn"><img class="a0"><img class="b"></div><p class="note a" data-in="0.25">${NOTE}</p>`,
   s5: (f) => `${f === 'sq' ? '<div class="head a" data-in="0.05">進め方</div>' : ''}
@@ -136,7 +138,7 @@ const SCENES = {
     <p class="sub">山形で訪問・無料相談60分</p>
     ${b.wordmarkUrl ? `<div class="wordmark" role="img" aria-label="${esc(b.name)}"></div>` : `<p class="big">${esc(b.name)}</p>`}`,
 };
-const DEMO = new Set(['receipt', 'inn']);
+const DEMO = new Set(['receipt', 'knowledge', 'inn']);
 
 let plan = null; // { format, scenes: [{ id, start, end, opt }] }
 const clamp = (x) => Math.max(0, Math.min(1, x));
