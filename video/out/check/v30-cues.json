@@ -1,0 +1,147 @@
+[
+ {
+  "t": 0,
+  "sfx": "ticks",
+  "scene": "s1"
+ },
+ {
+  "t": 0.62,
+  "sfx": "slam",
+  "scene": "s1"
+ },
+ {
+  "t": 2.7,
+  "sfx": "whoosh",
+  "scene": "s2"
+ },
+ {
+  "t": 3.45,
+  "sfx": "pop",
+  "scene": "s2"
+ },
+ {
+  "t": 4.45,
+  "sfx": "pop",
+  "scene": "s2"
+ },
+ {
+  "t": 5.45,
+  "sfx": "pop",
+  "scene": "s2"
+ },
+ {
+  "t": 7.7,
+  "sfx": "whoosh",
+  "scene": "knowledge"
+ },
+ {
+  "t": 8.2,
+  "sfx": "rise",
+  "scene": "knowledge"
+ },
+ {
+  "t": 8.75,
+  "sfx": "tap",
+  "scene": "knowledge"
+ },
+ {
+  "t": 11.2,
+  "sfx": "zoom",
+  "scene": "knowledge"
+ },
+ {
+  "t": 11.55,
+  "sfx": "pop",
+  "scene": "knowledge"
+ },
+ {
+  "t": 12.7,
+  "sfx": "whoosh",
+  "scene": "inn"
+ },
+ {
+  "t": 13.2,
+  "sfx": "rise",
+  "scene": "inn"
+ },
+ {
+  "t": 13.75,
+  "sfx": "tap",
+  "scene": "inn"
+ },
+ {
+  "t": 16.3,
+  "sfx": "zoom",
+  "scene": "inn"
+ },
+ {
+  "t": 16.65,
+  "sfx": "pop",
+  "scene": "inn"
+ },
+ {
+  "t": 17.7,
+  "sfx": "whoosh",
+  "scene": "s5"
+ },
+ {
+  "t": 18.35,
+  "sfx": "pop",
+  "scene": "s5"
+ },
+ {
+  "t": 18.85,
+  "sfx": "stamp",
+  "scene": "s5"
+ },
+ {
+  "t": 19.35,
+  "sfx": "pop",
+  "scene": "s5"
+ },
+ {
+  "t": 20.35,
+  "sfx": "pop",
+  "scene": "s5"
+ },
+ {
+  "t": 20.75,
+  "sfx": "check",
+  "scene": "s5"
+ },
+ {
+  "t": 22.7,
+  "sfx": "whoosh",
+  "scene": "s6"
+ },
+ {
+  "t": 23.05,
+  "sfx": "draw",
+  "scene": "s6"
+ },
+ {
+  "t": 24.05,
+  "sfx": "drop",
+  "scene": "s6"
+ },
+ {
+  "t": 26.7,
+  "sfx": "whoosh",
+  "scene": "s7"
+ },
+ {
+  "t": 27.55,
+  "sfx": "pop",
+  "scene": "s7"
+ },
+ {
+  "t": 27.95,
+  "sfx": "type",
+  "scene": "s7"
+ },
+ {
+  "t": 28.85,
+  "sfx": "click",
+  "scene": "s7"
+ }
+]

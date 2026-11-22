@@ -10,9 +10,9 @@ import path from 'node:path';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, '..');
 const BASE = 'https://demo.withsoegi.jp';
-// 動画の中の枠に合わせた画面の大きさ（CSSピクセル）。2倍で撮るので 860×900 の画像になる
+// 動画の中の枠に合わせた画面の大きさ（CSSピクセル）。3倍で撮るので 1290×1350 の画像になる
 const VIEW = { width: 430, height: 450 };
-const SCALE = 2;
+const SCALE = 3; // 拡大の演出でもぼやけないよう、3倍で撮る
 
 async function record(name, script) {
   const dir = path.join(root, 'assets', 'rec', name);

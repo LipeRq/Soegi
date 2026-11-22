@@ -11,10 +11,20 @@
 | `nodus-sq30.mp4` | 正方形 1080×1080・30秒（Facebook・X） |
 | `thumb-v30.png`／`thumb-v15.png`／`thumb-sq30.png` | サムネイル |
 | `check/<版>-<場面>.png` | 確認用：各場面の、文字が出そろった所の1枚 |
+| `check/<版>-cues.json` | 確認用：効果音を鳴らした時刻の一覧 |
 
 投稿文の案は `posts.md`。
 
-すべて 30fps・H.264（High）・yuv420p。BGMは入れていません（音声は無音のトラックだけ。音声トラックの無い動画を受け付けない投稿先があるため）。
+- 映像：60fps・H.264（High、level 4.2）・yuv420p・CRF 14（見た目で劣化が分からない画質）。
+- 音声：BGMと効果音入り。AAC 256kbps・48kHz・ステレオ。音量は -14 LUFS、最大 -2 dBFS 前後（投稿先で再変換されても割れにくい値）。
+
+## BGM・効果音の出典
+
+**すべて自作です。** `src/make-audio.py` が、外部の音源を使わずに一から合成しています（乱数の種を固定しているので、毎回同じ音になります）。著作権・利用条件の心配はありません。
+
+- BGM：120BPM・ハ長調（Fmaj7 → G6 → Em7 → Am7）。場面に合わせて、静か（冒頭）→ リズム → 全体 → 落ち着く（山形の場面）→ 最後の一打、と変わる。流れは `src/render.mjs` の `music`。
+- 効果音：場面の切り替え（風切り音）、カード・吹き出し（ポン）、タップ、拡大、スタンプ、チェック、ピン、URLの入力、ボタンの押下（クリックと鐘）。鳴らす時刻は `src/stage.html` の `data-sfx`。
+- 音を作り直すときは、Python 3 と numpy・scipy が要る（`pip install numpy scipy`）。
 
 ## 名前・URLを差し替える
 
@@ -31,7 +41,7 @@
 2. 書き出し直す。
 
    ```bash
-   cd video && npm install && npm run render
+   cd video && npm install && pip install numpy scipy && npm run render
    ```
 
 3. `posts.md` の名前・URLは、手で書き換える。
@@ -55,10 +65,11 @@ npm run render                               # 動画とサムネイル → out/
 
 | ファイル | 役割 |
 |---|---|
-| `src/stage.html` | 場面の部品と配置（縦と正方形）。色は withsoegi.jp に合わせてある |
-| `src/render.mjs` | 版ごとの場面と秒数、書き出し |
+| `src/stage.html` | 場面の部品・動き・配置（縦と正方形）と、効果音の時刻。色は withsoegi.jp に合わせてある。光る演出は使っていない |
+| `src/render.mjs` | 版ごとの場面と秒数・BGMの流れ、書き出し（4並列で1コマずつ撮る。縦30秒で約2分） |
+| `src/make-audio.py` | BGMと効果音の合成 |
 | `src/edl.json` | 録画のどこを何秒使うか |
-| `src/record-demo.mjs` | デモの録画 |
+| `src/record-demo.mjs` | デモの録画（拡大してもぼやけないよう、画面の3倍の細かさで撮る） |
 | `src/make-receipts.mjs` | 架空のレシート画像（店・番号は架空。登録番号は実在しない `T0000000000001` の形） |
 | `assets/yamagata.svg` | 山形県の輪郭（Natural Earth の行政区画データから作成。パブリックドメイン） |
 

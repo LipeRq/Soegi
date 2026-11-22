@@ -1,0 +1,82 @@
+[
+ {
+  "t": 0,
+  "sfx": "ticks",
+  "scene": "s1"
+ },
+ {
+  "t": 0.62,
+  "sfx": "slam",
+  "scene": "s1"
+ },
+ {
+  "t": 1.7,
+  "sfx": "whoosh",
+  "scene": "knowledge"
+ },
+ {
+  "t": 2.2,
+  "sfx": "rise",
+  "scene": "knowledge"
+ },
+ {
+  "t": 2.66,
+  "sfx": "tap",
+  "scene": "knowledge"
+ },
+ {
+  "t": 4.45,
+  "sfx": "zoom",
+  "scene": "knowledge"
+ },
+ {
+  "t": 4.8,
+  "sfx": "pop",
+  "scene": "knowledge"
+ },
+ {
+  "t": 5.7,
+  "sfx": "whoosh",
+  "scene": "inn"
+ },
+ {
+  "t": 6.2,
+  "sfx": "rise",
+  "scene": "inn"
+ },
+ {
+  "t": 6.55,
+  "sfx": "tap",
+  "scene": "inn"
+ },
+ {
+  "t": 8.6,
+  "sfx": "zoom",
+  "scene": "inn"
+ },
+ {
+  "t": 8.95,
+  "sfx": "pop",
+  "scene": "inn"
+ },
+ {
+  "t": 9.7,
+  "sfx": "whoosh",
+  "scene": "s7"
+ },
+ {
+  "t": 10.95,
+  "sfx": "pop",
+  "scene": "s7"
+ },
+ {
+  "t": 11.43,
+  "sfx": "type",
+  "scene": "s7"
+ },
+ {
+  "t": 12.49,
+  "sfx": "click",
+  "scene": "s7"
+ }
+]
