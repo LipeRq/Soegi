@@ -15,7 +15,16 @@
 | `check/<版>-<場面>.png` | 確認用：各場面の、文字が出そろった所の1枚 |
 | `check/<版>-cues.json` | 確認用：効果音を鳴らした時刻の一覧 |
 
-投稿文の案は `posts.md`。
+投稿文の案は `posts.md`。Googleビジネスプロフィール・Instagram・X の登録内容の案は `profiles.md`。
+
+登録に使う画像（`out/profile/`、`npm run profile-images` でつくる）：
+
+| ファイル | 使う所 |
+|---|---|
+| `icon.png`／`icon-light.png` | プロフィール画像・ロゴ（1080×1080。丸く切り取られても欠けない） |
+| `gbp-cover.png` | Googleビジネスプロフィールのカバー（1920×1080） |
+| `x-header.png` | X のヘッダー（1500×500。左下はプロフィール画像で隠れるので、文字は右寄せ） |
+| `highlight-1〜5-*.png` | Instagram のハイライトの表紙（1080×1920。中央の丸に絵） |
 
 - 映像：60fps・H.264（High、level 4.2）・yuv420p・CRF 14（見た目で劣化が分からない画質）。
 - 音声：BGMと効果音入り。AAC 256kbps・48kHz・ステレオ。音量は -14 LUFS、最大 -1.5〜-2 dBFS 前後（投稿先で再変換されても割れにくい値）。
@@ -78,6 +87,8 @@
 | `src/make-audio.py` | BGMと効果音の合成 |
 | `src/make-japan.py` | 日本地図（都道府県）を `assets/japan.json` にする。元データは Natural Earth の行政区画（パブリックドメイン）。作り直すときは `ne_10m_admin_1_states_provinces.geojson` を渡す |
 | `src/count-x.mjs` | X 用の投稿文の文字数を数える |
+| `src/count-profiles.mjs` | `profiles.md` の自己紹介・説明の文字数を数える |
+| `src/profile-images.mjs` | 登録に使う画像をつくる |
 | `src/pw.mjs` | この環境に入っている Playwright を読み込む |
 
 書体：BIZ UDPGothic、Noto Sans KR、Noto Sans TC（いずれも SIL OFL 1.1、`npm install` で入る）。
