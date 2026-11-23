@@ -69,7 +69,7 @@ out = []
 for pr in prefs:
     d = ' '.join('M' + 'L'.join(f'{x:.1f} {y:.1f}' for x, y in map(tp, r)) + 'Z' for r in pr['rings'])
     c = tp(centroid(pr['rings']))
-    out.append({'name': pr['name'], 'd': d, 'dist': math.hypot(c[0] - yc[0], c[1] - yc[1])})
+    out.append({'name': pr['name'], 'd': d, 'dist': math.hypot(c[0] - yc[0], c[1] - yc[1]), 'c': [round(c[0], 1), round(c[1], 1)]})
 mx = max(o['dist'] for o in out)
 for o in out: o['dist'] = round(o['dist'] / mx, 3)
 oki = [tp(p) for pr in prefs if pr['name'] == 'Okinawa' for r in pr['rings'] for p in r]

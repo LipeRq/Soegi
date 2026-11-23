@@ -42,11 +42,28 @@ const FORMATS = {
     { id: 's7', start: 11, end: 15, opt: { lead: '山形を中心に、全国の企業を支援' } },
   ], music: [{ from: 0, to: 2, mode: 'intro' }, { from: 2, to: 11, mode: 'full' }, { from: 11, to: 15, mode: 'outro' }] },
   sq30: { format: 'sq', size: [1080, 1080], duration: 30, scenes: V30, music: V30_MUSIC },
+  // Instagram 初日 ①：はじめまして（文言は ig-day1.md と同じ）
+  ig1: { format: 'v', size: [1080, 1920], duration: 15, scenes: [
+    { id: 'darkhook', start: 0, end: 3, opt: { lines: ['はじめまして。'], who: '代表 <b>稲村 圭太</b>（山形県在住）', logo: true } },
+    { id: 'career', start: 3, end: 7.5, opt: { head: ['山形在住の、IT屋です'], items: ['山形でシステムエンジニア', '東京でITコンサルタント', 'いま、山形を拠点に'] } },
+    { id: 'cards', start: 7.5, end: 11, opt: { head: ['大事にしていること'], items: ['結果を見て、決める', '話した人が、つくる', '手順書を残す'], icons: ['chk', 'chat', 'doc'] } },
+    { id: 'igcta', start: 11, end: 15, opt: { head: ['まずは無料相談（60分）'], sub: '相談の時点では、提案しません', btn: 'プロフィールのリンクから', foot: '' } },
+  ], music: [{ from: 0, to: 3, mode: 'intro' }, { from: 3, to: 11, mode: 'full' }, { from: 11, to: 15, mode: 'outro' }] },
+  // Instagram 初日 ③：進め方と料金
+  ig3: { format: 'v', size: [1080, 1920], duration: 16, scenes: [
+    { id: 'darkhook', start: 0, end: 2.5, opt: { lines: ['結局、', 'いくらかかるの？'] } },
+    { id: 'pricestep', start: 2.5, end: 6, opt: { label: '① 無料相談（60分）', big: '0円', sub: ['県内は訪問、県外はオンライン'] } },
+    { id: 'pricestep', start: 6, end: 9.5, opt: { label: '② お試し導入（1ヶ月）', big: '5万円', small: '（税抜）', sub: ['1つの業務で試す'] } },
+    { id: 'pricestep', start: 9.5, end: 13, opt: { label: '③ 数字を見て、決める', check: true, sub: ['割に合わなければ終了'], note: ['続けるなら月5万円（税抜）'] } },
+    { id: 'igcta', start: 13, end: 16, opt: { head: ['まずは無料相談（60分）'], sub: '料金の一覧もサイトに', btn: 'プロフィールのリンクから', foot: '' } },
+  ], music: [{ from: 0, to: 2.5, mode: 'intro' }, { from: 2.5, to: 13, mode: 'full' }, { from: 13, to: 16, mode: 'outro' }] },
 };
 const THUMBS = {
   v30: { format: 'v', size: [1080, 1920], opt: {} },
   v15: { format: 'v', size: [1080, 1920], opt: { hook: true, dark: true } },
   sq30: { format: 'sq', size: [1080, 1080], opt: {} },
+  ig1: { format: 'v', size: [1080, 1920], opt: { title: 'はじめまして。<br><span class="em">代表の稲村</span>です', sub: '山形から全国へ・無料相談60分' } },
+  ig3: { format: 'v', size: [1080, 1920], opt: { title: '料金は、すべて<br><span class="em">公開しています</span>', sub: 'お試し1ヶ月5万円（税抜）' } },
 };
 
 async function openStage(browser, size, planObj) {
@@ -119,7 +136,7 @@ async function renderThumb(browser, key) {
 }
 
 const args = process.argv.slice(2);
-const want = args.length ? args : ['v30', 'v15', 'sq30', 'thumbs'];
+const want = args.length ? args : ['v30', 'v15', 'sq30', 'ig1', 'ig3', 'thumbs'];
 mkdirSync(work, { recursive: true });
 const browser = await chromium.launch();
 try {

@@ -1,0 +1,62 @@
+[
+ {
+  "t": 0.15,
+  "sfx": "slam",
+  "scene": "darkhook"
+ },
+ {
+  "t": 2.7,
+  "sfx": "whoosh",
+  "scene": "career"
+ },
+ {
+  "t": 3.45,
+  "sfx": "pop",
+  "scene": "career"
+ },
+ {
+  "t": 3.9,
+  "sfx": "draw",
+  "scene": "career"
+ },
+ {
+  "t": 5.3,
+  "sfx": "draw",
+  "scene": "career"
+ },
+ {
+  "t": 7.2,
+  "sfx": "whoosh",
+  "scene": "cards"
+ },
+ {
+  "t": 7.95,
+  "sfx": "pop",
+  "scene": "cards"
+ },
+ {
+  "t": 8.7,
+  "sfx": "pop",
+  "scene": "cards"
+ },
+ {
+  "t": 9.45,
+  "sfx": "pop",
+  "scene": "cards"
+ },
+ {
+  "t": 10.7,
+  "sfx": "whoosh",
+  "scene": "igcta"
+ },
+ {
+  "t": 11.95,
+  "sfx": "pop",
+  "scene": "igcta"
+ },
+ {
+  "t": 13.05,
+  "sfx": "click",
+  "scene": "igcta"
+ }
+]

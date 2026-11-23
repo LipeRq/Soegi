@@ -186,6 +186,35 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .v .thumb.dark .wordmark { background: #fff; }
 .v .thumb .jp { position: absolute; left: 260px; top: 900px; height: 820px; }
 
+
+/* ---------- Instagram 初日の動画の部品（縦だけ） ---------- */
+.darkhook .big { position: absolute; left: 80px; top: 640px; font-size: 104px; }
+.darkhook .who { position: absolute; left: 80px; top: 1010px; font-size: 44px; color: rgba(255,255,255,.82); line-height: 1.5; }
+.darkhook .who b { color: var(--accent-bright); }
+.career .big, .cards .big, .pricestep .big, .igcta .big { position: absolute; left: 80px; top: 300px; font-size: 72px; }
+.career .jp { position: absolute; left: 330px; top: 440px; height: 700px; }
+.career .jp .arc { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.career .jp .pt { fill: #fff; stroke: var(--ink); stroke-width: 5; vector-effect: non-scaling-stroke; }
+.career .lbl { position: absolute; background: var(--ink); color: #fff; font-weight: 700; font-size: 32px; border-radius: 12px; padding: 6px 14px; white-space: nowrap; }
+.career .items { position: absolute; left: 80px; top: 1180px; width: 860px; height: 110px; }
+.career .items p { position: absolute; left: 0; top: 0; }
+.career .items p { font-size: 58px; font-weight: 700; line-height: 1; height: 110px; display: flex; align-items: center; gap: 22px; }
+.career .items p i { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); flex: none; }
+.career .items p.now { color: var(--accent); }
+.cards .card { position: absolute; left: 80px; width: 850px; height: 188px; display: flex; align-items: center; gap: 36px; padding: 0 40px; font-size: 60px; font-weight: 700; }
+.cards .c1 { top: 560px; } .cards .c2 { top: 778px; } .cards .c3 { top: 996px; }
+.pricestep .lbl { position: absolute; left: 80px; top: 470px; font-size: 60px; font-weight: 700; }
+.pricestep .num { position: absolute; left: 70px; top: 560px; font-size: 250px; font-weight: 700; color: var(--accent); letter-spacing: -.01em; line-height: 1.1; white-space: nowrap; }
+.pricestep .num small { display: block; font-size: 60px; color: var(--ink-2); margin: -10px 0 0 10px; letter-spacing: 0; line-height: 1.2; }
+.pricestep .sub { position: absolute; left: 80px; top: 960px; font-size: 52px; font-weight: 700; line-height: 1.45; }
+.pricestep .note { position: absolute; left: 80px; top: 1200px; font-size: 40px; color: var(--ink-2); line-height: 1.45; }
+.pricestep .bigchk { position: absolute; left: 80px; top: 560px; width: 230px; height: 230px; }
+.igcta .sub { position: absolute; left: 80px; top: 520px; font-size: 52px; color: var(--ink-2); }
+.igcta .wordmark { position: absolute; left: 80px; top: 680px; width: 720px; height: 118px; }
+.igcta .btnwrap { position: absolute; left: 80px; top: 900px; }
+.igcta .btn { height: 140px; padding: 0 50px; font-size: 54px; }
+.igcta .url { position: absolute; left: 80px; top: 1110px; font-size: 44px; color: var(--ink-2); font-weight: 400; }
+
 /* ---------- 正方形（1080×1080）：中央揃え。四方72px ---------- */
 .sq #stage { width: 1080px; height: 1080px; }
 .sq .scene { text-align: center; }
@@ -234,6 +263,8 @@ const ICONS = {
   doc: '<svg viewBox="0 0 48 48"><path class="a" data-fx="draw" data-dur="0.6" pathLength="1" d="M12 5h17l8 8v30H12z M29 5v8h8 M18 22h13 M18 29h13 M18 36h8"/></svg>',
   search: '<svg viewBox="0 0 48 48"><path class="a" data-fx="draw" data-dur="0.6" pathLength="1" d="M21 7a14 14 0 1 1 0 28a14 14 0 1 1 0-28z M31 31l10 10"/></svg>',
   chat: '<svg viewBox="0 0 48 48"><path class="a" data-fx="draw" data-dur="0.6" pathLength="1" d="M6 9h24v16H16l-6 5v-5H6z M34 17h8v16h-4v5l-6-5H20v-4"/></svg>',
+  chk: '<svg viewBox="0 0 48 48"><path class="a" data-fx="draw" data-dur="0.6" pathLength="1" d="M24 7a17 17 0 1 1 0 34a17 17 0 1 1 0-34z M16 24l6 6 11-12"/></svg>',
+  person: '<svg viewBox="0 0 48 48"><path class="a" data-fx="draw" data-dur="0.6" pathLength="1" d="M24 8a8 8 0 1 1 0 16a8 8 0 1 1 0-16z M9 42c2-8 8-12 15-12s13 4 15 12"/></svg>',
 };
 const DOWN = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v10M7.5 12.5L12 17l4.5-4.5"/></svg>';
 const PERSON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
@@ -325,17 +356,47 @@ const SCENES = {
     <div class="btnwrap"><span class="btn a" data-fx="btn" data-in="${0.55 + o}" data-dur="0.45" data-press="${1.85 + o * 1.6}" data-sfx="pop"><span class="pulse a" data-fx="pulse" data-in="${2.0 + o * 1.6}"></span>まずは無料相談（60分）から<span class="ptr a" data-fx="ptr" data-in="${1.45 + o * 1.6}" data-press="${1.85 + o * 1.6}" data-sfx="click" data-sfxoff="0.4"></span></span></div>
     <p class="url a" data-fx="type" data-in="${0.95 + o * 1.2}" data-dur="0.55" data-text="${esc(b.url)}" data-sfx="type"></p>`;
   },
+
+  // ---- Instagram 初日の動画（文言は render.mjs の opt から受け取る） ----
+  darkhook: (f, b, o) => `<div class="big">${o.lines.map((l, i) => `<span class="ln free"><span class="a" data-fx="slam" data-in="${(0.15 + i * 0.35).toFixed(2)}" data-dur="0.5" ${i === 0 ? 'data-sfx="slam"' : ''}>${l}</span></span>`).join('')}</div>
+    ${o.who ? `<p class="who a" data-fx="rise" data-in="${0.5 + o.lines.length * 0.35}">${o.who}</p>` : ''}
+    ${o.logo && b.wordmarkUrl ? `<div class="wordmark a" data-fx="wipe" data-in="${0.8 + o.lines.length * 0.35}" data-dur="0.6" style="position:absolute;left:80px;top:1110px;width:560px;height:92px;background:#fff"></div>` : ''}`,
+  career: (f, b, o) => {
+    const j = b.japan; const P = (n) => j.prefs.find((p) => p.name === n).c;
+    const [yx, yy] = P('Yamagata'); const [tx, ty] = P('Tokyo');
+    const vx = 430, vy = 330, vw = 440, vh = 500; // 東北・関東のあたり
+    return `<div class="big">${lines(o.head, 0.05)}</div>
+    <svg class="jp map a" data-fx="fade" data-in="0.1" viewBox="${vx} ${vy} ${vw} ${vh}">${j.prefs.map((p) => `<path class="${p.name === 'Yamagata' ? 'home' : ''}" d="${p.d}"/>`).join('')}
+      <path class="arc a" data-fx="draw" data-in="0.9" data-dur="0.7" data-sfx="draw" pathLength="1" d="M${yx} ${yy} Q${yx + 150} ${(yy + ty) / 2} ${tx} ${ty}"/>
+      <path class="arc a" data-fx="draw" data-in="2.3" data-dur="0.7" data-sfx="draw" pathLength="1" d="M${tx} ${ty} Q${tx - 170} ${(yy + ty) / 2} ${yx} ${yy}"/>
+      <circle class="pt a" data-fx="pop2" data-in="0.3" cx="${yx}" cy="${yy}" r="7"/><circle class="pt a" data-fx="pop2" data-in="1.55" cx="${tx}" cy="${ty}" r="7"/></svg>
+    <div class="lbl a" data-fx="pop" data-in="0.35" data-dur="0.4" data-pin="${((yx - vx) / vw).toFixed(4)},${((yy - vy) / vh).toFixed(4)}" data-off="-150,-70">山形</div>
+    <div class="lbl a" data-fx="pop" data-in="1.6" data-dur="0.4" data-pin="${((tx - vx) / vw).toFixed(4)},${((ty - vy) / vh).toFixed(4)}" data-off="34,-24">東京</div>
+    <div class="items">${o.items.map((t, i) => `<p class="a ${i === o.items.length - 1 ? 'now' : ''}" data-fx="pop" data-in="${[0.45, 1.7, 3.05][i]}" ${i < o.items.length - 1 ? `data-out="${[1.45, 2.8][i]}"` : ''} ${i === 0 ? 'data-sfx="pop"' : ''}><i></i>${t}</p>`).join('')}</div>`;
+  },
+  cards: (f, b, o) => `<div class="big">${lines(o.head, 0.05)}</div>
+    ${o.items.map((t, i) => `<div class="card c${i + 1} a" data-fx="pop" data-in="${(0.45 + i * 0.75).toFixed(2)}" data-sfx="pop"><span class="ico">${ICONS[o.icons[i]]}</span>${t}</div>`).join('')}`,
+  pricestep: (f, b, o) => `<p class="lbl">${lines([o.label], 0.05)}</p>
+    ${o.check ? `<svg class="bigchk" viewBox="0 0 60 60"><path class="chk a" data-fx="draw" data-in="0.35" data-dur="0.45" data-sfx="check" pathLength="1" d="M10 31l13 13 27-29"/></svg>`
+      : `<p class="num a" data-fx="slam" data-in="0.35" data-dur="0.5" data-sfx="stamp">${o.big}${o.small ? `<small>${o.small}</small>` : ''}</p>`}
+    <p class="sub a" data-fx="rise" data-in="0.85">${o.sub.join('<br>')}</p>
+    ${o.note ? `<p class="note a" data-fx="rise" data-in="1.25">${o.note.join('<br>')}</p>` : ''}`,
+  igcta: (f, b, o) => `<div class="big">${lines(o.head, 0.05)}</div>
+    <p class="sub a" data-fx="rise" data-in="0.35">${o.sub}</p>
+    ${b.wordmarkUrl ? `<div class="wordmark a" data-fx="wipe" data-in="0.6" data-dur="0.6" role="img" aria-label="${esc(b.name)}"></div>` : ''}
+    <div class="btnwrap"><span class="btn a" data-fx="btn" data-in="0.95" data-dur="0.45" data-press="2.05" data-sfx="pop"><span class="pulse a" data-fx="pulse" data-in="2.2"></span>${o.btn}<span class="ptr a" data-fx="ptr" data-in="1.65" data-press="2.05" data-sfx="click" data-sfxoff="0.4"></span></span></div>
+    <p class="url a" data-fx="rise" data-in="1.2">${o.foot}</p>`,
   thumb: (f, b, opt = {}) => {
     const j = b.japan;
-    return `<div class="big">${opt.hook ? '月末、また<br><span class="em">夜まで</span>事務作業？' : '事務の手間を、<br><span class="em">ITで</span>減らすお手伝い'}</div>
-    <p class="sub">山形から全国へ・無料相談60分</p>
+    return `<div class="big">${opt.title ? opt.title : opt.hook ? '月末、また<br><span class="em">夜まで</span>事務作業？' : '事務の手間を、<br><span class="em">ITで</span>減らすお手伝い'}</div>
+    <p class="sub">${opt.sub || '山形から全国へ・無料相談60分'}</p>
     ${b.wordmarkUrl ? `<div class="wordmark" role="img" aria-label="${esc(b.name)}"></div>` : `<p class="sub">${esc(b.name)}</p>`}
     <svg class="jp map" viewBox="${j.viewBox}">${j.prefs.map((p) => `<path class="${p.name === 'Yamagata' ? 'home' : ''}" d="${p.d}"/>`).join('')}</svg>
     ${[[150, 0.6], [300, 0.35], [480, 0.18]].map(([w, o]) => `<div class="thring" data-pin="${(j.yamagata[0] / +j.viewBox.split(' ')[2]).toFixed(4)},${(j.yamagata[1] / +j.viewBox.split(' ')[3]).toFixed(4)}" style="width:${w}px;height:${w}px;margin:${-w / 2}px 0 0 ${-w / 2}px;opacity:${o}"></div>`).join('')}`;
   },
 };
 const FEAT = new Set(['receipt', 'search', 'inquiry']);
-const DARK = new Set(['s1']);
+const DARK = new Set(['s1', 'darkhook']);
 
 let plan = null;
 const clamp = (x) => Math.max(0, Math.min(1, x));
@@ -439,6 +500,7 @@ function animate(a, lt, t) {
       a.style.transform = sq ? `scaleX(${e})` : `scaleY(${e})`; break;
     }
     case 'stamp': { const e = E.back(k); a.style.opacity = clamp(k * 3); a.style.transform = `rotate(${-28 + 16 * e}deg) scale(${1.8 - 0.8 * e})`; break; }
+    case 'pop2': { const e = E.back(clamp((lt - t0) / 0.4)); a.style.transformBox = 'fill-box'; a.style.transformOrigin = '50% 50%'; a.style.transform = `scale(${lt < t0 ? 0.001 : e})`; break; }
     case 'homepop': {
       const e = E.back(clamp((lt - t0) / 0.5)); a.style.transformBox = 'fill-box'; a.style.transformOrigin = '50% 50%';
       a.style.transform = `scale(${lt < t0 ? 0.001 : 0.5 + 0.5 * e})`; break;

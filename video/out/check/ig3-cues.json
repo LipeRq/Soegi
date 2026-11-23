@@ -1,0 +1,52 @@
+[
+ {
+  "t": 0.15,
+  "sfx": "slam",
+  "scene": "darkhook"
+ },
+ {
+  "t": 2.2,
+  "sfx": "whoosh",
+  "scene": "pricestep"
+ },
+ {
+  "t": 2.85,
+  "sfx": "stamp",
+  "scene": "pricestep"
+ },
+ {
+  "t": 5.7,
+  "sfx": "whoosh",
+  "scene": "pricestep"
+ },
+ {
+  "t": 6.35,
+  "sfx": "stamp",
+  "scene": "pricestep"
+ },
+ {
+  "t": 9.2,
+  "sfx": "whoosh",
+  "scene": "pricestep"
+ },
+ {
+  "t": 9.85,
+  "sfx": "check",
+  "scene": "pricestep"
+ },
+ {
+  "t": 12.7,
+  "sfx": "whoosh",
+  "scene": "igcta"
+ },
+ {
+  "t": 13.95,
+  "sfx": "pop",
+  "scene": "igcta"
+ },
+ {
+  "t": 15.05,
+  "sfx": "click",
+  "scene": "igcta"
+ }
+]
