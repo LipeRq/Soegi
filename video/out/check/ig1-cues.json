@@ -5,28 +5,38 @@
   "scene": "darkhook"
  },
  {
-  "t": 2.7,
+  "t": 2.2,
   "sfx": "whoosh",
   "scene": "career"
  },
  {
-  "t": 3.45,
+  "t": 2.8,
   "sfx": "pop",
   "scene": "career"
  },
  {
-  "t": 3.9,
+  "t": 3.1,
   "sfx": "draw",
   "scene": "career"
  },
  {
-  "t": 5.3,
+  "t": 4.25,
   "sfx": "draw",
   "scene": "career"
+ },
+ {
+  "t": 5.7,
+  "sfx": "whoosh",
+  "scene": "cards"
+ },
+ {
+  "t": 6.45,
+  "sfx": "pop",
+  "scene": "cards"
  },
  {
   "t": 7.2,
-  "sfx": "whoosh",
+  "sfx": "pop",
   "scene": "cards"
  },
  {
@@ -35,27 +45,37 @@
   "scene": "cards"
  },
  {
-  "t": 8.7,
-  "sfx": "pop",
-  "scene": "cards"
- },
- {
-  "t": 9.45,
-  "sfx": "pop",
-  "scene": "cards"
- },
- {
-  "t": 10.7,
+  "t": 9.7,
   "sfx": "whoosh",
-  "scene": "igcta"
+  "scene": "cards"
+ },
+ {
+  "t": 10.45,
+  "sfx": "pop",
+  "scene": "cards"
+ },
+ {
+  "t": 11.2,
+  "sfx": "pop",
+  "scene": "cards"
  },
  {
   "t": 11.95,
   "sfx": "pop",
+  "scene": "cards"
+ },
+ {
+  "t": 13.2,
+  "sfx": "whoosh",
   "scene": "igcta"
  },
  {
-  "t": 13.05,
+  "t": 14.45,
+  "sfx": "pop",
+  "scene": "igcta"
+ },
+ {
+  "t": 15.55,
   "sfx": "click",
   "scene": "igcta"
  }

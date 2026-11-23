@@ -30,7 +30,7 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 /* 背景：ゆっくり流れる点の格子と、大きな輪 */
 .bg { position: absolute; inset: 0; }
 .dots { position: absolute; inset: -80px; background-image: radial-gradient(rgba(27,36,40,.13) 2.2px, transparent 2.6px); background-size: 44px 44px; background-position: var(--dx) var(--dy); }
-.ring { position: absolute; border-radius: 50%; border: 3px solid rgba(26,109,115,.16); }
+.ring { position: absolute; border-radius: 50%; border: 3px solid rgba(26,109,115,.08); }
 .blob { position: absolute; border-radius: 50%; background: rgba(220,240,240,.75); }
 
 .scene { position: absolute; inset: 0; display: none; }
@@ -154,7 +154,7 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .v .s1 .clock { position: absolute; left: 80px; top: 360px; font-size: 168px; }
 .v .s1 .big { position: absolute; left: 80px; top: 760px; font-size: 100px; }
 .v .s2 h2 { position: absolute; left: 80px; top: 400px; font-size: 64px; font-weight: 700; }
-.v .s2 .card { position: absolute; left: 80px; width: 850px; height: 188px; display: flex; align-items: center; gap: 36px; padding: 0 40px; font-size: 64px; font-weight: 700; }
+.v .s2 .card { position: absolute; left: 80px; width: 810px; height: 188px; display: flex; align-items: center; gap: 36px; padding: 0 40px; font-size: 64px; font-weight: 700; }
 .v .s2 .c1 { top: 560px; } .v .s2 .c2 { top: 778px; } .v .s2 .c3 { top: 996px; }
 .v .feat .big { position: absolute; left: 80px; top: 300px; font-size: 74px; }
 .v .feat .ill { left: 80px; top: 530px; }
@@ -179,12 +179,16 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .v .s7 .btn { height: 140px; padding: 0 50px; font-size: 56px; }
 .v .s7 .url { position: absolute; left: 80px; top: 1100px; font-size: 112px; }
 .v .s7.withlead .wordmark { top: 560px; } .v .s7.withlead .tag { top: 730px; } .v .s7.withlead .btnwrap { top: 890px; } .v .s7.withlead .url { top: 1100px; }
-.v .thumb .big { position: absolute; left: 80px; top: 330px; font-size: 96px; }
-.v .thumb .sub { position: absolute; left: 80px; top: 640px; font-size: 54px; font-weight: 700; color: var(--accent); }
+.v .thumb .big { position: absolute; left: 80px; top: 420px; font-size: 96px; }
+.v .thumb .sub { position: absolute; left: 80px; top: 760px; font-size: 62px; font-weight: 700; color: var(--accent); }
 .v .thumb.dark .sub { color: var(--accent-bright); }
-.v .thumb .wordmark { position: absolute; left: 80px; top: 760px; width: 520px; height: 86px; }
+.v .thumb .wordmark { position: absolute; left: 80px; top: 880px; width: 560px; height: 92px; }
+.v .thumb .prices { position: absolute; left: 80px; top: 1040px; }
+.v .thumb .prices p { display: flex; align-items: baseline; gap: 30px; margin-bottom: 10px; }
+.v .thumb .prices span { font-size: 54px; font-weight: 700; color: var(--ink-2); width: 300px; }
+.v .thumb .prices b { font-size: 170px; color: var(--accent); line-height: 1.1; }
 .v .thumb.dark .wordmark { background: #fff; }
-.v .thumb .jp { position: absolute; left: 260px; top: 900px; height: 820px; }
+.v .thumb .jp { position: absolute; left: 260px; top: 1010px; height: 820px; }
 
 
 /* ---------- Instagram 初日の動画の部品（縦だけ） ---------- */
@@ -192,8 +196,8 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .darkhook .who { position: absolute; left: 80px; top: 1010px; font-size: 44px; color: rgba(255,255,255,.82); line-height: 1.5; }
 .darkhook .who b { color: var(--accent-bright); }
 .career .big, .cards .big, .pricestep .big, .igcta .big { position: absolute; left: 80px; top: 300px; font-size: 72px; }
-.career .jp { position: absolute; left: 330px; top: 440px; height: 700px; }
-.career .jp .arc { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.career .jp { position: absolute; left: 330px; top: 440px; height: 700px; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); }
+.career .jp .arc { fill: none; stroke: var(--accent); stroke-width: 4.5; stroke-linecap: round; }
 .career .jp .pt { fill: #fff; stroke: var(--ink); stroke-width: 5; vector-effect: non-scaling-stroke; }
 .career .lbl { position: absolute; background: var(--ink); color: #fff; font-weight: 700; font-size: 32px; border-radius: 12px; padding: 6px 14px; white-space: nowrap; }
 .career .items { position: absolute; left: 80px; top: 1180px; width: 860px; height: 110px; }
@@ -201,15 +205,16 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .career .items p { font-size: 58px; font-weight: 700; line-height: 1; height: 110px; display: flex; align-items: center; gap: 22px; }
 .career .items p i { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); flex: none; }
 .career .items p.now { color: var(--accent); }
-.cards .card { position: absolute; left: 80px; width: 850px; height: 188px; display: flex; align-items: center; gap: 36px; padding: 0 40px; font-size: 60px; font-weight: 700; }
+.cards .card { position: absolute; left: 80px; width: 810px; height: 188px; display: flex; align-items: center; gap: 36px; padding: 0 40px; font-size: 60px; font-weight: 700; }
 .cards .c1 { top: 560px; } .cards .c2 { top: 778px; } .cards .c3 { top: 996px; }
-.pricestep .lbl { position: absolute; left: 80px; top: 470px; font-size: 60px; font-weight: 700; }
-.pricestep .num { position: absolute; left: 70px; top: 560px; font-size: 250px; font-weight: 700; color: var(--accent); letter-spacing: -.01em; line-height: 1.1; white-space: nowrap; }
-.pricestep .num small { display: block; font-size: 60px; color: var(--ink-2); margin: -10px 0 0 10px; letter-spacing: 0; line-height: 1.2; }
-.pricestep .sub { position: absolute; left: 80px; top: 960px; font-size: 52px; font-weight: 700; line-height: 1.45; }
-.pricestep .note { position: absolute; left: 80px; top: 1200px; font-size: 40px; color: var(--ink-2); line-height: 1.45; }
+.pricestep .lbl { position: absolute; left: 80px; top: 560px; font-size: 60px; font-weight: 700; }
+.pricestep .num { position: absolute; left: 70px; top: 650px; font-size: 220px; font-weight: 700; color: var(--accent); letter-spacing: -.01em; line-height: 1.1; white-space: nowrap; }
+.pricestep .num small { font-size: 60px; color: var(--ink); margin-left: 12px; letter-spacing: 0; }
+.pricestep .sub { position: absolute; left: 80px; top: 1000px; font-size: 56px; font-weight: 700; line-height: 1.45; color: var(--ink); }
+.pricestep .note { position: absolute; left: 80px; top: 1110px; font-size: 44px; color: var(--ink-2); line-height: 1.45; }
+.pricestep .main { position: absolute; left: 80px; top: 680px; font-size: 92px; font-weight: 700; color: var(--accent); line-height: 1.3; }
 .pricestep .bigchk { position: absolute; left: 80px; top: 560px; width: 230px; height: 230px; }
-.igcta .sub { position: absolute; left: 80px; top: 520px; font-size: 52px; color: var(--ink-2); }
+.igcta .sub { position: absolute; left: 80px; top: 520px; font-size: 52px; font-weight: 700; color: var(--ink); }
 .igcta .wordmark { position: absolute; left: 80px; top: 680px; width: 720px; height: 118px; }
 .igcta .btnwrap { position: absolute; left: 80px; top: 900px; }
 .igcta .btn { height: 140px; padding: 0 50px; font-size: 54px; }
@@ -367,19 +372,19 @@ const SCENES = {
     const vx = 430, vy = 330, vw = 440, vh = 500; // 東北・関東のあたり
     return `<div class="big">${lines(o.head, 0.05)}</div>
     <svg class="jp map a" data-fx="fade" data-in="0.1" viewBox="${vx} ${vy} ${vw} ${vh}">${j.prefs.map((p) => `<path class="${p.name === 'Yamagata' ? 'home' : ''}" d="${p.d}"/>`).join('')}
-      <path class="arc a" data-fx="draw" data-in="0.9" data-dur="0.7" data-sfx="draw" pathLength="1" d="M${yx} ${yy} Q${yx + 150} ${(yy + ty) / 2} ${tx} ${ty}"/>
-      <path class="arc a" data-fx="draw" data-in="2.3" data-dur="0.7" data-sfx="draw" pathLength="1" d="M${tx} ${ty} Q${tx - 170} ${(yy + ty) / 2} ${yx} ${yy}"/>
-      <circle class="pt a" data-fx="pop2" data-in="0.3" cx="${yx}" cy="${yy}" r="7"/><circle class="pt a" data-fx="pop2" data-in="1.55" cx="${tx}" cy="${ty}" r="7"/></svg>
+      <path class="arc a" data-fx="draw" data-in="0.6" data-dur="0.6" data-sfx="draw" pathLength="1" d="M${yx} ${yy} Q${yx + 150} ${(yy + ty) / 2} ${tx} ${ty}"/>
+      <path class="arc a" data-fx="draw" data-in="1.75" data-dur="0.6" data-sfx="draw" pathLength="1" d="M${tx} ${ty} Q${tx - 170} ${(yy + ty) / 2} ${yx} ${yy}"/>
+      <circle class="pt a" data-fx="pop2" data-in="0.3" cx="${yx}" cy="${yy}" r="7"/><circle class="pt a" data-fx="pop2" data-in="1.2" cx="${tx}" cy="${ty}" r="7"/></svg>
     <div class="lbl a" data-fx="pop" data-in="0.35" data-dur="0.4" data-pin="${((yx - vx) / vw).toFixed(4)},${((yy - vy) / vh).toFixed(4)}" data-off="-150,-70">山形</div>
-    <div class="lbl a" data-fx="pop" data-in="1.6" data-dur="0.4" data-pin="${((tx - vx) / vw).toFixed(4)},${((ty - vy) / vh).toFixed(4)}" data-off="34,-24">東京</div>
-    <div class="items">${o.items.map((t, i) => `<p class="a ${i === o.items.length - 1 ? 'now' : ''}" data-fx="pop" data-in="${[0.45, 1.7, 3.05][i]}" ${i < o.items.length - 1 ? `data-out="${[1.45, 2.8][i]}"` : ''} ${i === 0 ? 'data-sfx="pop"' : ''}><i></i>${t}</p>`).join('')}</div>`;
+    <div class="lbl a" data-fx="pop" data-in="1.25" data-dur="0.4" data-pin="${((tx - vx) / vw).toFixed(4)},${((ty - vy) / vh).toFixed(4)}" data-off="34,-24">東京</div>
+    <div class="items">${o.items.map((t, i) => `<p class="a ${i === o.items.length - 1 ? 'now' : ''}" data-fx="pop" data-in="${[0.3, 1.3, 2.4][i]}" ${i < o.items.length - 1 ? `data-out="${[1.05, 2.15][i]}"` : ''} ${i === 0 ? 'data-sfx="pop"' : ''}><i></i>${t}</p>`).join('')}</div>`;
   },
   cards: (f, b, o) => `<div class="big">${lines(o.head, 0.05)}</div>
     ${o.items.map((t, i) => `<div class="card c${i + 1} a" data-fx="pop" data-in="${(0.45 + i * 0.75).toFixed(2)}" data-sfx="pop"><span class="ico">${ICONS[o.icons[i]]}</span>${t}</div>`).join('')}`,
   pricestep: (f, b, o) => `<p class="lbl">${lines([o.label], 0.05)}</p>
-    ${o.check ? `<svg class="bigchk" viewBox="0 0 60 60"><path class="chk a" data-fx="draw" data-in="0.35" data-dur="0.45" data-sfx="check" pathLength="1" d="M10 31l13 13 27-29"/></svg>`
+    ${o.main ? `<div class="main">${lines(o.main, 0.35, 0.15, 'check')}</div>`
       : `<p class="num a" data-fx="slam" data-in="0.35" data-dur="0.5" data-sfx="stamp">${o.big}${o.small ? `<small>${o.small}</small>` : ''}</p>`}
-    <p class="sub a" data-fx="rise" data-in="0.85">${o.sub.join('<br>')}</p>
+    <p class="sub a" data-fx="rise" data-in="0.85" style="${o.main ? 'top:1000px' : ''}">${o.sub.join('<br>')}</p>
     ${o.note ? `<p class="note a" data-fx="rise" data-in="1.25">${o.note.join('<br>')}</p>` : ''}`,
   igcta: (f, b, o) => `<div class="big">${lines(o.head, 0.05)}</div>
     <p class="sub a" data-fx="rise" data-in="0.35">${o.sub}</p>
@@ -388,11 +393,12 @@ const SCENES = {
     <p class="url a" data-fx="rise" data-in="1.2">${o.foot}</p>`,
   thumb: (f, b, opt = {}) => {
     const j = b.japan;
-    return `<div class="big">${opt.title ? opt.title : opt.hook ? '月末、また<br><span class="em">夜まで</span>事務作業？' : '事務の手間を、<br><span class="em">ITで</span>減らすお手伝い'}</div>
-    <p class="sub">${opt.sub || '山形から全国へ・無料相談60分'}</p>
+    return `<div class="big" style="${opt.size ? `font-size:${opt.size}px` : ''}">${opt.title ? opt.title : opt.hook ? '月末、また<br><span class="em">夜まで</span>事務作業？' : '事務の手間を、<br><span class="em">ITで</span>減らすお手伝い'}</div>
+    <p class="sub">${opt.sub || '県内は訪問・県外はオンライン'}</p>
     ${b.wordmarkUrl ? `<div class="wordmark" role="img" aria-label="${esc(b.name)}"></div>` : `<p class="sub">${esc(b.name)}</p>`}
-    <svg class="jp map" viewBox="${j.viewBox}">${j.prefs.map((p) => `<path class="${p.name === 'Yamagata' ? 'home' : ''}" d="${p.d}"/>`).join('')}</svg>
-    ${[[150, 0.6], [300, 0.35], [480, 0.18]].map(([w, o]) => `<div class="thring" data-pin="${(j.yamagata[0] / +j.viewBox.split(' ')[2]).toFixed(4)},${(j.yamagata[1] / +j.viewBox.split(' ')[3]).toFixed(4)}" style="width:${w}px;height:${w}px;margin:${-w / 2}px 0 0 ${-w / 2}px;opacity:${o}"></div>`).join('')}`;
+    ${opt.prices ? `<div class="prices">${opt.prices.map(([l, v]) => `<p><span>${l}</span><b>${v}</b></p>`).join('')}</div>` : ''}
+    <svg class="jp map" style="${opt.prices ? 'display:none' : ''}" viewBox="${j.viewBox}">${j.prefs.map((p) => `<path class="${p.name === 'Yamagata' ? 'home' : ''}" d="${p.d}"/>`).join('')}</svg>
+    ${[[150, 0.6], [300, 0.35], [480, 0.18]].map(([w, o]) => `<div class="thring" data-pin="${(j.yamagata[0] / +j.viewBox.split(' ')[2]).toFixed(4)},${(j.yamagata[1] / +j.viewBox.split(' ')[3]).toFixed(4)}" style="width:${w}px;height:${w}px;margin:${-w / 2}px 0 0 ${-w / 2}px;opacity:${o};${opt.prices ? 'display:none' : ''}"></div>`).join('')}`;
   },
 };
 const FEAT = new Set(['receipt', 'search', 'inquiry']);
@@ -525,7 +531,7 @@ function animate(a, lt, t) {
       const press = +a.dataset.press; const e = E.expo(k);
       const pk = clamp((lt - press) / 0.2); const sc = lt >= press ? 1 - 0.25 * Math.sin(Math.PI * pk) : 1;
       a.style.opacity = clamp(k * 3);
-      a.style.right = '-10px'; a.style.bottom = '-34px';
+      a.style.right = '-46px'; a.style.bottom = '-62px';
       a.style.transform = `translate(${(1 - e) * 200}px, ${(1 - e) * 160}px) scale(${sc})`; break;
     }
     case 'type': {
