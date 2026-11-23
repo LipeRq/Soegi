@@ -48,7 +48,7 @@ const FORMATS = {
     { id: 'career', start: 2.5, end: 6, opt: { head: ['山形在住の、IT屋です'], items: ['山形でシステムエンジニア', '東京でITコンサルタント', 'いまは山形を拠点に'] } },
     { id: 'cards', start: 6, end: 10, opt: { head: ['事務の手間を、', '仕組みで減らします'], items: ['レシートの入力', '社内の資料さがし', '外国語の問い合わせ'], icons: ['doc', 'search', 'chat'] } },
     { id: 'cards', start: 10, end: 13.5, opt: { head: ['大事にしていること'], items: ['結果を見て、決める', '相談した人が、つくる', '手順書を残して渡す'], icons: ['chk', 'person', 'doc'] } },
-    { id: 'igcta', start: 13.5, end: 18, opt: { head: ['まずは無料相談（60分）'], sub: '相談の時点では、提案しません', btn: 'プロフィールのリンクをタップ', foot: '' } },
+    { id: 'igcta', start: 13.5, end: 18, opt: { head: ['まずは無料相談（60分）'], sub: 'その場で売り込みはしません', btn: 'プロフィールのリンクをタップ', foot: '' } },
   ], music: [{ from: 0, to: 2.5, mode: 'intro' }, { from: 2.5, to: 13.5, mode: 'full' }, { from: 13.5, to: 18, mode: 'outro' }] },
   // Instagram 初日 ③：進め方と料金
   ig3: { format: 'v', size: [1080, 1920], duration: 16, scenes: [
@@ -64,7 +64,7 @@ const THUMBS = {
   v15: { format: 'v', size: [1080, 1920], opt: { hook: true, dark: true } },
   sq30: { format: 'sq', size: [1080, 1080], opt: {} },
   ig1: { format: 'v', size: [1080, 1920], opt: { dark: true, size: 120, title: 'はじめまして。<br><span class="em">代表の稲村</span>です', sub: '山形在住・無料相談60分' } },
-  ig3: { format: 'v', size: [1080, 1920], opt: { size: 112, title: '料金は、すべて<br><span class="em">公開しています</span>', sub: 'お試し導入1ヶ月5万円（税抜）', prices: [['無料相談', '0円'], ['お試し導入', '5万円']] } },
+  ig3: { format: 'v', size: [1080, 1920], opt: { size: 112, title: '料金は、すべて<br><span class="em">公開しています</span>', sub: 'お試し導入1ヶ月5万円（税抜）', prices: [['無料相談', '0円'], ['お試し導入', '5万円', '（税抜・1ヶ月）']] } },
 };
 
 async function openStage(browser, size, planObj) {

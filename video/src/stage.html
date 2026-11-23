@@ -184,6 +184,12 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .v .thumb.dark .sub { color: var(--accent-bright); }
 .v .thumb .wordmark { position: absolute; left: 80px; top: 880px; width: 560px; height: 92px; }
 .v .thumb .prices { position: absolute; left: 80px; top: 1040px; }
+.v .thumb .prices p { flex-wrap: wrap; }
+.v .thumb .prices b { white-space: nowrap; }
+.v .thumb .prices small { flex-basis: 100%; padding-left: 330px; margin-top: -14px; font-size: 44px; font-weight: 700; color: var(--ink-2); }
+.v .thumb.hasprices .sub { display: none; }
+.v .thumb.hasprices .prices { top: 790px; }
+.v .thumb.hasprices .wordmark { top: 1330px; }
 .v .thumb .prices p { display: flex; align-items: baseline; gap: 30px; margin-bottom: 10px; }
 .v .thumb .prices span { font-size: 54px; font-weight: 700; color: var(--ink-2); width: 300px; }
 .v .thumb .prices b { font-size: 170px; color: var(--accent); line-height: 1.1; }
@@ -197,7 +203,7 @@ body { font-family: "BIZ UDPGothic", sans-serif; color: var(--ink); font-feature
 .darkhook .who b { color: var(--accent-bright); }
 .career .big, .cards .big, .pricestep .big, .igcta .big { position: absolute; left: 80px; top: 300px; font-size: 72px; }
 .career .jp { position: absolute; left: 330px; top: 440px; height: 700px; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); }
-.career .jp .arc { fill: none; stroke: var(--accent); stroke-width: 4.5; stroke-linecap: round; }
+.career .jp .arc { fill: none; stroke: var(--accent); stroke-width: 4.5; stroke-linecap: round; vector-effect: none; } /* 地図の .jp path の non-scaling-stroke を打ち消す（線の長さが画面の画素で数えられ、終わりが欠けるため） */
 .career .jp .pt { fill: #fff; stroke: var(--ink); stroke-width: 5; vector-effect: non-scaling-stroke; }
 .career .lbl { position: absolute; background: var(--ink); color: #fff; font-weight: 700; font-size: 32px; border-radius: 12px; padding: 6px 14px; white-space: nowrap; }
 .career .items { position: absolute; left: 80px; top: 1180px; width: 860px; height: 110px; }
@@ -396,7 +402,7 @@ const SCENES = {
     return `<div class="big" style="${opt.size ? `font-size:${opt.size}px` : ''}">${opt.title ? opt.title : opt.hook ? '月末、また<br><span class="em">夜まで</span>事務作業？' : '事務の手間を、<br><span class="em">ITで</span>減らすお手伝い'}</div>
     <p class="sub">${opt.sub || '県内は訪問・県外はオンライン'}</p>
     ${b.wordmarkUrl ? `<div class="wordmark" role="img" aria-label="${esc(b.name)}"></div>` : `<p class="sub">${esc(b.name)}</p>`}
-    ${opt.prices ? `<div class="prices">${opt.prices.map(([l, v]) => `<p><span>${l}</span><b>${v}</b></p>`).join('')}</div>` : ''}
+    ${opt.prices ? `<div class="prices">${opt.prices.map(([l, v, sm]) => `<p><span>${l}</span><b>${v}</b>${sm ? `<small>${sm}</small>` : ''}</p>`).join('')}</div>` : ''}
     <svg class="jp map" style="${opt.prices ? 'display:none' : ''}" viewBox="${j.viewBox}">${j.prefs.map((p) => `<path class="${p.name === 'Yamagata' ? 'home' : ''}" d="${p.d}"/>`).join('')}</svg>
     ${[[150, 0.6], [300, 0.35], [480, 0.18]].map(([w, o]) => `<div class="thring" data-pin="${(j.yamagata[0] / +j.viewBox.split(' ')[2]).toFixed(4)},${(j.yamagata[1] / +j.viewBox.split(' ')[3]).toFixed(4)}" style="width:${w}px;height:${w}px;margin:${-w / 2}px 0 0 ${-w / 2}px;opacity:${o};${opt.prices ? 'display:none' : ''}"></div>`).join('')}`;
   },
@@ -428,7 +434,7 @@ window.setup = async (p) => {
       <div class="ring" id="ring2" style="width:${sq ? 300 : 420}px;height:${sq ? 300 : 420}px"></div></div>`
     + p.scenes.map((s, i) => {
       const dur = s.end - s.start;
-      const cls = `scene ${s.id} ${FEAT.has(s.id) ? 'feat' : ''} ${DARK.has(s.id) || s.opt?.dark ? 'dark' : ''} ${s.opt?.lead ? 'withlead' : ''}`;
+      const cls = `scene ${s.id} ${s.opt?.prices ? 'hasprices' : ''} ${FEAT.has(s.id) ? 'feat' : ''} ${DARK.has(s.id) || s.opt?.dark ? 'dark' : ''} ${s.opt?.lead ? 'withlead' : ''}`;
       return `<section class="${cls}" data-i="${i}">${SCENES[s.id](p.format, b, { ...(s.opt || {}), dur })}</section>`;
     }).join('')
     + '<div class="wipe w2" id="wipe2"></div><div class="wipe w1" id="wipe1"></div>';
@@ -436,6 +442,11 @@ window.setup = async (p) => {
   document.querySelectorAll('.scene').forEach((el) => { el.style.display = 'block'; });
   await Promise.all([document.fonts.load('700 30px "Noto Sans KR"', '가족탕은 예약이 필요한가요?'), document.fonts.load('700 30px "Noto Sans TC"', '晚餐可以對應雞蛋過敏嗎？')]);
   await document.fonts.ready;
+  // 線を描く部品は、実際の長さを測っておく（pathLength は外す）
+  document.querySelectorAll('[data-fx="draw"]').forEach((el) => {
+    el.removeAttribute('pathLength');
+    try { el.dataset.len = String(el.getTotalLength() + 2); } catch { el.dataset.len = '1'; }
+  });
   // 地図の上の印の位置（地図の中の割合 → 画面の座標）
   document.querySelectorAll('[data-pin]').forEach((el) => {
     const svg = el.parentElement.querySelector('svg.map');
@@ -500,7 +511,7 @@ function animate(a, lt, t) {
       a.style.transform = `scale(${1.5 - 0.5 * e})`; a.style.transformOrigin = '0 70%';
       break;
     }
-    case 'draw': a.style.strokeDasharray = '1'; a.style.strokeDashoffset = String(1 - E.inout(k)); break;
+    case 'draw': { const L = +a.dataset.len || 1; a.style.strokeDasharray = `${L} ${L}`; a.style.strokeDashoffset = String(L * (1 - E.inout(k))); break; }
     case 'grow': {
       const e = E.inout(k); const sq = plan.format === 'sq';
       a.style.transform = sq ? `scaleX(${e})` : `scaleY(${e})`; break;
@@ -526,12 +537,12 @@ function animate(a, lt, t) {
       const ps = lt >= press ? 1 - 0.07 * Math.sin(Math.PI * pk) : 1;
       a.style.opacity = clamp(k * 3); a.style.transform = `scale(${(0.6 + 0.4 * e) * ps})`; break;
     }
-    case 'pulse': { const n = lt < t0 ? -1 : ((lt - t0) % 0.9) / 0.9; a.style.opacity = n < 0 ? 0 : (1 - n) * 0.8; a.style.transform = `scale(${1 + n * 0.22}, ${1 + n * 0.5})`; break; }
+    case 'pulse': { const n = lt < t0 ? -1 : ((lt - t0) % 0.9) / 0.9; a.style.opacity = n < 0 ? 0 : (1 - n) * 0.8; a.style.transform = `scale(${1 + n * 0.1}, ${1 + n * 0.4})`; break; }
     case 'ptr': {
       const press = +a.dataset.press; const e = E.expo(k);
       const pk = clamp((lt - press) / 0.2); const sc = lt >= press ? 1 - 0.25 * Math.sin(Math.PI * pk) : 1;
       a.style.opacity = clamp(k * 3);
-      a.style.right = '-46px'; a.style.bottom = '-62px';
+      a.style.right = '10px'; a.style.bottom = '-26px';
       a.style.transform = `translate(${(1 - e) * 200}px, ${(1 - e) * 160}px) scale(${sc})`; break;
     }
     case 'type': {
