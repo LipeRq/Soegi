@@ -357,7 +357,7 @@ const SCENES = {
     <div class="homedot a" data-fx="pop" data-in="0.3" data-dur="0.4" data-sfx="drop" data-pin="${(j.yamagata[0] / vw).toFixed(4)},${(j.yamagata[1] / vh).toFixed(4)}"></div>
     <div class="homelbl a" data-fx="pop" data-in="0.45" data-dur="0.4" data-pin="${(j.yamagata[0] / vw).toFixed(4)},${(j.yamagata[1] / vh).toFixed(4)}" data-off="-170,-95">山形</div>
     <p class="sub a" data-fx="rise" data-in="1.2">県内は訪問、県外はオンライン</p>
-    <p class="rep a" data-fx="rise" data-in="1.45">${esc(b.rep)}</p>`;
+    ${b.rep ? `<p class="rep a" data-fx="rise" data-in="1.45">${esc(b.rep)}</p>` : ''}`;
   },
   s7: (f, b, opt = {}) => {
     const o = opt.lead ? 0.4 : 0;
